@@ -1,0 +1,24 @@
+# Exclus Environnement virtuel de la suivi
+env
+repository
+
+# Fichiers Python compilés
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+# Base de données SQLite (si utilisée en développement)
+*.sqlite3
+*.db
+
+# Fichiers médias et statiques collectés
+media/
+static_collected/
+
+
+# Fichiers de sauvegarde claude
+# **/.claude/settings.local.json
+# .claude
+# install.md
+# token.md
