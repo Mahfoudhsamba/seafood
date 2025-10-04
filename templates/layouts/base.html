@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US">
+    <title>{% block title %}Promotion Pêche Artisanale (PPA){% endblock %}</title>
+    {% include 'layouts/includes/head.html' %}
+    {% block extra_css %}{% endblock %}
+    <body class="body1">
+        {% include 'layouts/includes/navbar.html' %}
+        {% block content %}
+        
+        {% endblock %}
+        {% include 'layouts/includes/footer.html' %}
+        {% include 'layouts/includes/scripts.html' %}
+        {% block extra_js %}{% endblock %}
+    </body>
+</html>

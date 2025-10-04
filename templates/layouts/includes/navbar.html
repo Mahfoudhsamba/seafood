@@ -1,0 +1,104 @@
+{% load static %}
+    <div class="paginacontainer"> 
+        <div class="progress-wrap">
+            <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+                <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98"/>
+            </svg>
+        </div>
+    </div> 
+    <header>
+        <div class="header-area header-area1 header-area-all d-none d-lg-block" id="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="header-elements">
+                            <div class="site-logo">
+                                <a href="#!">
+                                    <img src="{% static 'assets/img/logo/logo-white.svg' %}" alt="">
+                                </a>
+                            </div>
+                            <div class="main-menu-ex main-menu-ex1">
+                                <ul>
+                                    <li><a href="{% url "home" %}">Accueil</a></li>
+                                    <li><a href="{% url "about_us" %}">Qui sommes-nous</a></li>
+                                    <li class="dropdown-menu-parrent">
+                                        <a href="#" class="main1" >Services <i class="fa-solid fa-angle-down"></i></a>
+                                        <ul>
+                                            <li><a href="#!">Congélation</a></li>
+                                            <li><a href="#!">Commercialisation</a></li>
+                                            <li><a href="#!">Traitement</a></li>
+                                            <li><a href="#!">Logistiques</a></li>
+                                        </ul>
+                                    </li>
+
+                                    <li class="dropdown-menu-parrent">
+                                        <a href="#" class="main1">Produits <i class="fa-solid fa-angle-down"></i></a>
+                                        <ul>
+                                            <li><a href="">Soles & céphalopodes</a></li>
+                                            <li><a href="">Poisson frais</a></li>
+                                            <li><a href="">Filets & découpes</a></li>
+                                            <li><a href="">Poisson entier</a></li>
+                                        </ul>
+                                    </li>
+                                    <li><a href="{% url "gallery" %}">Galerie</a></li>
+                                </ul>
+                            </div>
+                            <div class="header2-buttons">
+                                <div class="button">
+                                    <a class="theme-btn1" href="{% url "contact" %}">Obtenir un devis <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-header mobile-header-main d-block d-lg-none ">
+        <div class="container-fluid">
+            <div class="col-12">
+                <div class="mobile-header-elements">
+                    <div class="mobile-logo">
+                        <a href="#!"><img src="{% static 'assets/img/logo/logo.svg' %}" alt=""></a>
+                    </div>
+                    <div class="mobile-nav-icon">
+                        <i class="fa-duotone fa-bars-staggered"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+          
+    <div class="mobile-sidebar d-block d-lg-none">
+        <div class="logo-m">
+            <a href="#!"><img src="{% static 'assets/img/logo/logo.svg' %}" alt=""></a>
+        </div>
+        <div class="menu-close"><i class="fa-solid fa-xmark"></i></div>
+        <div class="mobile-nav">
+            <ul>
+                <li><a href="#!">Accueil</a></li>
+                <li><a href="#!">Qui sommes-nous</a></li>
+                <li class="has-dropdown"><a href="#">Services</a> 
+                    <ul class="sub-menu">
+                        <li><a href="#!">Congélation</a></li>
+                        <li><a href="#!">Commercialisation</a></li>
+                        <li><a href="#!">Traitement</a></li>
+                        <li><a href="#!">Logistiques</a></li>
+                    </ul>
+                </li>
+                <li class="has-dropdown"><a href="#">Produits</a> 
+                    <ul class="sub-menu">
+                        <li><a href="">Soles & céphalopodes</a></li>
+                        <li><a href="">Poisson frais</a></li>
+                        <li><a href="">Filets & découpes</a></li>
+                        <li><a href="">Poisson entier</a></li>
+                    </ul>
+                </li>
+                <li><a href="#!">Galerie</a></li>
+            </ul>
+            <div class="mobile-button">
+                <a class="theme-btn1 btn btn--ripple ripple" href="#!">Obtenir un devis <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
