@@ -1,0 +1,39 @@
+{% extends 'seafood/base.html' %}
+
+{% block title %}Contact - Entreprise de Pêche Artisanale{% endblock %}
+
+{% block content %}
+<h1>Contactez-nous</h1>
+<p>N'hésitez pas à nous contacter pour toute question ou demande d'information.</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px;">
+    <div>
+        <h2>Informations de Contact</h2>
+        <p><strong>Adresse :</strong><br>
+        123 Rue du Port<br>
+        Ville Portuaire, 12345</p>
+        
+        <p><strong>Téléphone :</strong><br>
+        +33 1 23 45 67 89</p>
+        
+        <p><strong>Email :</strong><br>
+        contact@ppa-seafood.com</p>
+        
+        <p><strong>Horaires d'ouverture :</strong><br>
+        Lundi - Vendredi : 8h00 - 18h00<br>
+        Samedi : 8h00 - 12h00<br>
+        Dimanche : Fermé</p>
+    </div>
+    
+    <div>
+        <h2>Formulaire de Contact</h2>
+        <form style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="text" placeholder="Votre nom" style="padding: 10px; border: 1px solid #ddd;">
+            <input type="email" placeholder="Votre email" style="padding: 10px; border: 1px solid #ddd;">
+            <input type="text" placeholder="Sujet" style="padding: 10px; border: 1px solid #ddd;">
+            <textarea placeholder="Votre message" rows="5" style="padding: 10px; border: 1px solid #ddd;"></textarea>
+            <button type="submit" style="background: #2c5aa0; color: white; padding: 12px; border: none; border-radius: 3px; cursor: pointer;">Envoyer</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

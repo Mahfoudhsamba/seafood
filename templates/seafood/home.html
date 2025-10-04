@@ -1,0 +1,23 @@
+{% extends 'seafood/base.html' %}
+
+{% block title %}Accueil - Entreprise de Pêche Artisanale{% endblock %}
+
+{% block content %}
+<h1>Bienvenue chez PPA - Promotion Pêche Artisanale</h1>
+<p>Spécialisés dans la pêche, le traitement, la congélation et la commercialisation de produits de mer de qualité supérieure.</p>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
+    <div style="background: #f0f8ff; padding: 20px; border-radius: 5px;">
+        <h3>🎣 Pêche Artisanale</h3>
+        <p>Techniques de pêche traditionnelles et durables pour préserver la qualité des produits marins.</p>
+    </div>
+    <div style="background: #f0f8ff; padding: 20px; border-radius: 5px;">
+        <h3>❄️ Traitement et Congélation</h3>
+        <p>Processus de traitement moderne garantissant la fraîcheur et la conservation optimale.</p>
+    </div>
+    <div style="background: #f0f8ff; padding: 20px; border-radius: 5px;">
+        <h3>🏪 Commercialisation</h3>
+        <p>Distribution de produits de mer frais et congelés sur le marché local et international.</p>
+    </div>
+</div>
+{% endblock %}

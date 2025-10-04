@@ -15,7 +15,7 @@ __pycache__/
 # Fichiers médias et statiques collectés
 media/
 static_collected/
-
+note.md
 
 # Fichiers de sauvegarde claude
 # **/.claude/settings.local.json

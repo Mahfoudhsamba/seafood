@@ -1,0 +1,86 @@
+{% extends 'seafood/base.html' %}
+
+{% block title %}Blog - Entreprise de Pêche Artisanale{% endblock %}
+
+{% block content %}
+<h1>Blog PPA</h1>
+<p>Actualités, conseils et nouvelles de l'industrie des produits de mer.</p>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 30px;">
+    <article style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="height: 200px; background: linear-gradient(135deg, #2c5aa0 0%, #4a90e2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+            [Image Article]<br>Pêche Durable
+        </div>
+        <div style="padding: 20px;">
+            <h3 style="color: #2c5aa0; margin-bottom: 10px;">Les Pratiques de Pêche Durable chez PPA</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">15 Janvier 2024</p>
+            <p>Découvrez comment nous intégrons la durabilité dans toutes nos opérations de pêche, du respect des quotas à la préservation des écosystèmes marins...</p>
+            <a href="#" style="color: #2c5aa0; text-decoration: none;">Lire la suite »</a>
+        </div>
+    </article>
+    
+    <article style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="height: 200px; background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+            [Image Article]<br>Innovation Tech
+        </div>
+        <div style="padding: 20px;">
+            <h3 style="color: #2c5aa0; margin-bottom: 10px;">Nouvelles Technologies de Conservation</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">12 Janvier 2024</p>
+            <p>PPA investit dans les dernières technologies de congélation IQF pour maintenir la qualité nutritionnelle optimale de nos produits...</p>
+            <a href="#" style="color: #2c5aa0; text-decoration: none;">Lire la suite »</a>
+        </div>
+    </article>
+    
+    <article style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="height: 200px; background: linear-gradient(135deg, #fd7e14 0%, #ff8c42 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+            [Image Article]<br>Recettes
+        </div>
+        <div style="padding: 20px;">
+            <h3 style="color: #2c5aa0; margin-bottom: 10px;">5 Recettes pour Sublimer le Poisson Frais</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">8 Janvier 2024</p>
+            <p>Nos chefs partenaires partagent leurs meilleures recettes pour valoriser la fraîcheur et les saveurs authentiques de nos produits...</p>
+            <a href="#" style="color: #2c5aa0; text-decoration: none;">Lire la suite »</a>
+        </div>
+    </article>
+    
+    <article style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="height: 200px; background: linear-gradient(135deg, #6f42c1 0%, #8a63d2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+            [Image Article]<br>Certification
+        </div>
+        <div style="padding: 20px;">
+            <h3 style="color: #2c5aa0; margin-bottom: 10px;">PPA Obtient la Certification IFS Food</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">5 Janvier 2024</p>
+            <p>Nous sommes fiers d'annoncer l'obtention de la certification IFS Food, témoignant de notre engagement pour la qualité et la sécurité...</p>
+            <a href="#" style="color: #2c5aa0; text-decoration: none;">Lire la suite »</a>
+        </div>
+    </article>
+    
+    <article style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="height: 200px; background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+            [Image Article]<br>Partenariat
+        </div>
+        <div style="padding: 20px;">
+            <h3 style="color: #2c5aa0; margin-bottom: 10px;">Partenariat avec les Restaurants Locaux</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">2 Janvier 2024</p>
+            <p>PPA renforce ses liens avec la restauration locale en proposant des circuits courts pour une fraîcheur incomparable...</p>
+            <a href="#" style="color: #2c5aa0; text-decoration: none;">Lire la suite »</a>
+        </div>
+    </article>
+    
+    <article style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+        <div style="height: 200px; background: linear-gradient(135deg, #dc3545 0%, #e55a6b 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+            [Image Article]<br>Saison
+        </div>
+        <div style="padding: 20px;">
+            <h3 style="color: #2c5aa0; margin-bottom: 10px;">Calendrier Saisonnier des Produits</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">28 Décembre 2023</p>
+            <p>Guide complet des poissons et fruits de mer disponibles selon les saisons pour profiter au maximum des saveurs naturelles...</p>
+            <a href="#" style="color: #2c5aa0; text-decoration: none;">Lire la suite »</a>
+        </div>
+    </article>
+</div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <button style="background: #2c5aa0; color: white; padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Voir plus d'articles</button>
+</div>
+{% endblock %}
