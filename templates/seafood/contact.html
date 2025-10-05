@@ -1,39 +1,143 @@
-{% extends 'seafood/base.html' %}
+{% extends 'layouts/base.html' %}
+{% load static %}
 
 {% block title %}Contact - Entreprise de Pêche Artisanale{% endblock %}
 
 {% block content %}
-<h1>Contactez-nous</h1>
-<p>N'hésitez pas à nous contacter pour toute question ou demande d'information.</p>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px;">
-    <div>
-        <h2>Informations de Contact</h2>
-        <p><strong>Adresse :</strong><br>
-        123 Rue du Port<br>
-        Ville Portuaire, 12345</p>
-        
-        <p><strong>Téléphone :</strong><br>
-        +33 1 23 45 67 89</p>
-        
-        <p><strong>Email :</strong><br>
-        contact@ppa-seafood.com</p>
-        
-        <p><strong>Horaires d'ouverture :</strong><br>
-        Lundi - Vendredi : 8h00 - 18h00<br>
-        Samedi : 8h00 - 12h00<br>
-        Dimanche : Fermé</p>
+    <div class="inner-hero">
+        <div class="container">
+            <div class="rwo">
+                <div class="col-lg-8 m-auto text-cetner">
+                    <div class="main-heading">
+                        <h1>Contactez-nous</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
     </div>
-    
-    <div>
-        <h2>Formulaire de Contact</h2>
-        <form style="display: flex; flex-direction: column; gap: 15px;">
-            <input type="text" placeholder="Votre nom" style="padding: 10px; border: 1px solid #ddd;">
-            <input type="email" placeholder="Votre email" style="padding: 10px; border: 1px solid #ddd;">
-            <input type="text" placeholder="Sujet" style="padding: 10px; border: 1px solid #ddd;">
-            <textarea placeholder="Votre message" rows="5" style="padding: 10px; border: 1px solid #ddd;"></textarea>
-            <button type="submit" style="background: #2c5aa0; color: white; padding: 12px; border: none; border-radius: 3px; cursor: pointer;">Envoyer</button>
-        </form>
+
+    <div class="contact-page-sec sp">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="form-area">
+                        <form action="#">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="single-input">
+                                        <label>First Name*</label>
+                                        <input type="text" placeholder="First Name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="single-input">
+                                        <label>Last Name*</label>
+                                        <input type="text" placeholder="Last Name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="single-input">
+                                        <label>Email Address*</label>
+                                        <input type="email" placeholder="Email">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="single-input">
+                                        <label>Phone Number*</label>
+                                        <input type="number" placeholder="Phone Number*">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="single-input">
+                                        <label>Message*</label>
+                                        <textarea rows="5" placeholder="Type your message..."></textarea>
+                                    </div>
+                                    <div class="space30"></div>
+                                    <button class="theme-btn1">Get A Quote <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="heading1">
+                        <span class="span">
+                            <img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> 
+                            Contactez-nous
+                        </span>
+                        <h2>Contactez-nous pour découvrir les délices des produits de la mer.</h2>
+                        <div class="space16"></div>
+                        <p>Ready to start your next outdoor adventure? Have questions about our membership plans or services? Feel free to reach out to us! Our team of outdoor enthusiasts is here to assist you every step of the way.</p>
+                        <div class="space16"></div>
+                        <p> Whether you're seeking expert advice on fishing gear, planning a guided hunting trip, or simply want to connect with like-minded individuals, </p>
+                        <div class="space30"></div>
+                        <h3>Heure de travail</h3>
+                        <div class="hours-area">
+                            <ul>
+                                <li><img src="{% static 'assets/img/icons/hours.svg' %}" alt=""> Dimanche - Samedi</li>
+                                <li><img src="{% static 'assets/img/icons/hours.svg' %}" alt=""> 8:00  - 17:00 </li>
+                            </ul>
+                        </div>
+                        <div class="space30"></div>
+                        <a class="theme-btn1" href="#!">Meet Our Fishin <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-page-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/contact-page-icon1.svg' %}" alt="">
+                        </div>
+                        <div class="heading">
+                            <h5>Contact us</h5>
+                            <a href="#">8708 Technology Forest Pl Suite <br> 125 -G, The Woodlands, TX 77381</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-page-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/contact-page-icon2.svg' %}" alt="">
+                        </div>
+                        <div class="heading">
+                            <h5>Call or text</h5>
+                            <a href="tel:123-456-7890">123-456-7890</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-page-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/contact-page-icon3.svg' %}" alt="">
+                        </div>
+                        <div class="heading">
+                            <h5>Email us today</h5>
+                            <a href="mailto:info@Fish.com">info@Fish.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="contact-map-page">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d23253.75905306642!2d-17.05993238374577!3d20.919849744900723!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xea1b3c808839bf7%3A0xa45f4451402740e5!2sPort%20Artisanal!5e1!3m2!1sfr!2s!4v1759594097191!5m2!1sfr!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="space100"></div>
 {% endblock %}

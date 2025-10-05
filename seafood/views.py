@@ -12,6 +12,10 @@ def contact(request):
     return render(request, 'seafood/contact.html')
 
 
+def products(request):
+    return render(request, 'seafood/products.html')
+
+
 def services(request):
     return render(request, 'seafood/services.html')
 

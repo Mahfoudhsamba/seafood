@@ -1,70 +1,153 @@
-{% extends 'seafood/base.html' %}
+{% extends 'layouts/base.html' %}
+{% load static %}
 
 {% block title %}Services - Entreprise de Pêche Artisanale{% endblock %}
 
 {% block content %}
-<h1>Nos Services</h1>
-<p>Découvrez la gamme complète de nos services dans le domaine des produits de mer.</p>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 30px;">
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #2c5aa0;">🎣 Pêche Artisanale</h3>
-        <ul>
-            <li>Pêche côtière durable</li>
-            <li>Techniques traditionnelles</li>
-            <li>Sélection rigoureuse des produits</li>
-            <li>Respect des quotas et saisons</li>
-        </ul>
+    <div class="inner-hero">
+        <div class="container">
+            <div class="rwo">
+                <div class="col-lg-8 m-auto text-cetner">
+                    <div class="main-heading">
+                        <h1>Nos Services</h1>
+                        <div class="page-intro">
+                            <p>Découvrez la gamme complète de nos services dans le domaine des produits de mer.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
     </div>
-    
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #2c5aa0;">❄️ Traitement et Transformation</h3>
-        <ul>
-            <li>Nettoyage et préparation</li>
-            <li>Filetage professionnel</li>
-            <li>Conditionnement sous vide</li>
-            <li>Contrôle qualité strict</li>
-        </ul>
+         
+    <div class="about-page-service service-page sp">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <div class="service2-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/about-service-icon1.svg' %}" alt="">
+                        </div>
+                        <div class="heading2">
+                            <h4><a href="#">Pêche Artisanale</a></h4>
+                            <div class="space16"></div>
+                            <ul>
+                                <li>Pêche côtière durable</li>
+                                <li>Techniques traditionnelles</li>
+                                <li>Sélection rigoureuse des produits</li>
+                                <li>Respect des quotas et saisons</li>
+                            </ul>                          
+                            <div class="space20"></div>
+                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+                          
+                <div class="col-lg-4 col-md-6">
+                    <div class="service2-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/about-service-icon2.svg' %}" alt="">
+                        </div>
+                        <div class="heading2">
+                            <h4><a href="#">Traitement & Transformation</a></h4>
+                            <div class="space16"></div>
+                            <ul>
+                                <li>Nettoyage et préparation</li>
+                                <li>Filetage professionnel</li>
+                                <li>Conditionnement sous vide</li>
+                                <li>Contrôle qualité strict</li>
+                            </ul>
+                            <div class="space20"></div>
+                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+                          
+                <div class="col-lg-4 col-md-6">
+                    <div class="service2-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/about-service-icon4.svg' %}" alt="">
+                        </div>
+                        <div class="heading2">
+                            <h4><a href="#">Congélation</a></h4>
+                            <div class="space16"></div>
+                            <ul>
+                                <li>Congélation rapide IQF</li>
+                                <li>Conservation optimale</li>
+                                <li>Chaîne du froid respectée</li>
+                                <li>Stockage sécurisé</li>
+                            </ul>
+                            <div class="space20"></div>
+                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="service2-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/about-service-icon3.svg' %}" alt="">
+
+                        </div>
+                        <div class="heading2">
+                            <h4><a href="#">Commercialisation</a></h4>
+                            <div class="space16"></div>
+                            <ul>
+                                <li>Vente en gros et détail</li>
+                                <li>Distribution nationale</li>
+                                <li>Export international</li>
+                                <li>Livraison réfrigérée</li>
+                            </ul>
+                            <div class="space20"></div>
+                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+                            
+                <div class="col-lg-4 col-md-6">
+                    <div class="service2-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/about-service-icon5.svg' %}" alt="">
+                        </div>
+                        <div class="heading2">
+                            <h4><a href="#">Conseil & Expertise</a></h4>
+                            <div class="space16"></div>
+                            <ul>
+                                <li>Audit qualité produits</li>
+                                <li>Formation techniques de pêche</li>
+                                <li>Certification HACCP</li>
+                                <li>Accompagnement réglementaire</li>
+                            </ul>
+                            <div class="space20"></div>
+                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+                            
+                <div class="col-lg-4 col-md-6">
+                    <div class="service2-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/about-service-icon6.svg' %}" alt="">
+                        </div>
+                        <div class="heading2">
+                            <h4><a href="#">Services Logistiques</a></h4>
+                            <div class="space16"></div>
+                            <ul>
+                                <li>Transport réfrigéré</li>
+                                <li>Stockage températuré</li>
+                                <li>Gestion des commandes</li>
+                                <li>Traçabilité complète</li>
+                            </ul>
+                            <div class="space20"></div>
+                            <a class="button" href="{% url 'logistics' %}">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="space30"></div>
+        </div>
     </div>
-    
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #2c5aa0;">❄️ Congélation</h3>
-        <ul>
-            <li>Congélation rapide IQF</li>
-            <li>Conservation optimale</li>
-            <li>Chaîne du froid respectée</li>
-            <li>Stockage sécurisé</li>
-        </ul>
-    </div>
-    
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #2c5aa0;">🏪 Commercialisation</h3>
-        <ul>
-            <li>Vente en gros et détail</li>
-            <li>Distribution nationale</li>
-            <li>Export international</li>
-            <li>Livraison réfrigérée</li>
-        </ul>
-    </div>
-    
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #2c5aa0;">📊 Conseil et Expertise</h3>
-        <ul>
-            <li>Audit qualité produits</li>
-            <li>Formation techniques de pêche</li>
-            <li>Certification HACCP</li>
-            <li>Accompagnement réglementaire</li>
-        </ul>
-    </div>
-    
-    <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
-        <h3 style="color: #2c5aa0;">🚚 Services Logistiques</h3>
-        <ul>
-            <li>Transport réfrigéré</li>
-            <li>Stockage températuré</li>
-            <li>Gestion des commandes</li>
-            <li>Traçabilité complète</li>
-        </ul>
-    </div>
-</div>
 {% endblock %}

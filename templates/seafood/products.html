@@ -1,0 +1,112 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block title %}Produits - Entreprise de Pêche Artisanale{% endblock %}
+
+{% block content %}
+    <div class="inner-hero">
+        <div class="container">
+            <div class="rwo">
+                <div class="col-lg-8 m-auto text-cetner">
+                    <div class="main-heading">
+                        <h1>Nos Produits</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
+      <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
+      <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
+    </div>
+
+    <div class="shop-details-area sp">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 sp-right30">
+                    <div class="row shop-page-sec">
+                        <div class="col-md-6">
+                            <div class="card card-hover ">
+                                <a href="#!"><img src="{% static 'assets/img/shop/shop-page-img1.png' %}" class=" card-img-top" alt=""></a>
+                                <div class="card-body">
+                                    <a href="#" class="badge bg-info mb-3">Courses</a>
+                                    <h3><a href="#!" class="text-inherit">Sole langue</a></h3>
+                                    <p>Adipiscing aliquyam lorem consetetur elitr ipsum consequat no dolores vel.</p>
+                                    <div class="row align-items-center g-0 mt-2">
+                                        <div class="col lh-1">
+                                            <h6 class="mb-1">TONGUE SOLE</h6>
+                                            <p class="fs-6 mb-0">3 Kg | Cynoglossus Cynoglossus</p>
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="#" class="btn btn-outline-primary btn-sm">Détail <i class="fa-solid fa-arrow-right-long"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="shop-left-area details-sidebar">
+                        <div class="sidebar-box mb40">
+                            <h3>Rechercher</h3>
+                            <div class="form-area">
+                                <form action="#">
+                                    <input type="text" placeholder="Rechercher..">
+                                    <button type="submit" class="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="filter-area">
+                            <h3>Filtrer par catégorie</h3>
+                            <div class="space24"></div>
+                            <div class="filter level-filter level-req">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheck-1">
+                                    <label class="form-check-label" for="flexCheck-1">
+                                        Soles & céphalopodes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheck-2">
+                                    <label class="form-check-label" for="flexCheck-2">
+                                        Poisson frais
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheck-3" >
+                                    <label class="form-check-label" for="flexCheck-3">
+                                        Filets & découpes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="flexCheck-4">
+                                    <label class="form-check-label" for="flexCheck-4">
+                                        Poisson entier
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space40"></div>
+                        <div class="sidebar-box">
+                            <h3>Tags populaires</h3>
+                            <div class="space10"></div>
+                            <ul class="tag-list">
+                                <li><a href="#">Hunting Trips</a></li>
+                                <li><a href="#">Fishing Adventures</a></li>
+                                <li><a href="#">Wildlife Conservation</a></li>
+                                <li><a href="#">Eco Friendly</a></li>
+                                <li><a href="#">Family Outdoors</a></li>
+                                <li><a href="#">Hunting Strategies</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+ 
+ 
+
+
+          

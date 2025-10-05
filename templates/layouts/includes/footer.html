@@ -1,4 +1,27 @@
 {% load static %}
+<div class="cta2">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5">
+                <div class="heading1-w">
+                    <h2>Join Our Community of Outdoor Enthusiasts</h2>
+                    <div class="space16"></div>
+                    <p>Whether you're a seasoned angler or a novice hunter, our club offers tailored adventures to suit every skill level.</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="buttons">
+                    <a class="cta2-btn1" href="contact.html">Schedule An Appointment <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                    <a class="cta2-btn2" href="contact.html">Discover More <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <img class="cta1-shape1" src="{% static 'assets/img/shapes/cta2-shape1.png' %}" alt="">
+    <img class="cta1-shape2 animate1" src="{% static 'assets/img/shapes/cta2-shape2.png' %}" alt="">
+    <img class="cta1-shape3 animate3" src="{% static 'assets/img/shapes/cta2-shape3.png' %}" alt="">
+</div>
+
 <div class="footer1">
     <div class="container">
         <div class="row">
@@ -61,13 +84,12 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="copyright-area">
-                    <p>© Droit d'auteur {% now "Y" %} - <a href="https://ppa.mr">PPA</a>. Tous droits réservés</p>
+                    <p>© Droit d'auteur {% now "Y" %} - <a href="https://ppa.mr">PPA</a>Tous droits réservés</p>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="copyright-area right">
-                    <a href="#">Politique de confidentialité</a>
-                    <a href="#">Conditions générales</a>
+                    <a href="{% url 'privacy' %}">Politique de confidentialité</a>
                 </div>
             </div>
         </div>

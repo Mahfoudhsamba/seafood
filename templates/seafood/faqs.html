@@ -1,50 +1,150 @@
-{% extends 'seafood/base.html' %}
-
+{% extends 'layouts/base.html' %}
+{% load static %}
 {% block title %}FAQ - Entreprise de Pêche Artisanale{% endblock %}
 
 {% block content %}
-<h1>Questions Fréquemment Posées</h1>
-<p>Trouvez les réponses à vos questions les plus courantes.</p>
 
-<div style="margin-top: 30px;">
-    <div style="border-bottom: 1px solid #ddd; padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Quelle est la fraîcheur de vos produits ?</h3>
-        <p>Nos produits sont pêchés quotidiennement et transformés dans les 24h suivant la capture. La chaîne du froid est respectée à chaque étape.</p>
-    </div>
-    
-    <div style="border-bottom: 1px solid #ddd; padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Proposez-vous des certifications qualité ?</h3>
-        <p>Oui, nous disposons des certifications HACCP, ISO 22000 et nous respectons toutes les normes européennes de sécurité alimentaire.</p>
-    </div>
-    
-    <div style="border-bottom: 1px solid #ddd; padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Quels sont vos délais de livraison ?</h3>
-        <p>Pour les produits frais : 24-48h. Pour les produits congelés : 48-72h. Livraison express disponible sur demande.</p>
-    </div>
-    
-    <div style="border-bottom: 1px solid #ddd; padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Acceptez-vous les commandes en petites quantités ?</h3>
-        <p>Oui, nous servons aussi bien les particuliers que les professionnels. Commande minimum : 5kg pour les produits frais.</p>
-    </div>
-    
-    <div style="border-bottom: 1px solid #ddd; padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Comment garantissez-vous la traçabilité ?</h3>
-        <p>Chaque produit est traçé depuis la capture jusqu'à la livraison avec un système de codes-barres et documentation complète.</p>
-    </div>
-    
-    <div style="border-bottom: 1px solid #ddd; padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Pratiquez-vous la pêche durable ?</h3>
-        <p>Absolument. Nous respectons les quotas de pêche, les périodes de reproduction et utilisons des méthodes sélectives.</p>
-    </div>
-    
-    <div style="padding: 20px 0;">
-        <h3 style="color: #2c5aa0; margin-bottom: 10px;">Quels moyens de paiement acceptez-vous ?</h3>
-        <p>Espèces, chèque, virement bancaire, carte bancaire. Pour les professionnels : paiement à 30 jours sur accord.</p>
-    </div>
-</div>
 
-<div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-top: 30px;">
-    <h3>Vous avez d'autres questions ?</h3>
-    <p>N'hésitez pas à <a href="/contact/" style="color: #2c5aa0;">nous contacter</a> pour toute question supplémentaire.</p>
-</div>
+    <div class="inner-hero">
+        <div class="container">
+            <div class="rwo">
+                <div class="col-lg-8 m-auto text-cetner">
+                    <div class="main-heading">
+                        <h1>Questions Fréquemment Posées</h1>
+                        <div class="page-intro">
+                            <p>FAQ’s</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
+    </div>
+           
+    <div class="faq faq-page-sec sp">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="heading1">
+                        <span class="span"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> FAQ’s</span>
+                        <h2>Questions Fréquemment Posées</h2>
+                        <div class="space16"></div>
+                        <p>trouvez les réponses à vos questions les plus courantes.</p>
+                    </div>
+                    <div class="space60"></div>
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Do you provide equipment rental for fishing and hunting?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                What are the rules and regulations for hunting on club grounds?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="images-all">
+                        <div class="image1"><img src="{% static 'assets/img/others/faq-page-img1.png' %}" alt=""></div>
+                        <div class="image2"><img src="{% static 'assets/img/others/faq-page-img2.png' %}" alt=""></div>
+                        <div class="image3"><img src="{% static 'assets/img/others/faq-page-img3.png' %}" alt=""></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+
+    <div class="faq-logo-area sp bg1">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <div class="heading1">
+                        <span class="span"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> Our Clients</span>
+                        <h2>We’ve 1600+ Global Premium Clients</h2>
+                        <div class="space16"></div>
+                        <p>Our members are at the heart of everything we do. From seasoned anglers & hunters to families just discovering the joys of the outdoors, our community is made up passionate</p>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="logo-area">
+                        <ul>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo1.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo2.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo3.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo4.png' %}" alt=""></li>
+                            <li class="active"><img src="{% static 'assets/img/logo/faq-page-logo5.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo6.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo7.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo8.png' %}" alt=""></li>
+                            <li><img src="{% static 'assets/img/logo/faq-page-logo9.png' %}" alt=""></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="faq-bottom-area sp">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 m-auto text-center">
+                    <div class="heading1">
+                        <span class="span"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> FAQ’s</span>
+                        <h2>Common Questions Answered</h2>
+                        <div class="space16"></div>
+                        <p>We’ve got you covered! Whether you’re curious about the types of memberships <br> we offer, the benefits of joining, or how to book a guided trip,</p>
+                    </div>
+
+                    <div class="space40"></div>
+                    <div class="accordion accordion1" id="accordionExample2">
+                        <div class="accordion-item active">
+                            <h2 class="accordion-header" id="headingOne2">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne2" aria-expanded="true" aria-controls="collapseOne2">
+                                    What types of fishing and hunting experiences does your club offer?
+                                </button>
+                            </h2>
+                            <div id="collapseOne2" class="accordion-collapse collapse show" aria-labelledby="headingOne2" data-bs-parent="#accordionExample2">
+                                <div class="accordion-body">
+                                    Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo2" aria-expanded="false" aria-controls="collapseTwo2">
+                                    What are the rules and regulations for hunting on club grounds?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo2" class="accordion-collapse collapse" aria-labelledby="headingTwo2" data-bs-parent="#accordionExample2">
+                                <div class="accordion-body">
+                                    Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

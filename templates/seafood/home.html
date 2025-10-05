@@ -1,169 +1,127 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 {% block content %}
-
-
-        <div class="hero-area1">
-            <div class="container">
+    <div class="hero-area1">
+        <div class="container">
             <div class="row">
                 <div class="col-lg-5">
-                <div class="main-heading">
-                    <div class="image1 image-anime reveal">
-                    <img src="{% static 'assets/img/hero/hero1-image1.png' %}" alt="">
+                    <div class="main-heading">
+                        <div class="image1 image-anime reveal"><img src="{% static 'assets/img/hero/hero1-image1.png' %}" alt=""></div>
+                        <div class="image2 shape-animaiton4"><img src="{% static 'assets/img/shapes/hero-image1-shape1.png' %}" alt=""></div>
+                        <div class="image3 animate2"><img src="{% static 'assets/img/shapes/hero-image1-shape2.png' %}" alt=""></div>
+                        <div class="space30"></div>
+                        <div class="heading1-w">
+                            <p data-aos="zoom-in-up" data-aos-duration="700">
+                                At our club, we bring together a community of passionate out door adventurers, offering unparalleled experiences in the wild. 
+                                Whether you're casting a line in tranquil waters or tracking
+                            </p>
+                        </div>
+                        <div class="space30"></div>
+                        <div class="buttons" data-aos="zoom-in-up" data-aos-duration="900">
+                            <a class="theme-btn1" href="#!">Get Started <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                            <a class="theme-btn3" href="#!">Discover More <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                        </div>
                     </div>
-                    <div class="image2 shape-animaiton4">
-                    <img src="{% static 'assets/img/shapes/hero-image1-shape1.png' %}" alt="">
-                    </div>
-                    <div class="image3 animate2">
-                    <img src="{% static 'assets/img/shapes/hero-image1-shape2.png' %}" alt="">
-                    </div>
-                    <div class="space30"></div>
-                    <div class="heading1-w">
-                    <p data-aos="zoom-in-up" data-aos-duration="700">At our club, we bring together a community of passionate out door adventurers, offering unparalleled experiences in the wild. Whether you're casting a line in tranquil waters or tracking</p>
-                    </div>
-                    <div class="space30"></div>
-                    <div class="buttons" data-aos="zoom-in-up" data-aos-duration="900">
-                    <a class="theme-btn1" href="contact.html">Get Started <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                    <a class="theme-btn3" href="contact.html">Discover More <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                    </div>
-                </div>
                 </div>
                 <div class="col-lg-7">
-                <div class="main-heading">
-                    <h1 class="text-anime-style-3">Experience Thrill Of The Hunt & The Joy Of The Catch</h1>
-                    <div class="space60"></div>
-                    <div class="main-image">
-                    <div class="reveal image-anime">
-                        <img src="{% static 'assets/img/hero/hero1-image2.png' %}" alt="">
-                    </div>
-                    <div class="shape animate4">
-                        <img src="{% static 'assets/img/shapes/hero-image2-shape1.png' %}" alt="">
-                    </div>
+                    <div class="main-heading">
+                        <h1 class="text-anime-style-3">Experience Thrill Of The Hunt & The Joy Of The Catch</h1>
+                        <div class="space60"></div>
+                        <div class="main-image">
+                            <div class="reveal image-anime">
+                                <img src="{% static 'assets/img/hero/hero1-image2.png' %}" alt="">
+                            </div>
+                            <div class="shape animate4">
+                                <img src="{% static 'assets/img/shapes/hero-image2-shape1.png' %}" alt="">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                </div>
             </div>
-            </div>
-
-            <img class="sec-shape1" src="{% static 'assets/img/shapes/hero-sec-shape1.png' %}" alt="">
-            <img class="sec-shape2" src="{% static 'assets/img/shapes/hero-sec-shape2.png' %}" alt="">
-            <img class="sec-shape3 animate1" src="{% static 'assets/img/shapes/hero-sec-shape3.png' %}" alt="">
-            <img class="sec-shape4 animate3" src="{% static 'assets/img/shapes/hero-sec-shape4.png' %}" alt="">
         </div>
 
-
-        <h1>Bienvenue chez PPA - Promotion Pêche Artisanale</h1>
-<p>Spécialisés dans la pêche, le traitement, la congélation et la commercialisation de produits de mer de qualité supérieure.</p>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
-    <div style="background: #f0f8ff; padding: 20px; border-radius: 5px;">
-        <h3>🎣 Pêche Artisanale</h3>
-        <p>Techniques de pêche traditionnelles et durables pour préserver la qualité des produits marins.</p>
+        <img class="sec-shape1" src="{% static 'assets/img/shapes/hero-sec-shape1.png' %}" alt="">
+        <img class="sec-shape2" src="{% static 'assets/img/shapes/hero-sec-shape2.png' %}" alt="">
+        <img class="sec-shape3 animate1" src="{% static 'assets/img/shapes/hero-sec-shape3.png' %}" alt="">
+        <img class="sec-shape4 animate3" src="{% static 'assets/img/shapes/hero-sec-shape4.png' %}" alt="">
     </div>
-    <div style="background: #f0f8ff; padding: 20px; border-radius: 5px;">
-        <h3>❄️ Traitement et Congélation</h3>
-        <p>Processus de traitement moderne garantissant la fraîcheur et la conservation optimale.</p>
-    </div>
-    <div style="background: #f0f8ff; padding: 20px; border-radius: 5px;">
-        <h3>🏪 Commercialisation</h3>
-        <p>Distribution de produits de mer frais et congelés sur le marché local et international.</p>
-    </div>
-</div>
-
-
-        <!--===== HERO AREA END =======-->
-
-        <!--===== SERVICE AREA START =======-->
-
-        <div class="service1 sp">
-            <div class="container">
+ 
+    <div class="work3 sp">
+        <div class="container">
             <div class="row">
                 <div class="col-lg-6 m-auto text-center">
-                <div class="heading1">
-                    <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> Service</span>
-                <h2 class="text-anime-style-3">Professional Hunting Expeditions</h2>
-                <div class="space16"></div>
-                <p data-aos="fade-left" data-aos-duration="800">Whether you're a seasoned pro or a newcomer to the wild, our expert guided fishing tours and professional hunting expeditions provide thrilling </p>
-                </div>
+                    <div class="heading3">
+                        <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span3.png' %}" alt=""> How It Work</span>
+                        <h2 class="text-anime-style-3">How to Begin Your Adventure</h2>
+                        <div class="space16"></div>
+                        <p data-aos="fade-left" data-aos-duration="700">Complete our quick & easy membership application online. Provide us with some basic information about yourself outdoor interests.</p>
+                    </div>
                 </div>
             </div>
-
-            <div class="space60"></div>
-            <div class="row" data-aos="zoom-in-left" data-aos-duration="800">
+            <div class="space30"></div>
+            <div class="row bol-line">
                 <div class="col-lg-3 col-md-6">
-                <div class="service1-box box1">
-                    <div class="">
-                    <div class="icon">
-                        <img src="{% static 'assets/img/icons/service1-icon1.png' %}" alt="">
-                    </div>
-                    <div class="heading1">
-                        <h4><a href="service-details.html">Guided Fishing Tours</a></h4>
-                        <p>Join us for year-round fishing and hunting events, bring the family for our youth programs and activities,</p>
-                        <a href="service-details.html" class="learn">Read More <span><i class="fa-solid fa-arrow-right"></i></span></a>
-                    </div>
+                    <div class="work3-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/work3-icon1.png' %}" alt="">
+                        </div>
+                        <span class="bol"></span>
+                        <div class="heading3">
+                            <h4><a href="#!">Eara Points </a></h4>
+                            <div class="space16"></div>
+                            <p>With our club, every adventure is expertly planned & tailored to provide you with the ultimate </p>
+                        </div>
                     </div>
                 </div>
-                </div>
-
                 <div class="col-lg-3 col-md-6">
-                <div class="service1-box box2">
-                    <div class="">
-                    <div class="icon">
-                        <img src="{% static 'assets/img/icons/service1-icon2.png' %}" alt="">
-                    </div>
-                    <div class="heading1">
-                        <h4><a href="service-details.html">Pro Hunting Expeditions</a></h4>
-                        <p>We also offer custom adventure planning services, ensuring your trip is tailored to your preferences our expert guided.</p>
-                        <a href="service-details.html" class="learn">Read More <span><i class="fa-solid fa-arrow-right"></i></span></a>
-                    </div>
+                    <div class="work3-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/work3-icon2.png' %}" alt="">
+                        </div>
+                        <span class="bol"></span>
+                        <div class="heading3">
+                            <h4><a href="#!">Getting Started </a></h4>
+                            <div class="space16"></div>
+                            <p>Participate in our year-round events and competitions, and connect with fellow outdoor enthusiasts </p>
+                        </div>
                     </div>
                 </div>
-                </div>
-
                 <div class="col-lg-3 col-md-6">
-                <div class="service1-box box3">
-                    <div class="">
-                    <div class="icon">
-                        <img src="{% static 'assets/img/icons/service1-icon3.png' %}" alt="">
-                    </div>
-                    <div class="heading1">
-                        <h4><a href="service-details.html">Gear Rental & Sales</a></h4>
-                        <p>Enhance your skills with our exclusive member workshops and training sessions, or engage in our wildlife conservation</p>
-                        <a href="service-details.html" class="learn">Read More <span><i class="fa-solid fa-arrow-right"></i></span></a>
-                    </div>
+                    <div class="work3-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/work3-icon3.png' %}" alt="">
+                        </div>
+                        <span class="bol"></span>
+                        <div class="heading3">
+                            <h4><a href="#!">How to Join </a></h4>
+                            <div class="space16"></div>
+                            <p> Book your trips easily through our online portal, & take advantage of our workshops and training sessions</p>
+                        </div>
                     </div>
                 </div>
-                </div>
-
                 <div class="col-lg-3 col-md-6">
-                <div class="service1-box box4">
-                    <div class="">
-                    <div class="icon">
-                        <img src="{% static 'assets/img/icons/service1-icon4.png' %}" alt="">
-                    </div>
-                    <div class="heading1">
-                        <h4><a href="service-details.html">Youth & Family Activities</a></h4>
-                        <p>Need gear? Our comprehensive gear rental and sales service ensures you have the best equipment for your journey.</p>
-                        <a href="service-details.html" class="learn">Read More <span><i class="fa-solid fa-arrow-right"></i></span></a>
-                    </div>
+                    <div class="work3-box">
+                        <div class="icon">
+                            <img src="{% static 'assets/img/icons/work3-icon4.png' %}" alt="">
+                        </div>
+                        <span class="bol"></span>
+                        <div class="heading3">
+                            <h4><a href="#!">Upload & Share</a></h4>
+                            <div class="space16"></div>
+                            <p> Once you’re a member, you’ll gain access to our extensive range of services, including expert-led</p>
+                        </div>
                     </div>
                 </div>
-                </div>
-
-            </div>
             </div>
         </div>
+    </div>
 
-        <!--===== SERVICE AREA END =======-->
-
-        <!--===== ABOUT AREA START =======-->
-
-        <div class="about1 sp bg1">
-            <div class="container">
+    <div class="about1 sp bg1">
+        <div class="container">
             <div class="row">
                 <div class="col-lg-6">
-                <div class="heading1">
-                    <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> About Us</span>
+                    <div class="heading1">
+                        <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> About Us</span>
                     <h2 class="text-anime-style-3">Crafting Memories in Wilderness Our Club's Chronicle</h2>
                     <div class="space16"></div>
                     <p data-aos="fade-left" data-aos-duration="800">For generations, we've been at the forefront of outdoor exploration, fostering a legacy of respect for the land & its inhabitants. Our members, from seasoned</p>
@@ -185,64 +143,61 @@
                             <p>Founded a shared love for adventure & conservation, our club is more than just a gathering place</p>
                         </div>
                         </div>
-                    </div>
+                </div>
 
-                    <div class="col-md-6">
-                        <div class="about1-box" data-aos="zoom-in-up" data-aos-duration="900">
-                        <div class="progresbar">
-                            <div class="progressbar">
-                                <div class="circle" data-percent="99">
-                                    <div class="count">99%</div>
-                            </div>
-                            </div>
+                <div class="col-md-6">
+                    <div class="about1-box" data-aos="zoom-in-up" data-aos-duration="900">
+                    <div class="progresbar">
+                        <div class="progressbar">
+                            <div class="circle" data-percent="99">
+                                <div class="count">99%</div>
                         </div>
+                        </div>
+                    </div>
+                    <div class="space16"></div>
+                    <div class="heading1">
+                        <h5><a href="#">Masters of Fishing and Hunting</a></h5>
                         <div class="space16"></div>
-                        <div class="heading1">
-                            <h5><a href="#">Masters of Fishing and Hunting</a></h5>
-                            <div class="space16"></div>
-                            <p>Come together to share stories, sharpen skills, & forge lifelong connections in the wilderness.</p>
-                        </div>
-                        </div>
-                    </div>
-
-                    </div>
-                    <div class="space40"></div>
-                    <div class="row">
-                    <div class="col-12">
-                        <div class="buttons" data-aos="zoom-in-up" data-aos-duration="900">
-                        <a class="theme-btn1" href="service.html">Get Started  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                        <div class="contact-btn">
-                            <div class="icon">
-                            <img src="{% static 'assets/img/icons/about1-phone.png' %}" alt="">
-                            </div>
-                            <div class="pera">
-                            <p>Hotline 24/7</p>
-                            <a href="tel:+49309233255">+49 30 9233255</a>
-                            </div>
-                        </div>
-                        </div>
+                        <p>Come together to share stories, sharpen skills, & forge lifelong connections in the wilderness.</p>
                     </div>
                     </div>
                 </div>
-                </div>
 
-                <div class="col-lg-6">
-                <div class="about-main-image">
-                    <img src="{% static 'assets/img/about/about1-main-image.png' %}" alt="">
+                </div>
+                <div class="space40"></div>
+                <div class="row">
+                <div class="col-12">
+                    <div class="buttons" data-aos="zoom-in-up" data-aos-duration="900">
+                    <a class="theme-btn1" href="#!">Get Started  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                    <div class="contact-btn">
+                        <div class="icon">
+                        <img src="{% static 'assets/img/icons/about1-phone.png' %}" alt="">
+                        </div>
+                        <div class="pera">
+                        <p>Hotline 24/7</p>
+                        <a href="tel:+49309233255">+49 30 9233255</a>
+                        </div>
+                    </div>
+                    </div>
                 </div>
                 </div>
             </div>
             </div>
 
-            <img src="{% static 'assets/img/shapes/about1-shape1.png' %}" alt="" class="shape1 animate1">
-            <img src="{% static 'assets/img/shapes/about1-shape2.png' %}" alt="" class="shape2 animate3">
-            <img src="{% static 'assets/img/shapes/about1-shape3.png' %}" alt="" class="shape3 animate4">
+            <div class="col-lg-6">
+            <div class="about-main-image">
+                <img src="{% static 'assets/img/about/about1-main-image.png' %}" alt="">
+            </div>
+            </div>
+        </div>
         </div>
 
-        <!--===== ABOUT AREA END =======-->
+        <img src="{% static 'assets/img/shapes/about1-shape1.png' %}" alt="" class="shape1 animate1">
+        <img src="{% static 'assets/img/shapes/about1-shape2.png' %}" alt="" class="shape2 animate3">
+        <img src="{% static 'assets/img/shapes/about1-shape3.png' %}" alt="" class="shape3 animate4">
+    </div>
 
-        <!--===== CASE AREA STARTS =======-->
-        <div class="case1-section-area sp">
+    <div class="case1-section-area sp">
         <div class="container">
             <div class="row">
             <div class="col-lg-12 m-auto">
@@ -259,7 +214,7 @@
             <div class="col-lg-12" data-aos="zoom-out" data-aos-duration="1200">
                 <div class="cs_case_study_1_list">
                     <div class="cs_case_study cs_style_1 cs_hover_active active" data-aos="fade-up" data-aos-duration="800">
-                    <a href="case-single.html" class="cs_case_study_thumb cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img1.png' %}"></a>
+                    <a href="#!" class="cs_case_study_thumb cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img1.png' %}"></a>
                     <div class="content-area1">
                         <a href="#">A Visual Story of Our Club</a>
                         <a href="#" class="cirle-arrow"><i class="fa-solid fa-arrow-right"></i></a>
@@ -270,57 +225,57 @@
                     </div>
                     </div>
                     <div class="cs_case_study cs_style_1 cs_hover_active" data-aos="fade-up" data-aos-duration="900">
-                    <a href="case-single.html" class="cs_case_study_thumb cs_case_study_thumb2 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img2.png' %}"></a>
+                    <a href="#!" class="cs_case_study_thumb cs_case_study_thumb2 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img2.png' %}"></a>
                     <div class="content-area1">
-                        <a href="case-single.html">Club's Exploration Gallery</a>
+                        <a href="#!">Club's Exploration Gallery</a>
                         <a href="#" class="cirle-arrow"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     <div class="content-area">
-                        <a href="case-single.html">Club's Exploration Gallery</a>
+                        <a href="#!">Club's Exploration Gallery</a>
                         <a href="#" class="learn"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     </div>
                     <div class="cs_case_study cs_style_1 cs_hover_active" data-aos="fade-up" data-aos-duration="1000">
-                    <a href="case-single.html" class="cs_case_study_thumb cs_case_study_thumb3 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img3.png' %}"></a>
+                    <a href="#!" class="cs_case_study_thumb cs_case_study_thumb3 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img3.png' %}"></a>
                     <div class="content-area1">
-                        <a href="case-single.html">Showcasing  Expeditions</a>
+                        <a href="#!">Showcasing  Expeditions</a>
                         <a href="#" class="cirle-arrow"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     <div class="content-area">
-                        <a href="case-single.html">Showcasing  Expeditions</a>
+                        <a href="#!">Showcasing  Expeditions</a>
                         <a href="#" class="learn"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     </div>
                     <div class="cs_case_study cs_style_1 cs_hover_active" data-aos="fade-up" data-aos-duration="1100">
-                    <a href="case-single.html" class="cs_case_study_thumb cs_case_study_thumb4 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img4.png' %}"></a>
+                    <a href="#!" class="cs_case_study_thumb cs_case_study_thumb4 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img4.png' %}"></a>
                     <div class="content-area1">
-                        <a href="case-single.html">Social Media Marketing</a>
+                        <a href="#!">Social Media Marketing</a>
                         <a href="#" class="cirle-arrow"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     <div class="content-area">
-                        <a href="case-single.html">Social Media Marketing</a>
+                        <a href="#!">Social Media Marketing</a>
                         <a href="#" class="learn"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     </div>
                     <div class="cs_case_study cs_style_1 cs_hover_active" data-aos="fade-up" data-aos-duration="1200">
-                    <a href="case-single.html" class="cs_case_study_thumb cs_case_study_thumb5 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img5.png' %}"></a>
+                    <a href="#!" class="cs_case_study_thumb cs_case_study_thumb5 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img5.png' %}"></a>
                     <div class="content-area1">
-                        <a href="case-single.html">Content Marketing</a>
+                        <a href="#!">Content Marketing</a>
                         <a href="#" class="cirle-arrow"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     <div class="content-area">
-                        <a href="case-single.html">Content Marketing</a>
+                        <a href="#!">Content Marketing</a>
                         <a href="#" class="learn"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     </div>
                     <div class="cs_case_study cs_style_1 cs_hover_active" data-aos="fade-up" data-aos-duration="1300">
-                    <a href="case-single.html" class="cs_case_study_thumb cs_case_study_thumb6 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img6.png' %}"></a>
+                    <a href="#!" class="cs_case_study_thumb cs_case_study_thumb6 cs_bg_filed" data-src="{% static 'assets/img/all-images/case-img6.png' %}"></a>
                     <div class="content-area1">
-                        <a href="case-single.html">Masterpieces in Nature</a>
+                        <a href="#!">Masterpieces in Nature</a>
                         <a href="#" class="cirle-arrow"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     <div class="content-area">
-                        <a href="case-single.html">Masterpieces in Nature</a>
+                        <a href="#!">Masterpieces in Nature</a>
                         <a href="#" class="learn"><i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                     </div>
@@ -328,12 +283,9 @@
             </div>
             </div>
         </div>
-        </div>
-        <!--===== CASE AREA ENDS =======-->
+    </div>
 
-        <!--===== PRAICING AREA START =======-->
-
-        <div class="pricing sp">
+    <div class="pricing sp">
         <div class="container">
             <div class="row">
             <div class="col-lg-8 m-auto text-center">
@@ -371,7 +323,7 @@
                             <div class="space16"></div>
                             <p>Whether you're an avid angler, a seasoned hunter, or simply someone who revels in the great outdoors, we have the perfect plan for you</p>
                             <div class="space30"></div>
-                            <a class="theme-btn1" href="pricing.html">Purchase Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                            <a class="theme-btn1" href="#!">Purchase Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
                         </div>
                         </div>
                     </div>
@@ -402,7 +354,7 @@
                             <div class="space16"></div>
                             <p>Whether you're an avid angler, a seasoned hunter, or simply someone who revels in the great outdoors, we have the perfect plan for you</p>
                             <div class="space30"></div>
-                            <a class="theme-btn1" href="pricing.html">Purchase Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                            <a class="theme-btn1" href="#!">Purchase Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
                         </div>
                         </div>
                     </div>
@@ -433,7 +385,7 @@
                             <div class="space16"></div>
                             <p>Whether you're an avid angler, a seasoned hunter, or simply someone who revels in the great outdoors, we have the perfect plan for you</p>
                             <div class="space30"></div>
-                            <a class="theme-btn1" href="pricing.html">Purchase Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
+                            <a class="theme-btn1" href="#!">Purchase Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
                         </div>
                         </div>
                     </div>
@@ -458,371 +410,130 @@
         </div>
         <img src="{% static 'assets/img/shapes/pricing-sec-shape1.png' %}" alt="" class="sec-shape1">
         <img src="{% static 'assets/img/shapes/pricing-sec-shape2.png' %}" alt="" class="sec-shape2">
-        </div>
+    </div>
 
-        <!--===== PRAICING AREA END =======-->
 
-        <!--===== FAQ AREA START =======-->
-
-        <div class="faq sp">
+    <div class="faq sp">
         <div class="container">
             <div class="row">
-            <div class="col-lg-6 m-auto text-center">
-                <div class="heading1">
-                <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> FAQ’s</span>
-                <h2 class="text-anime-style-3">Common Questions Answered</h2>
-                <div class="space16"></div>
-                <p data-aos="fade-left" data-aos-duration="700">We’ve got you covered! Whether you’re curious about the types of memberships we offer, the benefits of joining, or how to book a guided trip,</p>
+                <div class="col-lg-6 m-auto text-center">
+                    <div class="heading1">
+                        <span class="span" data-aos="zoom-in-left" data-aos-duration="700">
+                            <img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> FAQ’s
+                        </span>
+                        <h2 class="text-anime-style-3">Questions Fréquemment Posées</h2>
+                        <div class="space16"></div>
+                        <p data-aos="fade-left" data-aos-duration="700">Trouvez les réponses à vos questions les plus courantes.</p>
+                    </div>
                 </div>
             </div>
-            </div>
-
             <div class="space30"></div>
             <div class="row">
-            <div class="col-lg-4">
-                <div class="space40"></div>
-                <div class="faq-image image-anime reveal">
-                <img src="{% static 'assets/img/others/faq1-image.png' %}" alt="">
+                <div class="col-lg-4">
+                    <div class="space40"></div>
+                    <div class="faq-image image-anime reveal"><img src="{% static 'assets/img/others/faq1-image.png' %}" alt=""></div>
                 </div>
-            </div>
-            <div class="col-lg-8">
-                <div class="space40"></div>
-                <div class="accordion" id="accordionExample">
-                <div class="accordion-item" data-aos="fade-up" data-aos-duration="600">
-                    <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Do you provide equipment rental for fishing and hunting?
-                    </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
-                    </div>
-                    </div>
-                </div>
-                <div class="accordion-item" data-aos="fade-up" data-aos-duration="800">
-                    <h2 class="accordion-header" id="headingTwo">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        What are the rules and regulations for hunting on club grounds?
-                    </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
-                    </div>
-                    </div>
-                </div>
-                <div class="accordion-item" data-aos="fade-up" data-aos-duration="900">
-                    <h2 class="accordion-header" id="headingThree">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Are there any seasonal restrictions on fishing or hunting?
-                    </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
-                    </div>
-                    </div>
-                </div>
+                <div class="col-lg-8">
+                    <div class="space40"></div>
+                    <div class="accordion" id="accordionExample">
 
-                <div class="accordion-item" data-aos="fade-up" data-aos-duration="600">
-                    <h2 class="accordion-header" id="headingFour">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                        Do you offer any training or workshops for members?
-                    </button>
-                    </h2>
-                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
-                    </div>
-                    </div>
-                </div>
+                        <div class="accordion-item" data-aos="fade-up" data-aos-duration="600">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Quelle est la fraîcheur de vos produits ?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    Nos produits sont pêchés quotidiennement et transformés dans les 24h suivant la capture. 
+                                    La chaîne du froid est respectée à chaque étape.
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="accordion-item" data-aos="fade-up" data-aos-duration="1100">
-                    <h2 class="accordion-header" id="headingFive">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                        Do you offer any training or workshops for members?
-                    </button>
-                    </h2>
-                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                        Learn about our equipment rental options, training workshops, and safety measures to ensure a fun and secure adventure. Discover how you can involve your family in our activities,
-                    </div>
-                    </div>
-                </div>
+                        <div class="accordion-item" data-aos="fade-up" data-aos-duration="800">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Proposez-vous des certifications qualité ?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    Oui, nous disposons des certifications HACCP, 
+                                    ISO 22000 et nous respectons toutes les normes européennes de sécurité alimentaire.
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="accordion-item" data-aos="fade-up" data-aos-duration="800">
+                            <h2 class="accordion-header" id="headingTree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTree" aria-expanded="false" aria-controls="collapseTree">
+                                Quels sont vos délais de livraison ?
+                                </button>
+                            </h2>
+                            <div id="collapseTree" class="accordion-collapse collapse" aria-labelledby="headingTree" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                Pour les produits frais : 24-48h. Pour les produits congelés : 48-72h. Livraison express disponible sur demande.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
-        </div>
+    </div>
 
-        <!--===== FAQ AREA END =======-->
 
-        <!--===== TES AREA START =======-->
-
-        <div class="tes1 sp">
+    <div class="choose4 sp">
         <div class="container">
             <div class="row">
-            <div class="col-lg-7 m-auto text-center">
-                <div class="heading1">
-                <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> Testimonial</span>
-                <h2 class="text-anime-style-3">Praise From The Field Member Stories</h2>
-                <div class="space16"></div>
-                <p data-aos="fade-left" data-aos-duration="700">The club’s focus on preserving the natural environment aligns perfectly with my values. <br> It's an incredible feeling to be part of a community </p>
+                <div class="col-lg-6 _relative">
+                    <div class="main-image">
+                        <img src="{% static 'assets/img/others/choose4-image.png' %}" alt="">
+                    </div>
+                    <div class="counter-box">
+                        <h4>6M<span>+</span></h4>
+                        <p>Satisfied Clients</p>
+                    </div>
                 </div>
-            </div>
-            </div>
-
-            <div class="space60"></div>
-            <div class="row">
-            <div class="tes1-slider-all owl-carousel" data-aos="fade-up" data-aos-duration="700">
-
-                <div class="single-slider">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                    <div class="tes1-image-area">
-                        <div class="image image-anime">
-                        <img src="{% static 'assets/img/testimonial/tes1-image1.png' %}" alt="">
-                        </div>
-                        <div class="logo">
-                        <img src="{% static 'assets/img/logo/tes1-logo.png' %}" alt="">
-                        </div>
-                        <ul class="stars">
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
+                <div class="col-lg-6">
+                    <div class="heading4">
+                        <span class="span" data-aos="zoom-in-left" data-aos-duration="700">
+                            <i class="fa-solid fa-ship"></i> Why Choose Us
+                        </span>
+                        <h2 class="text-anime-style-3">Crafting Memories Wilderness Our Club's Chronicle</h2>
+                        <div class="space16"></div>
+                        <p data-aos="fade-left" data-aos-duration="900">
+                            For generations, we've been at the forefront of outdoor exploration, fostering a legacy of respect for the land and its inhabitants. 
+                            Our members, from seasoned veterans to eager newcomers, come together to share stories.
+                        </p>
+                        <ul class="list" data-aos="fade-left" data-aos-duration="1100">
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> 24/7 Customer Support</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Multi Language Support </li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> 100% Guarantee Satisfaction</li>
+                            <li><span class="check"><i class="fa-solid fa-check"></i></span> Professional Staff</li>
                         </ul>
-                    </div>
-                    </div>
-                    <div class="col-md-8">
-                    <div class="heading-area">
-                        <h5>"Authentic Endorsements: Member Testimonials"</h5>
-                        <p>"As a novice hunter, I was hesitant to join, but the welcoming community and expert guides quickly put my fears to rest. I've learned so much about tracking & hunting techniques, the thrill of my first successful”</p>
-                        <div class="bottom-area">
-                        <h4><a href="#">Sarah Jessica T</a></h4>
-                        <p>New Member</p>
+                        <div class="space40"></div>
+                        <div class="buttons" data-aos="fade-left" data-aos-duration="900">
+                            <a class="theme-btn8" href="#!">Start Your Journey <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                            <div class="contact-btn">
+                                <div class="icon">
+                                    <i class="fa-solid fa-phone"></i>
+                                </div>
+                                <div class="text">
+                                    <p>Hotline 24/7</p>
+                                    <a href="tel:+49309233255">+49 30 9233255</a>
+                                </div>
+                            </div>
                         </div>
-
-                        <img src="{% static 'assets/img/icons/qute1.png' %}" alt="" class="qute">
-                    </div>
+                        <img src="{% static 'assets/img/shapes/choose4-shape3.png' %}" alt="" class="shape3 animate4">
                     </div>
                 </div>
-                </div>
-
-                <div class="single-slider">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                    <div class="tes1-image-area">
-                        <div class="image image-anime">
-                        <img src="{% static 'assets/img/testimonial/tes1-image2.png' %}" alt="">
-                        </div>
-                        <div class="logo">
-                        <img src="{% static 'assets/img/logo/tes1-logo.png' %}" alt="">
-                        </div>
-                        <ul class="stars">
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                    </div>
-                    </div>
-                    <div class="col-md-8">
-                    <div class="heading-area">
-                        <h5>“Journey Reflections: Hear from Our Members"</h5>
-                        <p>"The fishing and hunting club has become my second home. The range of activities & the quality of the expeditions are top-notch. I've participated in several workshops that have greatly improved my skills knowledge”</p>
-                        <div class="bottom-area">
-                        <h4><a href="#"> David Jessica</a></h4>
-                        <p>Long-time Member</p>
-                        </div>
-
-                        <img src="{% static 'assets/img/icons/qute1.png' %}" alt="" class="qute">
-                    </div>
-                    </div>
-                </div>
-                </div>
-
-
-                <div class="single-slider">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                    <div class="tes1-image-area">
-                        <div class="image image-anime">
-                        <img src="{% static 'assets/img/testimonial/tes1-image1.png' %}" alt="">
-                        </div>
-                        <div class="logo">
-                        <img src="{% static 'assets/img/logo/tes1-logo.png' %}" alt="">
-                        </div>
-                        <ul class="stars">
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                    </div>
-                    </div>
-                    <div class="col-md-8">
-                    <div class="heading-area">
-                        <h5>"Authentic Endorsements: Member Testimonials"</h5>
-                        <p>"As a novice hunter, I was hesitant to join, but the welcoming community and expert guides quickly put my fears to rest. I've learned so much about tracking & hunting techniques, the thrill of my first successful”</p>
-                        <div class="bottom-area">
-                        <h4><a href="#">Sarah Jessica T</a></h4>
-                        <p>New Member</p>
-                        </div>
-
-                        <img src="{% static 'assets/img/icons/qute1.png' %}" alt="" class="qute">
-                    </div>
-                    </div>
-                </div>
-                </div>
-
-                <div class="single-slider">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                    <div class="tes1-image-area">
-                        <div class="image">
-                        <img src="{% static 'assets/img/testimonial/tes1-image2.png' %}" alt="">
-                        </div>
-                        <div class="logo">
-                        <img src="{% static 'assets/img/logo/tes1-logo.png' %}" alt="">
-                        </div>
-                        <ul class="stars">
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                    </div>
-                    </div>
-                    <div class="col-md-8">
-                    <div class="heading-area">
-                        <h5>“Journey Reflections: Hear from Our Members"</h5>
-                        <p>"The fishing and hunting club has become my second home. The range of activities & the quality of the expeditions are top-notch. I've participated in several workshops that have greatly improved my skills knowledge”</p>
-                        <div class="bottom-area">
-                        <h4><a href="#"> David Jessica</a></h4>
-                        <p>Long-time Member</p>
-                        </div>
-
-                        <img src="{% static 'assets/img/icons/qute1.png' %}" alt="" class="qute">
-                    </div>
-                    </div>
-                </div>
-                </div>
-
-
-            </div>
             </div>
         </div>
-        <img src="{% static 'assets/img/shapes/tes1-shape1.png' %}" alt="" class="shape1">
-        <img src="{% static 'assets/img/shapes/tes1-shape2.png' %}" alt="" class="shape2">
-        <img src="{% static 'assets/img/shapes/tes1-shape3.png' %}" alt="" class="shape3 animate3">
-        <img src="{% static 'assets/img/shapes/tes1-shape4.png' %}" alt="" class="shape4">
-        <img src="{% static 'assets/img/shapes/tes1-shape5.png' %}" alt="" class="shape5">
-        </div>
+        <img src="{% static 'assets/img/shapes/choose4-shape1.png' %}" alt="" class="shape1 animate3">
+        <img src="{% static 'assets/img/shapes/choose4-shape2.png' %}" alt="" class="shape2 animate4">
+    </div>
 
-        <!--===== TES AREA END =======-->
-
-        <!--===== BLOG AREA START =======-->
-
-        <div class="blog1 sp">
-        <div class="container">
-            <div class="row align-items-center">
-            <div class="col-lg-6">
-                <div class="heading1">
-                <span class="span" data-aos="zoom-in-left" data-aos-duration="700"><img src="{% static 'assets/img/icons/span-icon1.png' %}" alt=""> Our Blog </span>
-                <h2 class="text-anime-style-3">Wilderness Wisdom Fishing & Hunting Know-How</h2>
-                <div class="space16"></div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="heading1">
-                <p data-aos="fade-left" data-aos-duration="700">Welcome to our blog, where the thrill of the hunt and the joy of the catch come to life! Here, you'll find a treasure trove of expert advice, captivating stories, and practical tips to enhance </p>
-                <div class="space30"></div>
-                <div class="" data-aos="fade-left" data-aos-duration="800">
-                    <a class="theme-btn1" href="blog.html">View More Now  <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                </div>
-                </div>
-            </div>
-            </div>
-
-            <div class="space30"></div>
-            <div class="row">
-            <div class="col-lg-6">
-                <div class="blog-box" data-aos="zoom-in-up" data-aos-duration="900">
-                <div class="image image-anime">
-                    <img src="{% static 'assets/img/blog/blog1-image1.png' %}" alt="">
-                </div>
-                <div class="heading1">
-                    <div class="tags">
-                    <a href="#"><img src="{% static 'assets/img/icons/blog-icon1.png' %}" alt=""> 30 May 2024</a>
-                    <a href="#"><img src="{% static 'assets/img/icons/blog-icon2.png' %}" alt=""> Henry Gayle</a>
-                    </div>
-                    <div class="blog-border"></div>
-                    <h5><a href="blog-details.html">Seasonal Fishing Tips: What to Catch and When Conservation</a></h5>
-                    <div class="space16"></div>
-                    <p>Whether you're a seasoned angler or a novice hunter, our blog covers a wide range of topics, from gear reviews and technique tutorials</p>
-                    <div class="space16"></div>
-                    <a href="blog-details.html" class="learn">Read More <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="blog-box" data-aos="zoom-in-up" data-aos-duration="1100">
-                <div class="image image-anime">
-                    <img src="{% static 'assets/img/blog/blog1-image2.png' %}" alt="">
-                </div>
-                <div class="heading1">
-                    <div class="tags">
-                    <a href="#"><img src="{% static 'assets/img/icons/blog-icon1.png' %}" alt=""> 30 May 2024</a>
-                    <a href="#"><img src="{% static 'assets/img/icons/blog-icon2.png' %}" alt=""> Henry Gayle</a>
-                    </div>
-                    <div class="blog-border"></div>
-                    <h5><a href="blog-details.html">Survival Skills Every Outdoorsman Should Know Advanced </a></h5>
-                    <div class="space16"></div>
-                    <p>Join us as we dive into the latest trends, share unforgettable experiences, and celebrate the great outdoors. Stay tuned for regular updates </p>
-                    <div class="space16"></div>
-                    <a href="blog-details.html" class="learn">Read More <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                </div>
-                </div>
-            </div>
-
-            </div>
-        </div>
-        </div>
-
-        <!--===== BLOG AREA END =======-->
-
-        <!--===== CTA AREA START =======-->
-
-        <div class="cta1">
-            <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-5">
-                <div class="heading1-w">
-                    <h2>Join Our Community of Outdoor Enthusiasts</h2>
-                    <div class="space16"></div>
-                    <p>Whether you're a seasoned angler or a novice hunter, our club offers tailored adventures to suit every skill level.</p>
-                </div>
-                </div>
-                <div class="col-lg-7">
-                <div class="buttons">
-                    <a class="theme-btn2" href="contact.html">Schedule An Appointment <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                    <a class="theme-btn3" href="contact.html">Discover More <span class="arrow"><i class="fa-solid fa-arrow-right"></i></span></a>
-                </div>
-                </div>
-            </div>
-            </div>
-
-            <img class="cta1-shape1" src="{% static 'assets/img/shapes/cta1-shape1.png' %}" alt="">
-            <img class="cta1-shape2 animate1" src="{% static 'assets/img/shapes/cta1-shape2.png' %}" alt="">
-            <img class="cta1-shape3 animate3" src="{% static 'assets/img/shapes/cta1-shape3.png' %}" alt="">
-        </div>
 {% endblock %}
     
