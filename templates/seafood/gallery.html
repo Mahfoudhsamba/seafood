@@ -2,57 +2,184 @@
 {% load static %}
 {% block title %}Galerie - Entreprise de Pêche Artisanale{% endblock %}
 
-{% block content %}
-  
-    <div class="inner-hero">
-        <div class="container">
-            <div class="rwo">
-                <div class="col-lg-8 m-auto text-cetner">
-                    <div class="main-heading">
-                        <h1>Galerie Photos</h1>
-                        <div class="page-intro">
-                            <p>Découvrez nos installations, nos équipes et nos produits en images.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
-        <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
-        <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
-    </div>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'assets/css/gallery.css' %}">
+{% endblock %}
 
-    <div class="team3 team-page sp">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 text-center">
-                    <div class="team3-box">
-                        <div class="image-area">
-                            <div class="image">
-                                <img src="{% static 'assets/img/team/team3-image1.png' %}" alt="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 text-center">
-                    <div class="team3-box">
-                        <div class="image-area">
-                            <div class="image">
-                                <img src="{% static 'assets/img/team/team3-image2.png' %}" alt="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 text-center">
-                    <div class="team3-box">
-                        <div class="image-area">
-                            <div class="image">
-                                <img src="{% static 'assets/img/team/team3-image3.png' %}" alt="">
-                            </div>
-                        </div>
+{% block content %}
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="lightbox-modal">
+    <span class="lightbox-close">&times;</span>
+    <div class="lightbox-content">
+        <img id="lightbox-img" src="" alt="">
+        <div id="lightbox-caption"></div>
+    </div>
+    <button class="lightbox-prev" onclick="changeImage(-1)">&#10094;</button>
+    <button class="lightbox-next" onclick="changeImage(1)">&#10095;</button>
+</div>
+
+<div class="inner-hero">
+    <div class="container">
+        <div class="rwo">
+            <div class="col-lg-8 m-auto text-cetner">
+                <div class="main-heading">
+                    <h1>Galerie Photos</h1>
+                    <div class="page-intro">
+                        <p>Découvrez nos installations, nos équipes et nos produits en images.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
+    <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
+    <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
+</div>
+
+<div class="gallery-section sp">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(0)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image1.png' %}" alt="Flotte de Pêche Moderne">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Flotte de Pêche Moderne</h5>
+                        <p>Nos bateaux équipés des dernières technologies pour une pêche efficace et responsable</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(1)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image2.png' %}" alt="Unité de Transformation">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Unité de Transformation</h5>
+                        <p>Installation moderne aux normes internationales pour le traitement et la congélation</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(2)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image3.png' %}" alt="Équipe Professionnelle">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Équipe Professionnelle</h5>
+                        <p>Pêcheurs artisanaux expérimentés et techniciens qualifiés au service de la qualité</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(3)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image1.png' %}" alt="Chambres Froides Modernes">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Chambres Froides Modernes</h5>
+                        <p>Équipements de stockage de pointe garantissant le respect de la chaîne du froid</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(4)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image2.png' %}" alt="Port de Nouakchott">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Port de Nouakchott</h5>
+                        <p>Emplacement stratégique pour un accès direct aux meilleures zones de pêche</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(5)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image3.png' %}" alt="Produits de Qualité Premium">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Produits de Qualité Premium</h5>
+                        <p>Large gamme de poissons, crustacés et céphalopodes d'une fraîcheur exceptionnelle</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(6)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image1.png' %}" alt="Contrôle Qualité Rigoureux">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Contrôle Qualité Rigoureux</h5>
+                        <p>Processus de vérification à chaque étape pour garantir la traçabilité et la sécurité</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(7)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image2.png' %}" alt="Flotte de Livraison">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Flotte de Livraison</h5>
+                        <p>Véhicules réfrigérés pour une livraison dans le respect de la chaîne du froid</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item" onclick="openLightbox(8)">
+                    <div class="image-wrapper">
+                        <img src="{% static 'assets/img/team/team3-image3.png' %}" alt="Certifications Internationales">
+                        <div class="overlay">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </div>
+                    </div>
+                    <div class="gallery-caption">
+                        <h5>Certifications Internationales</h5>
+                        <p>HACCP et ISO 22000 attestant de notre engagement qualité et sécurité alimentaire</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'assets/js/gallery.js' %}"></script>
 {% endblock %}
