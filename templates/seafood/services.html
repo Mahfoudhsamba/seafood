@@ -22,132 +22,127 @@
         <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
         <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
     </div>
-         
+
     <div class="about-page-service service-page sp">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6">
-                    <div class="service2-box">
-                        <div class="icon">
-                            <img src="{% static 'assets/img/icons/about-service-icon1.svg' %}" alt="">
-                        </div>
-                        <div class="heading2">
-                            <h4><a href="#">Pêche Artisanale</a></h4>
-                            <div class="space16"></div>
-                            <ul>
-                                <li>Pêche côtière durable</li>
-                                <li>Techniques traditionnelles</li>
-                                <li>Sélection rigoureuse des produits</li>
-                                <li>Respect des quotas et saisons</li>
-                            </ul>                          
-                            <div class="space20"></div>
-                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
-                        </div>
+            <!-- Barre de recherche -->
+            <div class="row mb-5">
+                <div class="col-12">
+                    <div class="search-box-services">
+                        <input type="text" class="form-control" id="servicesSearchInput" placeholder="Rechercher un service..." value="{{ search_query }}">
                     </div>
                 </div>
-                          
-                <div class="col-lg-4 col-md-6">
-                    <div class="service2-box">
-                        <div class="icon">
-                            <img src="{% static 'assets/img/icons/about-service-icon2.svg' %}" alt="">
-                        </div>
-                        <div class="heading2">
-                            <h4><a href="#">Traitement & Transformation</a></h4>
-                            <div class="space16"></div>
-                            <ul>
-                                <li>Nettoyage et préparation</li>
-                                <li>Filetage professionnel</li>
-                                <li>Conditionnement sous vide</li>
-                                <li>Contrôle qualité strict</li>
-                            </ul>
-                            <div class="space20"></div>
-                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
-                        </div>
-                    </div>
-                </div>
-                          
-                <div class="col-lg-4 col-md-6">
-                    <div class="service2-box">
-                        <div class="icon">
-                            <img src="{% static 'assets/img/icons/about-service-icon4.svg' %}" alt="">
-                        </div>
-                        <div class="heading2">
-                            <h4><a href="#">Congélation</a></h4>
-                            <div class="space16"></div>
-                            <ul>
-                                <li>Congélation rapide IQF</li>
-                                <li>Conservation optimale</li>
-                                <li>Chaîne du froid respectée</li>
-                                <li>Stockage sécurisé</li>
-                            </ul>
-                            <div class="space20"></div>
-                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
-                        </div>
-                    </div>
-                </div>
+            </div>
 
-                <div class="col-lg-4 col-md-6">
-                    <div class="service2-box">
-                        <div class="icon">
-                            <img src="{% static 'assets/img/icons/about-service-icon3.svg' %}" alt="">
-
-                        </div>
-                        <div class="heading2">
-                            <h4><a href="#">Commercialisation</a></h4>
-                            <div class="space16"></div>
-                            <ul>
-                                <li>Vente en gros et détail</li>
-                                <li>Distribution nationale</li>
-                                <li>Export international</li>
-                                <li>Livraison réfrigérée</li>
-                            </ul>
-                            <div class="space20"></div>
-                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
-                        </div>
-                    </div>
-                </div>
-                            
-                <div class="col-lg-4 col-md-6">
-                    <div class="service2-box">
-                        <div class="icon">
-                            <img src="{% static 'assets/img/icons/about-service-icon5.svg' %}" alt="">
-                        </div>
-                        <div class="heading2">
-                            <h4><a href="#">Conseil & Expertise</a></h4>
-                            <div class="space16"></div>
-                            <ul>
-                                <li>Audit qualité produits</li>
-                                <li>Formation techniques de pêche</li>
-                                <li>Certification HACCP</li>
-                                <li>Accompagnement réglementaire</li>
-                            </ul>
-                            <div class="space20"></div>
-                            <a class="button" href="#!">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+            <!-- Liste des services -->
+            <div class="row" id="servicesContainer">
+                {% if services %}
+                    {% for service in services %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="service2-box">
+                            {% if service.image %}
+                            <div class="icon">
+                                <img src="{{ service.image.url }}" alt="{{ service.name }}" style="max-width: 80px; max-height: 80px; object-fit: contain;">
+                            </div>
+                            {% else %}
+                            <div class="icon">
+                                <img src="{% static 'assets/img/icons/about-service-icon1.svg' %}" alt="">
+                            </div>
+                            {% endif %}
+                            <div class="heading2">
+                                <h4><a href="{% url 'service_detail' service.slug %}">{{ service.name }}</a></h4>
+                                <div class="space16"></div>
+                                <p>{{ service.description|truncatewords:30 }}</p>
+                                <div class="space20"></div>
+                                <a class="button" href="{% url 'service_detail' service.slug %}">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                            
-                <div class="col-lg-4 col-md-6">
-                    <div class="service2-box">
-                        <div class="icon">
-                            <img src="{% static 'assets/img/icons/about-service-icon6.svg' %}" alt="">
-                        </div>
-                        <div class="heading2">
-                            <h4><a href="#">Services Logistiques</a></h4>
-                            <div class="space16"></div>
-                            <ul>
-                                <li>Transport réfrigéré</li>
-                                <li>Stockage températuré</li>
-                                <li>Gestion des commandes</li>
-                                <li>Traçabilité complète</li>
-                            </ul>
-                            <div class="space20"></div>
-                            <a class="button" href="{% url 'logistics' %}">En savoir plus <span class="arrow"><i class="fa-solid fa-angle-right"></i></span></a>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <h5>Aucun service trouvé</h5>
+                            <p>Essayez de modifier votre recherche.</p>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
             <div class="space30"></div>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('servicesSearchInput');
+    const servicesContainer = document.getElementById('servicesContainer');
+    const servicesCount = document.getElementById('servicesCount');
+    let searchDebounceTimer;
+
+    // Fonction pour charger les services via AJAX
+    function loadServices() {
+        const searchQuery = searchInput.value.trim();
+
+        // Construire l'URL avec les paramètres
+        const params = new URLSearchParams();
+        if (searchQuery) {
+            params.append('search', searchQuery);
+        }
+
+        const url = '{% url "services" %}' + (params.toString() ? '?' + params.toString() : '');
+
+        // Mettre à jour l'URL dans le navigateur sans recharger
+        history.pushState({}, '', url);
+
+        // Récupérer les services via fetch
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Parser le HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newContainer = doc.getElementById('servicesContainer');
+            const newCount = doc.getElementById('servicesCount');
+
+            if (newContainer) {
+                servicesContainer.innerHTML = newContainer.innerHTML;
+            }
+            if (newCount) {
+                servicesCount.textContent = newCount.textContent;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors du chargement des services:', error);
+        });
+    }
+
+    // Recherche automatique après avoir tapé
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+            loadServices();
+        }, 800);
+    });
+
+    // Soumettre lors de la touche Entrée
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            clearTimeout(searchDebounceTimer);
+            loadServices();
+        }
+    });
+
+    // Gérer le bouton retour du navigateur
+    window.addEventListener('popstate', function() {
+        location.reload();
+    });
+});
+</script>
 {% endblock %}
