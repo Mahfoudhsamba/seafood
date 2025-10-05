@@ -1,0 +1,142 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% block title %}{{ product.product }} - Produits - PPA{% endblock %}
+
+{% block content %}
+    <div class="inner-hero">
+        <div class="container">
+            <div class="rwo">
+                <div class="col-lg-8 m-auto text-cetner">
+                    <div class="main-heading">
+                        <h1>{{ product.product }}</h1>
+                        <div class="page-intro">
+                            <p>{{ product.get_category_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="{% static 'assets/img/shapes/inner-hero-shape1.png' %}" alt="" class="shape1">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape2.png' %}" alt="" class="shape2">
+        <img src="{% static 'assets/img/shapes/inner-hero-shape3.png' %}" alt="" class="shape3">
+    </div>
+
+    <div class="shop-details-area sp">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="shop-details-img">
+                        <img src="{{ product.image.url }}" alt="{{ product.product }}" class="img-fluid rounded" style="width: 100%; max-height: 500px; object-fit: cover;">
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="shop-details-content">
+                        <div class="heading1">
+                            <h2>{{ product.product }}</h2>
+                            {% if product.local_name %}
+                                <p class="text-muted">Local: {{ product.local_name }}</p>
+                            {% endif %}
+                            {% if product.scientific_name %}
+                                <p class="text-muted">Scientifique: {{ product.scientific_name }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="space20"></div>
+
+                        <div class="price-area">
+                            <h3 class="text-primary">{{ product.price }} MRU/Kg</h3>
+                            {% if product.weight %}
+                                <p class="text-muted">Poids moyen par unité: {{ product.weight }} Kg</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="space30"></div>
+
+                        <div class="product-info">
+                            <h4>Description</h4>
+                            <p>{{ product.description }}</p>
+                        </div>
+
+                        <div class="space20"></div>
+
+                        <div class="product-specs">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <strong>Catégorie:</strong>
+                                    <span class="badge bg-info">{{ product.get_category_display }}</span>
+                                </li>
+                                {% if product.minimum_order %}
+                                <li class="mb-2">
+                                    <strong>Commande minimale:</strong> {{ product.minimum_order }} Kg
+                                </li>
+                                {% endif %}
+                                <li class="mb-2">
+                                    <strong>Disponibilité:</strong>
+                                    {% if product.is_in_stock %}
+                                        <span class="badge bg-success">En stock ({{ product.stock_quantity }} Kg)</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Rupture de stock</span>
+                                    {% endif %}
+                                </li>
+                                {% if product.is_featured %}
+                                <li class="mb-2">
+                                    <span class="badge bg-warning text-dark">⭐ Produit Vedette</span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <div class="space30"></div>
+
+                        <div class="btn-area">
+                            <a href="{% url 'contact' %}" class="btn btn-primary btn-lg">
+                                <i class="fa-solid fa-envelope"></i> Demander un Devis
+                            </a>
+                            <a href="{% url 'products' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                                <i class="fa-solid fa-arrow-left"></i> Retour aux produits
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produits similaires -->
+            {% if related_products %}
+            <div class="space80"></div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="heading1 text-center">
+                        <h2>Produits Similaires</h2>
+                        <div class="space20"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                {% for related in related_products %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card card-hover h-100">
+                        <a href="{% url 'product_detail' related.slug %}">
+                            <img src="{{ related.image.url }}" class="card-img-top" alt="{{ related.product }}" style="height: 200px; object-fit: cover;">
+                        </a>
+                        <div class="card-body">
+                            <a href="{% url 'products' %}?category={{ related.category }}" class="badge bg-info mb-2">
+                                {{ related.get_category_display }}
+                            </a>
+                            <h5><a href="{% url 'product_detail' related.slug %}" class="text-inherit">{{ related.product }}</a></h5>
+                            <p class="text-muted">{{ related.description|truncatewords:15 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="fw-bold text-primary">{{ related.price }} MRU/Kg</span>
+                                <a href="{% url 'product_detail' related.slug %}" class="btn btn-outline-primary btn-sm">
+                                    Voir <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
