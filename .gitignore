@@ -14,13 +14,12 @@ __pycache__/
 
 # Fichiers médias et statiques collectés
 media/
-static/
 static_collected/
 note.md
 
 # Fichiers de sauvegarde claude
 # **/.claude/settings.local.json
-# .claude
+.claude
 # install.md
 # token.md
 local_settings.py
