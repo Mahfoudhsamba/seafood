@@ -1,0 +1,23 @@
+{% load static %}
+{% load permission_tags %}
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="default">
+  <title>{% block title %}Seafood{% endblock %}</title>
+  {% block extra_css %}{% endblock %}
+  {% include 'layouts/portal/includes/head.html' %}
+  <body>
+    <main class="main" id="top">
+      {% include 'layouts/portal/includes/navbar.html' %}
+      {% include 'layouts/portal/includes/navbar_top.html' %}
+      
+      <div class="content">
+        {% block content %}
+
+        {% endblock %}
+        {% include 'layouts/portal/includes/footer.html' %}
+      </div>
+    </main>
+    {% include 'layouts/portal/includes/scripts.html' %}
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
