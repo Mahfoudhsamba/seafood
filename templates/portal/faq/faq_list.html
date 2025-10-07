@@ -37,6 +37,7 @@
               <th>Ordre</th>
               <th>Actif</th>
               <th>Date création</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -60,10 +61,20 @@
                   {% endif %}
                 </td>
                 <td>{{ faq.created_at|date:"d/m/Y" }}</td>
+                <td>
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'portal_admin:faq_edit' faq.pk %}" class="btn btn-sm btn-phoenix-primary" title="Modifier">
+                      <span class="fas fa-edit"></span>
+                    </a>
+                    <a href="{% url 'portal_admin:faq_delete' faq.pk %}" class="btn btn-sm btn-phoenix-danger" title="Supprimer">
+                      <span class="fas fa-trash"></span>
+                    </a>
+                  </div>
+                </td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="6" class="text-center py-4">
+                <td colspan="7" class="text-center py-4">
                   <p class="text-muted mb-0">Aucune question trouvée</p>
                 </td>
               </tr>

@@ -1,0 +1,86 @@
+{% extends "layouts/portal/base.html" %}
+{% load static %}
+
+{% block title %}Confirmer la suppression - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Confirmer la suppression</h2>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <span class="fas fa-exclamation-triangle fs-5 me-3"></span>
+            <div>
+              <strong>Attention !</strong> Cette action est irréversible. Êtes-vous sûr de vouloir supprimer cette question FAQ ?
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h4 class="mb-3">Détails de la question à supprimer :</h4>
+
+            <table class="table table-borderless">
+              <tbody>
+                <tr>
+                  <td class="fw-bold" style="width: 25%;">Question :</td>
+                  <td>{{ faq.question }}</td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">Réponse :</td>
+                  <td>{{ faq.answer }}</td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">Service associé :</td>
+                  <td>
+                    {% if faq.service %}
+                      <span class="badge bg-info">{{ faq.service.name }}</span>
+                    {% else %}
+                      <span class="text-muted">Général</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">Ordre :</td>
+                  <td>{{ faq.order }}</td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">Statut :</td>
+                  <td>
+                    {% if faq.is_active %}
+                      <span class="badge bg-success">Actif</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Inactif</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-bold">Date de création :</td>
+                  <td>{{ faq.created_at|date:"d/m/Y à H:i" }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 d-flex justify-content-end gap-2">
+            <a href="{% url 'portal_admin:faq_list' %}" class="btn btn-phoenix-secondary">
+              <span class="fas fa-times me-2"></span>Annuler
+            </a>
+            <form method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">
+                <span class="fas fa-trash me-2"></span>Confirmer la suppression
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -70,6 +70,58 @@ def product_add(request):
     })
 
 
+@staff_member_required
+def product_edit(request, pk):
+    """Formulaire de modification de produit"""
+    from django.shortcuts import get_object_or_404
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            product.product = request.POST.get('product')
+            product.local_name = request.POST.get('local_name', '')
+            product.scientific_name = request.POST.get('scientific_name', '')
+            if 'image' in request.FILES:
+                product.image = request.FILES.get('image')
+            product.weight = request.POST.get('weight')
+            product.description = request.POST.get('description')
+            product.price = request.POST.get('price')
+            product.category = request.POST.get('category')
+            product.is_available = request.POST.get('is_available') == 'on'
+            product.is_featured = request.POST.get('is_featured') == 'on'
+            product.stock_quantity = request.POST.get('stock_quantity', 0)
+            product.minimum_order = request.POST.get('minimum_order', 1.00)
+            product.save()
+            messages.success(request, 'Produit modifié avec succès!')
+            return redirect('portal_admin:product_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'portal/products/product_form.html', {
+        'product': product,
+        'categories': Product.CATEGORY_CHOICES
+    })
+
+
+@staff_member_required
+def product_delete(request, pk):
+    """Suppression d'un produit"""
+    from django.shortcuts import get_object_or_404
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            product.delete()
+            messages.success(request, 'Produit supprimé avec succès!')
+            return redirect('portal_admin:product_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'portal/products/product_confirm_delete.html', {
+        'product': product
+    })
+
+
 # ============ GALLERY VIEWS ============
 
 @staff_member_required
@@ -98,6 +150,50 @@ def gallery_add(request):
             messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
 
     return render(request, 'portal/gallery/gallery_form.html')
+
+
+@staff_member_required
+def gallery_edit(request, pk):
+    """Formulaire de modification d'image"""
+    from django.shortcuts import get_object_or_404
+    gallery_item = get_object_or_404(Gallery, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            if 'image' in request.FILES:
+                gallery_item.image = request.FILES.get('image')
+            gallery_item.title = request.POST.get('title')
+            gallery_item.description = request.POST.get('description')
+            gallery_item.is_active = request.POST.get('is_active') == 'on'
+            gallery_item.order = request.POST.get('order', 0)
+            gallery_item.save()
+            messages.success(request, 'Image modifiée avec succès!')
+            return redirect('portal_admin:gallery_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'portal/gallery/gallery_form.html', {
+        'gallery_item': gallery_item
+    })
+
+
+@staff_member_required
+def gallery_delete(request, pk):
+    """Suppression d'une image"""
+    from django.shortcuts import get_object_or_404
+    gallery_item = get_object_or_404(Gallery, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            gallery_item.delete()
+            messages.success(request, 'Image supprimée avec succès!')
+            return redirect('portal_admin:gallery_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'portal/gallery/gallery_confirm_delete.html', {
+        'gallery_item': gallery_item
+    })
 
 
 # ============ SERVICE VIEWS ============
@@ -130,6 +226,50 @@ def service_add(request):
     return render(request, 'portal/services/service_form.html')
 
 
+@staff_member_required
+def service_edit(request, pk):
+    """Formulaire de modification de service"""
+    from django.shortcuts import get_object_or_404
+    service = get_object_or_404(Service, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            service.name = request.POST.get('name')
+            service.description = request.POST.get('description')
+            if 'image' in request.FILES:
+                service.image = request.FILES.get('image')
+            service.is_active = request.POST.get('is_active') == 'on'
+            service.order = request.POST.get('order', 0)
+            service.save()
+            messages.success(request, 'Service modifié avec succès!')
+            return redirect('portal_admin:service_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'portal/services/service_form.html', {
+        'service': service
+    })
+
+
+@staff_member_required
+def service_delete(request, pk):
+    """Suppression d'un service"""
+    from django.shortcuts import get_object_or_404
+    service = get_object_or_404(Service, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            service.delete()
+            messages.success(request, 'Service supprimé avec succès!')
+            return redirect('portal_admin:service_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'portal/services/service_confirm_delete.html', {
+        'service': service
+    })
+
+
 # ============ FAQ VIEWS ============
 
 @staff_member_required
@@ -159,3 +299,48 @@ def faq_add(request):
 
     services = Service.objects.filter(is_active=True)
     return render(request, 'portal/faq/faq_form.html', {'services': services})
+
+
+@staff_member_required
+def faq_edit(request, pk):
+    """Formulaire de modification de FAQ"""
+    from django.shortcuts import get_object_or_404
+    faq = get_object_or_404(FAQ, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            faq.question = request.POST.get('question')
+            faq.answer = request.POST.get('answer')
+            faq.service_id = request.POST.get('service') if request.POST.get('service') else None
+            faq.order = request.POST.get('order', 0)
+            faq.is_active = request.POST.get('is_active') == 'on'
+            faq.save()
+            messages.success(request, 'FAQ modifiée avec succès!')
+            return redirect('portal_admin:faq_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    services = Service.objects.filter(is_active=True)
+    return render(request, 'portal/faq/faq_form.html', {
+        'faq': faq,
+        'services': services
+    })
+
+
+@staff_member_required
+def faq_delete(request, pk):
+    """Suppression d'une FAQ"""
+    from django.shortcuts import get_object_or_404
+    faq = get_object_or_404(FAQ, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            faq.delete()
+            messages.success(request, 'FAQ supprimée avec succès!')
+            return redirect('portal_admin:faq_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'portal/faq/faq_confirm_delete.html', {
+        'faq': faq
+    })

@@ -23,18 +23,26 @@ class PortalAdminSite(AdminSite):
             # Products
             path('products/', views.product_list, name='product_list'),
             path('products/add/', views.product_add, name='product_add'),
+            path('products/<int:pk>/edit/', views.product_edit, name='product_edit'),
+            path('products/<int:pk>/delete/', views.product_delete, name='product_delete'),
 
             # Gallery
             path('gallery/', views.gallery_list, name='gallery_list'),
             path('gallery/add/', views.gallery_add, name='gallery_add'),
+            path('gallery/<int:pk>/edit/', views.gallery_edit, name='gallery_edit'),
+            path('gallery/<int:pk>/delete/', views.gallery_delete, name='gallery_delete'),
 
             # Services
             path('services/', views.service_list, name='service_list'),
             path('services/add/', views.service_add, name='service_add'),
+            path('services/<int:pk>/edit/', views.service_edit, name='service_edit'),
+            path('services/<int:pk>/delete/', views.service_delete, name='service_delete'),
 
             # FAQ
             path('faq/', views.faq_list, name='faq_list'),
             path('faq/add/', views.faq_add, name='faq_add'),
+            path('faq/<int:pk>/edit/', views.faq_edit, name='faq_edit'),
+            path('faq/<int:pk>/delete/', views.faq_delete, name='faq_delete'),
         ]
         return custom_urls + urls
 
