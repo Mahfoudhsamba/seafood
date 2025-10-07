@@ -12,9 +12,13 @@ class PortalAdminSite(AdminSite):
     index_title = 'Tableau de Bord'
 
     def get_urls(self):
+        from django.urls import path
+        from django.contrib.auth import views as auth_views
+
         urls = super().get_urls()
         custom_urls = [
             path('', views.home, name='index'),
+            path('login/', views.portal_login, name='login'),
 
             # Products
             path('products/', views.product_list, name='product_list'),

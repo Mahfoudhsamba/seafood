@@ -1,9 +1,29 @@
 from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .models import Product, Gallery, Service, FAQ
 
 # Create your views here.
+
+def portal_login(request):
+    """Page de connexion du portail"""
+    if request.user.is_authenticated:
+        return redirect('portal_admin:index')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None and user.is_staff:
+            login(request, user)
+            next_url = request.GET.get('next', 'portal_admin:index')
+            return redirect(next_url)
+        else:
+            messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect')
+
+    return render(request, 'portal/auth/sign-in.html')
 
 @staff_member_required
 def home(request):
