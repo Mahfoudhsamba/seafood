@@ -1,6 +1,41 @@
 from django.contrib import admin
+from django.contrib.admin import AdminSite
 from django.utils.html import format_html
+from django.urls import path
 from .models import Gallery, Product, Service, FAQ
+from . import views
+
+# Custom Portal Admin Site
+class PortalAdminSite(AdminSite):
+    site_header = 'PPA Admin Portal'
+    site_title = 'PPA Admin'
+    index_title = 'Tableau de Bord'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('', views.home, name='index'),
+
+            # Products
+            path('products/', views.product_list, name='product_list'),
+            path('products/add/', views.product_add, name='product_add'),
+
+            # Gallery
+            path('gallery/', views.gallery_list, name='gallery_list'),
+            path('gallery/add/', views.gallery_add, name='gallery_add'),
+
+            # Services
+            path('services/', views.service_list, name='service_list'),
+            path('services/add/', views.service_add, name='service_add'),
+
+            # FAQ
+            path('faq/', views.faq_list, name='faq_list'),
+            path('faq/add/', views.faq_add, name='faq_add'),
+        ]
+        return custom_urls + urls
+
+# Create portal admin site instance
+portal_admin_site = PortalAdminSite(name='portal_admin')
 
 # Register your models here.
 
