@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from .models import Product, Gallery, Service, FAQ
+from .models import Product, Gallery, Service, FAQ, UserProfile
 
 # Create your views here.
 
@@ -343,4 +344,63 @@ def faq_delete(request, pk):
 
     return render(request, 'portal/faq/faq_confirm_delete.html', {
         'faq': faq
+    })
+
+
+# ============ PROFILE VIEWS ============
+
+@staff_member_required
+def profile_view(request):
+    """Afficher et modifier le profil utilisateur"""
+    user = request.user
+    profile, created = UserProfile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        try:
+            # Mettre à jour les informations de User
+            user.first_name = request.POST.get('first_name', '')
+            user.last_name = request.POST.get('last_name', '')
+            user.email = request.POST.get('email', '')
+            user.save()
+
+            # Mettre à jour les informations de UserProfile
+            profile.phone = request.POST.get('phone', '')
+            profile.address = request.POST.get('address', '')
+            profile.language = request.POST.get('language', 'fr')
+
+            # Gérer l'avatar
+            if 'avatar' in request.FILES:
+                profile.avatar = request.FILES['avatar']
+
+            profile.save()
+
+            messages.success(request, 'Profil mis à jour avec succès!')
+            return redirect('portal_admin:profile')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la mise à jour: {str(e)}')
+
+    return render(request, 'portal/profile/profile.html', {
+        'user': user,
+        'profile': profile
+    })
+
+
+@staff_member_required
+def password_change_view(request):
+    """Changer le mot de passe"""
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important pour ne pas déconnecter l'utilisateur
+            messages.success(request, 'Votre mot de passe a été changé avec succès!')
+            return redirect('portal_admin:profile')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'portal/profile/password_change.html', {
+        'form': form
     })

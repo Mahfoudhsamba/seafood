@@ -20,6 +20,10 @@ class PortalAdminSite(AdminSite):
             path('', views.home, name='index'),
             path('login/', views.portal_login, name='login'),
 
+            # Profile
+            path('my-profile/', views.profile_view, name='profile'),
+            path('my-profile/change-password/', views.password_change_view, name='profile_password_change'),
+
             # Products
             path('products/', views.product_list, name='product_list'),
             path('products/add/', views.product_add, name='product_add'),

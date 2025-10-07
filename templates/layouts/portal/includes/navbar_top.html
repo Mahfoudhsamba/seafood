@@ -62,9 +62,9 @@
             <li class="nav-item dropdown">
                 <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar avatar-l ">
-                        {% if request.user.avatar %}
-                            <img class="rounded-circle " src="{% static 'portal/assets/img/team/72x72/57.webp' %}" alt="" />
-                        {% else %} 
+                        {% if request.user.profile.avatar %}
+                            <img class="rounded-circle" src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" />
+                        {% else %}
                             <div class="avatar-name rounded-circle"><span>{{ request.user.username|slice:":1"|upper }}</span></div>
                         {% endif %}
                     </div>
@@ -74,9 +74,9 @@
                         <div class="card-body p-0">
                             <div class="text-center pt-4 pb-3">
                                 <div class="avatar avatar-xl ">
-                                    {% if request.user.avatar %}
-                                        <img class="rounded-circle " src="{% static 'portal/assets/img/team/72x72/57.webp' %}" alt="" />
-                                    {% else %} 
+                                    {% if request.user.profile.avatar %}
+                                        <img class="rounded-circle" src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" />
+                                    {% else %}
                                         <div class="avatar-name rounded-circle"><span>{{ request.user.username|slice:":2"|upper }}</span></div>
                                     {% endif %}
                                 </div>
@@ -85,11 +85,10 @@
                         </div>
                         <div class="overflow-auto scrollbar" style="height: 10rem;">
                             <ul class="nav d-flex flex-column mb-2 pb-1">
-                                <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="user"></span><span>Profil</span></a></li>
-                                <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"><span class="me-2 text-body align-bottom" data-feather="pie-chart"></span>Tableau de bord</a></li>
-                                <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="lock"></span>Activités</a></li>
-                                <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="settings"></span>Paramètres &amp; confidentialité </a></li>
-                                <li class="nav-item"><a class="nav-link px-3 d-block" href="#!"> <span class="me-2 text-body align-bottom" data-feather="globe"></span>Langue</a></li>
+                                <li class="nav-item"><a class="nav-link px-3 d-block" href="{% url 'portal_admin:profile' %}"> <span class="me-2 text-body align-bottom" data-feather="user"></span><span>Profil</span></a></li>
+                                <li class="nav-item"><a class="nav-link px-3 d-block" href="{% url 'portal_admin:index' %}"><span class="me-2 text-body align-bottom" data-feather="pie-chart"></span>Tableau de bord</a></li>
+                                <li class="nav-item"><a class="nav-link px-3 d-block" href="{% url 'portal_admin:profile_password_change' %}"> <span class="me-2 text-body align-bottom" data-feather="lock"></span>Changer mot de passe</a></li>
+                                <li class="nav-item"><a class="nav-link px-3 d-block" href="{% url 'portal_admin:profile' %}"> <span class="me-2 text-body align-bottom" data-feather="settings"></span>Paramètres &amp; confidentialité </a></li>
                             </ul>
                         </div>
                         <div class="card-footer p-0 border-top border-translucent">
