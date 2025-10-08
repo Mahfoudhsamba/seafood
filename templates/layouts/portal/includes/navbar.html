@@ -15,11 +15,13 @@
                         </div>
                     </li>
 
+                    {% if perms.portal.view_faq or perms.portal.add_faq or perms.portal.view_gallery or perms.portal.add_gallery or perms.portal.view_service or perms.portal.add_service or perms.portal.view_product or perms.portal.add_product %}
                     <li class="nav-item">
 
                         <p class="navbar-vertical-label">siteweb</p>
                         <hr class="navbar-vertical-line" />
 
+                        {% if perms.portal.view_faq or perms.portal.add_faq %}
                         <div class="nav-item-wrapper">
                             <a class="nav-link dropdown-indicator label-1" href="#nv-faq" role="button" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.url_name == 'faq_add' or request.resolver_match.url_name == 'faq_list' %}true{% else %}false{% endif %}" aria-controls="nv-faq">
                                 <div class="d-flex align-items-center">
@@ -30,20 +32,26 @@
                             <div class="parent-wrapper label-1">
                                 <ul class="nav collapse parent {% if request.resolver_match.url_name == 'faq_add' or request.resolver_match.url_name == 'faq_list' %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-faq">
                                     <li class="collapsed-nav-item-title d-none">Faq</li>
+                                    {% if perms.portal.add_faq %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'faq_add' %}active{% endif %}" href="{% url 'portal_admin:faq_add' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter une question</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
+                                    {% if perms.portal.view_faq %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'faq_list' %}active{% endif %}" href="{% url 'portal_admin:faq_list' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Liste des questions</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
+                        {% endif %}
 
+                        {% if perms.portal.view_gallery or perms.portal.add_gallery %}
                         <div class="nav-item-wrapper">
                             <a class="nav-link dropdown-indicator label-1" href="#nv-gallery" role="button" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.url_name == 'gallery_add' or request.resolver_match.url_name == 'gallery_list' %}true{% else %}false{% endif %}" aria-controls="nv-gallery">
                                 <div class="d-flex align-items-center">
@@ -53,21 +61,26 @@
                             <div class="parent-wrapper label-1">
                                 <ul class="nav collapse parent {% if request.resolver_match.url_name == 'gallery_add' or request.resolver_match.url_name == 'gallery_list' %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-gallery">
                                     <li class="collapsed-nav-item-title d-none">Galerie</li>
+                                    {% if perms.portal.add_gallery %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'gallery_add' %}active{% endif %}" href="{% url 'portal_admin:gallery_add' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter une image</span></div>
                                         </a>
                                     </li>
-
+                                    {% endif %}
+                                    {% if perms.portal.view_gallery %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'gallery_list' %}active{% endif %}" href="{% url 'portal_admin:gallery_list' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Liste des images</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
+                        {% endif %}
 
+                        {% if perms.portal.view_service or perms.portal.add_service %}
                         <div class="nav-item-wrapper">
                             <a class="nav-link dropdown-indicator label-1" href="#nv-events" role="button" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.url_name == 'service_add' or request.resolver_match.url_name == 'service_list' %}true{% else %}false{% endif %}" aria-controls="nv-events">
                                 <div class="d-flex align-items-center">
@@ -77,20 +90,26 @@
                             <div class="parent-wrapper label-1">
                                 <ul class="nav collapse parent {% if request.resolver_match.url_name == 'service_add' or request.resolver_match.url_name == 'service_list' %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-events">
                                     <li class="collapsed-nav-item-title d-none">Services</li>
+                                    {% if perms.portal.add_service %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'service_add' %}active{% endif %}" href="{% url 'portal_admin:service_add' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter un service</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
+                                    {% if perms.portal.view_service %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'service_list' %}active{% endif %}" href="{% url 'portal_admin:service_list' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Liste des services</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
+                        {% endif %}
 
+                        {% if perms.portal.view_product or perms.portal.add_product %}
                         <div class="nav-item-wrapper">
                             <a class="nav-link dropdown-indicator label-1" href="#nv-product" role="button" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.url_name == 'product_add' or request.resolver_match.url_name == 'product_list' %}true{% else %}false{% endif %}" aria-controls="nv-product">
                                 <div class="d-flex align-items-center">
@@ -100,20 +119,26 @@
                             <div class="parent-wrapper label-1">
                                 <ul class="nav collapse parent {% if request.resolver_match.url_name == 'product_add' or request.resolver_match.url_name == 'product_list' %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-product">
                                     <li class="collapsed-nav-item-title d-none">Produits</li>
+                                    {% if perms.portal.add_product %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'product_add' %}active{% endif %}" href="{% url 'portal_admin:product_add' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter un produit</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
+                                    {% if perms.portal.view_product %}
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}" href="{% url 'portal_admin:product_list' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Liste des produits</span></div>
                                         </a>
                                     </li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
+                        {% endif %}
                     </li>
+                    {% endif %}
 
                     <li class="nav-item">
                         <p class="navbar-vertical-label">Configuration</p>
@@ -131,6 +156,7 @@
                             <div class="parent-wrapper label-1">
                                 <ul class="nav collapse parent {% if request.resolver_match.namespace == 'authentication' %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-configuration">
                                     <li class="collapsed-nav-item-title d-none">Configuration</li>
+                                    {% if perms.authentication.view_user or perms.authentication.view_role or perms.authentication.view_useractionlog %}
                                     <li class="nav-item">
                                         <a class="nav-link dropdown-indicator" href="#nv-level-two" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.namespace == 'authentication' %}true{% else %}false{% endif %}" aria-controls="nv-level-two">
                                             <div class="d-flex align-items-center">
@@ -142,24 +168,31 @@
                                         </a>
                                         <div class="parent-wrapper">
                                             <ul class="nav collapse parent {% if request.resolver_match.namespace == 'authentication' %}show{% endif %}" data-bs-parent="#multi-level" id="nv-level-two">
+                                                {% if perms.authentication.view_user %}
                                                 <li class="nav-item">
                                                     <a class="nav-link {% if 'users' in request.path %}active{% endif %}" href="{% url 'authentication:users_list' %}">
                                                         <div class="d-flex align-items-center"><span class="nav-link-text">Utilisateurs</span></div>
                                                     </a>
                                                 </li>
+                                                {% endif %}
+                                                {% if perms.authentication.view_role %}
                                                 <li class="nav-item">
                                                     <a class="nav-link {% if 'roles' in request.path %}active{% endif %}" href="{% url 'authentication:roles_list' %}">
                                                         <div class="d-flex align-items-center"><span class="nav-link-text">Rôles et permissions</span></div>
                                                     </a>
                                                 </li>
+                                                {% endif %}
+                                                {% if perms.authentication.view_useractionlog %}
                                                 <li class="nav-item">
                                                     <a class="nav-link {% if 'logs' in request.path %}active{% endif %}" href="{% url 'authentication:user_action_logs' %}">
                                                         <div class="d-flex align-items-center"><span class="nav-link-text">Logs d'actions</span></div>
                                                     </a>
                                                 </li>
+                                                {% endif %}
                                             </ul>
                                         </div>
                                     </li>
+                                    {% endif %}
                                     <li class="nav-item">
                                         <a class="nav-link" href="#">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Entreprise</span></div>
