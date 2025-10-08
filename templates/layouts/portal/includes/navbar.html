@@ -119,7 +119,7 @@
                         <p class="navbar-vertical-label">Configuration</p>
                         <hr class="navbar-vertical-line" />
                         <div class="nav-item-wrapper">
-                            <a class="nav-link dropdown-indicator label-1" href="#nv-configuration" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="nv-configuration">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-configuration" role="button" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.namespace == 'authentication' %}true{% else %}false{% endif %}" aria-controls="nv-configuration">
                                 <div class="d-flex align-items-center">
                                     <div class="dropdown-indicator-icon-wrapper">
                                         <span class="fas fa-caret-right dropdown-indicator-icon"></span>
@@ -129,10 +129,10 @@
                                 </div>
                             </a>
                             <div class="parent-wrapper label-1">
-                                <ul class="nav collapse parent" data-bs-parent="#navbarVerticalCollapse" id="nv-configuration">
+                                <ul class="nav collapse parent {% if request.resolver_match.namespace == 'authentication' %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-configuration">
                                     <li class="collapsed-nav-item-title d-none">Configuration</li>
                                     <li class="nav-item">
-                                        <a class="nav-link dropdown-indicator" href="#nv-level-two" data-bs-toggle="collapse" aria-expanded="false" aria-controls="nv-level-two">
+                                        <a class="nav-link dropdown-indicator" href="#nv-level-two" data-bs-toggle="collapse" aria-expanded="{% if request.resolver_match.namespace == 'authentication' %}true{% else %}false{% endif %}" aria-controls="nv-level-two">
                                             <div class="d-flex align-items-center">
                                                 <div class="dropdown-indicator-icon-wrapper">
                                                     <span class="fas fa-caret-right dropdown-indicator-icon"></span>
@@ -141,15 +141,20 @@
                                             </div>
                                         </a>
                                         <div class="parent-wrapper">
-                                            <ul class="nav collapse parent" data-bs-parent="#multi-level" id="nv-level-two">
+                                            <ul class="nav collapse parent {% if request.resolver_match.namespace == 'authentication' %}show{% endif %}" data-bs-parent="#multi-level" id="nv-level-two">
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#!.html">
+                                                    <a class="nav-link {% if 'users' in request.path %}active{% endif %}" href="{% url 'authentication:users_list' %}">
                                                         <div class="d-flex align-items-center"><span class="nav-link-text">Utilisateurs</span></div>
                                                     </a>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <a class="nav-link" href="#!.html">
+                                                    <a class="nav-link {% if 'roles' in request.path %}active{% endif %}" href="{% url 'authentication:roles_list' %}">
                                                         <div class="d-flex align-items-center"><span class="nav-link-text">Rôles et permissions</span></div>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link {% if 'logs' in request.path %}active{% endif %}" href="{% url 'authentication:user_action_logs' %}">
+                                                        <div class="d-flex align-items-center"><span class="nav-link-text">Logs d'actions</span></div>
                                                     </a>
                                                 </li>
                                             </ul>

@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from portal.admin import portal_admin_site
 
 urlpatterns = [
+    path('portal/administration/', include(('authentication.urls', 'authentication'), namespace='authentication')),
     path('portal/', portal_admin_site.urls),
     path('', include('seafood.urls')),
 ]

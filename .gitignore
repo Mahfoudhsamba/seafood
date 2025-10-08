@@ -1,12 +1,13 @@
 # Exclus Environnement virtuel de la suivi
-env
-repository
+env/
+venv/
+repository/
 
 # Fichiers Python compilés
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.pyc
 
 # Base de données SQLite (si utilisée en développement)
 *.sqlite3
@@ -18,10 +19,31 @@ static_collected/
 note.md
 
 # Fichiers de sauvegarde claude
-# **/.claude/settings.local.json
-.claude
-# install.md
-# token.md
+.claude/
 local_settings.py
 
-migrations/
+# Fichiers temporaires de développement
+reset_*.py
+reset_*.sql
+flush_*.py
+create_demo_*.py
+*_temp.py
+*_backup.py
+test_*.py
+
+# Migrations (à décommenter si vous voulez les versionner)
+# migrations/
+
+# Fichiers de logs
+*.log
+
+# Fichiers de configuration IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Fichiers OS
+.DS_Store
+Thumbs.db

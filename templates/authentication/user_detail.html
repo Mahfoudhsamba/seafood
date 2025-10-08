@@ -1,0 +1,201 @@
+{% extends "layouts/portal/base.html" %}
+{% load static %}
+
+{% block title %}Détails de l'Utilisateur - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Détails de l'Utilisateur</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'authentication:users_list' %}" class="btn btn-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour à la liste
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Informations personnelles</h5>
+          <div class="btn-group" role="group">
+            <a href="{% url 'authentication:user_update' user.pk %}" class="btn btn-sm btn-primary">
+              <span class="fas fa-edit me-2"></span>Modifier
+            </a>
+            <form method="post" action="{% url 'authentication:toggle_user_status' user.pk %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Êtes-vous sûr de vouloir {% if user.is_active %}désactiver{% else %}activer{% endif %} cet utilisateur ?');">
+                <span class="fas fa-toggle-on me-2"></span>
+                {% if user.is_active %}Désactiver{% else %}Activer{% endif %}
+              </button>
+            </form>
+            <a href="{% url 'authentication:admin_reset_password' user.pk %}" class="btn btn-sm btn-info">
+              <span class="fas fa-key me-2"></span>Réinitialiser mot de passe
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-12 text-center mb-3">
+              {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #ddd;">
+              {% else %}
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 48px; font-weight: bold; border: 3px solid #ddd;">
+                  {{ user.username|slice:":1"|upper }}
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Username:</strong></p>
+              <p class="text-muted">{{ user.username }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Email:</strong></p>
+              <p class="text-muted">{{ user.email }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Prénom:</strong></p>
+              <p class="text-muted">{{ user.first_name|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Nom:</strong></p>
+              <p class="text-muted">{{ user.last_name|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Téléphone:</strong></p>
+              <p class="text-muted">{{ user.phone|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Statut:</strong></p>
+              <p>
+                {% if user.is_active %}
+                  <span class="badge bg-success">Actif</span>
+                {% else %}
+                  <span class="badge bg-secondary">Inactif</span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Superutilisateur:</strong></p>
+              <p>
+                {% if user.is_superuser %}
+                  <span class="badge bg-danger">Oui</span>
+                {% else %}
+                  <span class="badge bg-light text-dark">Non</span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Staff:</strong></p>
+              <p>
+                {% if user.is_staff %}
+                  <span class="badge bg-warning">Oui</span>
+                {% else %}
+                  <span class="badge bg-light text-dark">Non</span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Date d'inscription:</strong></p>
+              <p class="text-muted">{{ user.date_joined|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Dernière connexion:</strong></p>
+              <p class="text-muted">{{ user.last_login|date:"d/m/Y H:i"|default:"-" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if recent_actions %}
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Dernières actions</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr>
+                    <th>Action</th>
+                    <th>Détails</th>
+                    <th>Adresse IP</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for action in recent_actions %}
+                    <tr>
+                      <td><strong>{{ action.action_type }}</strong></td>
+                      <td>{{ action.details|default:"-" }}</td>
+                      <td>{{ action.ip_address|default:"-" }}</td>
+                      <td>{{ action.timestamp|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0">Rôle et Permissions</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-2"><strong>Rôle:</strong></p>
+          {% if user.role %}
+            <p>
+              <span class="badge bg-info">{{ user.role.name }}</span>
+            </p>
+            <p class="mt-3 mb-2"><strong>Description:</strong></p>
+            <p class="text-muted small">{{ user.role.description|default:"-" }}</p>
+            <a href="{% url 'authentication:role_detail' user.role.pk %}" class="btn btn-sm btn-outline-primary mt-2">
+              <span class="fas fa-eye me-2"></span>Voir le rôle
+            </a>
+          {% else %}
+            <p class="text-muted">Aucun rôle assigné</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Statistiques</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <p class="mb-1"><strong>Nombre d'actions:</strong></p>
+            <p class="text-muted fs-4 mb-0">{{ user.useraction_set.count }}</p>
+          </div>
+          <div class="mb-3">
+            <p class="mb-1"><strong>Dernière activité:</strong></p>
+            <p class="text-muted">
+              {% if user.useraction_set.last %}
+                {{ user.useraction_set.last.timestamp|date:"d/m/Y H:i" }}
+              {% else %}
+                Aucune activité
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

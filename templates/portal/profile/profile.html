@@ -39,8 +39,8 @@
               <div class="col-md-12">
                 <div class="text-center mb-4">
                   <div class="avatar avatar-5xl mb-3">
-                    {% if profile.avatar %}
-                      <img class="rounded-circle" src="{{ profile.avatar.url }}" alt="{{ user.username }}" />
+                    {% if user.avatar %}
+                      <img class="rounded-circle" src="{{ user.avatar.url }}" alt="{{ user.username }}" />
                     {% else %}
                       <div class="avatar-name rounded-circle bg-primary">
                         <span class="fs-4">{{ user.username|slice:":2"|upper }}</span>

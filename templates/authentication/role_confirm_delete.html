@@ -1,0 +1,75 @@
+{% extends "layouts/portal/base.html" %}
+{% load static %}
+
+{% block title %}Supprimer le Rôle - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Supprimer le Rôle</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'authentication:role_detail' role.pk %}" class="btn btn-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour aux détails
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">
+            <span class="fas fa-exclamation-triangle me-2"></span>
+            Confirmation de suppression
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <strong>Attention:</strong> Êtes-vous sûr de vouloir supprimer le rôle <strong>{{ role.name }}</strong> ?
+          </div>
+
+          <div class="mb-3">
+            <h6>Informations sur le rôle:</h6>
+            <ul>
+              <li><strong>Nom:</strong> {{ role.name }}</li>
+              <li><strong>Description:</strong> {{ role.description|default:"Aucune description" }}</li>
+              <li><strong>Nombre d'utilisateurs:</strong> {{ role.customuser_set.count }}</li>
+              <li><strong>Nombre de permissions:</strong> {{ role.permissions.count }}</li>
+            </ul>
+          </div>
+
+          {% if role.customuser_set.count > 0 %}
+            <div class="alert alert-danger" role="alert">
+              <span class="fas fa-exclamation-circle me-2"></span>
+              <strong>Attention:</strong> Ce rôle est actuellement assigné à {{ role.customuser_set.count }} utilisateur{{ role.customuser_set.count|pluralize }}. La suppression de ce rôle retirera le rôle de tous ces utilisateurs.
+            </div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mt-4">
+              <button type="submit" class="btn btn-danger">
+                <span class="fas fa-trash me-2"></span>Oui, supprimer ce rôle
+              </button>
+              <a href="{% url 'authentication:role_detail' role.pk %}" class="btn btn-secondary">
+                <span class="fas fa-times me-2"></span>Non, annuler
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

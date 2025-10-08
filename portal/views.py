@@ -352,26 +352,66 @@ def faq_delete(request, pk):
 @staff_member_required
 def profile_view(request):
     """Afficher et modifier le profil utilisateur"""
+    import os
+    from django.core.files.base import ContentFile
+    from authentication.models import User
+
     user = request.user
     profile, created = UserProfile.objects.get_or_create(user=user)
 
     if request.method == 'POST':
         try:
+            # Récupérer l'ancien avatar avant toute modification
+            old_avatar_path = None
+            has_new_avatar = 'avatar' in request.FILES
+
+            if has_new_avatar and user.avatar:
+                old_avatar_path = user.avatar.path
+
             # Mettre à jour les informations de User
             user.first_name = request.POST.get('first_name', '')
             user.last_name = request.POST.get('last_name', '')
             user.email = request.POST.get('email', '')
+
+            # Gérer l'avatar sur User (pas UserProfile)
+            if has_new_avatar:
+                uploaded_file = request.FILES['avatar']
+
+                # Lire le contenu du fichier
+                file_content = uploaded_file.read()
+
+                # Créer le nouveau nom de fichier
+                ext = uploaded_file.name.split('.')[-1].lower()
+                new_filename = f"user_{user.id}.{ext}"
+                new_path = os.path.join('media', 'avatars', new_filename)
+
+                # Supprimer l'ancien fichier physique s'il existe
+                if old_avatar_path and os.path.isfile(old_avatar_path):
+                    try:
+                        os.remove(old_avatar_path)
+                    except Exception:
+                        pass
+
+                # Supprimer aussi le fichier cible s'il existe déjà
+                if os.path.isfile(new_path):
+                    try:
+                        os.remove(new_path)
+                    except Exception:
+                        pass
+
+                # Supprimer l'objet avatar de la base de données
+                if user.avatar:
+                    user.avatar.delete(save=False)
+
+                # Sauvegarder avec le nouveau nom
+                user.avatar.save(new_filename, ContentFile(file_content), save=False)
+
             user.save()
 
             # Mettre à jour les informations de UserProfile
             profile.phone = request.POST.get('phone', '')
             profile.address = request.POST.get('address', '')
             profile.language = request.POST.get('language', 'fr')
-
-            # Gérer l'avatar
-            if 'avatar' in request.FILES:
-                profile.avatar = request.FILES['avatar']
-
             profile.save()
 
             messages.success(request, 'Profil mis à jour avec succès!')

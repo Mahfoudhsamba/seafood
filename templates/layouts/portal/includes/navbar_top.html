@@ -62,8 +62,8 @@
             <li class="nav-item dropdown">
                 <a class="nav-link lh-1 pe-0" id="navbarDropdownUser" href="#!" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
                     <div class="avatar avatar-l ">
-                        {% if request.user.profile.avatar %}
-                            <img class="rounded-circle" src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" />
+                        {% if request.user.avatar %}
+                            <img class="rounded-circle" src="{{ request.user.avatar.url }}" alt="{{ request.user.username }}" />
                         {% else %}
                             <div class="avatar-name rounded-circle"><span>{{ request.user.username|slice:":1"|upper }}</span></div>
                         {% endif %}
@@ -74,8 +74,8 @@
                         <div class="card-body p-0">
                             <div class="text-center pt-4 pb-3">
                                 <div class="avatar avatar-xl ">
-                                    {% if request.user.profile.avatar %}
-                                        <img class="rounded-circle" src="{{ request.user.profile.avatar.url }}" alt="{{ request.user.username }}" />
+                                    {% if request.user.avatar %}
+                                        <img class="rounded-circle" src="{{ request.user.avatar.url }}" alt="{{ request.user.username }}" />
                                     {% else %}
                                         <div class="avatar-name rounded-circle"><span>{{ request.user.username|slice:":2"|upper }}</span></div>
                                     {% endif %}
