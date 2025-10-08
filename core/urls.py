@@ -18,6 +18,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from portal.admin import portal_admin_site
+from django.views.defaults import permission_denied
+
+# Handler pour les erreurs 403
+handler403 = 'django.views.defaults.permission_denied'
 
 urlpatterns = [
     path('portal/administration/', include(('authentication.urls', 'authentication'), namespace='authentication')),

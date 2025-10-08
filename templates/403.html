@@ -1,0 +1,35 @@
+{% extends "layouts/portal/base.html" %}
+{% load static %}
+
+{% block title %}Accès refusé - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-center min-vh-100">
+    <div class="col-lg-6 col-md-8 col-12">
+      <div class="card text-center">
+        <div class="card-body p-5">
+          <div class="mb-4">
+            <span class="text-danger display-1 fw-bold">403</span>
+          </div>
+          <h2 class="mb-3">Accès refusé</h2>
+          <p class="text-muted mb-4">
+            Désolé, vous n'avez pas les permissions nécessaires pour accéder à cette page.
+          </p>
+          <p class="text-muted mb-4">
+            Si vous pensez qu'il s'agit d'une erreur, veuillez contacter votre administrateur système.
+          </p>
+          <div class="d-flex justify-content-center gap-2">
+            <a href="{% url 'portal_admin:index' %}" class="btn btn-primary">
+              <span class="fas fa-home me-2"></span>Retour à l'accueil
+            </a>
+            <a href="javascript:history.back()" class="btn btn-phoenix-secondary">
+              <span class="fas fa-arrow-left me-2"></span>Retour
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

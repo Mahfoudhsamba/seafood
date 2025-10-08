@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
@@ -35,6 +36,7 @@ def home(request):
 # ============ PRODUCT VIEWS ============
 
 @staff_member_required
+@permission_required('portal.view_product', raise_exception=True)
 def product_list(request):
     """Liste des produits"""
     products = Product.objects.all().order_by('-created_at')
@@ -42,6 +44,7 @@ def product_list(request):
 
 
 @staff_member_required
+@permission_required('portal.add_product', raise_exception=True)
 def product_add(request):
     """Formulaire d'ajout de produit"""
     if request.method == 'POST':
@@ -72,6 +75,7 @@ def product_add(request):
 
 
 @staff_member_required
+@permission_required('portal.change_product', raise_exception=True)
 def product_edit(request, pk):
     """Formulaire de modification de produit"""
     from django.shortcuts import get_object_or_404
@@ -105,6 +109,7 @@ def product_edit(request, pk):
 
 
 @staff_member_required
+@permission_required('portal.delete_product', raise_exception=True)
 def product_delete(request, pk):
     """Suppression d'un produit"""
     from django.shortcuts import get_object_or_404
@@ -126,6 +131,7 @@ def product_delete(request, pk):
 # ============ GALLERY VIEWS ============
 
 @staff_member_required
+@permission_required('portal.view_gallery', raise_exception=True)
 def gallery_list(request):
     """Liste des images de la galerie"""
     gallery_items = Gallery.objects.all().order_by('order', '-created_at')
@@ -133,6 +139,7 @@ def gallery_list(request):
 
 
 @staff_member_required
+@permission_required('portal.add_gallery', raise_exception=True)
 def gallery_add(request):
     """Formulaire d'ajout d'image"""
     if request.method == 'POST':
@@ -154,6 +161,7 @@ def gallery_add(request):
 
 
 @staff_member_required
+@permission_required('portal.change_gallery', raise_exception=True)
 def gallery_edit(request, pk):
     """Formulaire de modification d'image"""
     from django.shortcuts import get_object_or_404
@@ -179,6 +187,7 @@ def gallery_edit(request, pk):
 
 
 @staff_member_required
+@permission_required('portal.delete_gallery', raise_exception=True)
 def gallery_delete(request, pk):
     """Suppression d'une image"""
     from django.shortcuts import get_object_or_404
@@ -200,6 +209,7 @@ def gallery_delete(request, pk):
 # ============ SERVICE VIEWS ============
 
 @staff_member_required
+@permission_required('portal.view_service', raise_exception=True)
 def service_list(request):
     """Liste des services"""
     services = Service.objects.all().order_by('order', 'name')
@@ -207,6 +217,7 @@ def service_list(request):
 
 
 @staff_member_required
+@permission_required('portal.add_service', raise_exception=True)
 def service_add(request):
     """Formulaire d'ajout de service"""
     if request.method == 'POST':
@@ -228,6 +239,7 @@ def service_add(request):
 
 
 @staff_member_required
+@permission_required('portal.change_service', raise_exception=True)
 def service_edit(request, pk):
     """Formulaire de modification de service"""
     from django.shortcuts import get_object_or_404
@@ -253,6 +265,7 @@ def service_edit(request, pk):
 
 
 @staff_member_required
+@permission_required('portal.delete_service', raise_exception=True)
 def service_delete(request, pk):
     """Suppression d'un service"""
     from django.shortcuts import get_object_or_404
@@ -274,6 +287,7 @@ def service_delete(request, pk):
 # ============ FAQ VIEWS ============
 
 @staff_member_required
+@permission_required('portal.view_faq', raise_exception=True)
 def faq_list(request):
     """Liste des FAQs"""
     faqs = FAQ.objects.all().order_by('order', '-created_at')
@@ -281,6 +295,7 @@ def faq_list(request):
 
 
 @staff_member_required
+@permission_required('portal.add_faq', raise_exception=True)
 def faq_add(request):
     """Formulaire d'ajout de FAQ"""
     if request.method == 'POST':
@@ -303,6 +318,7 @@ def faq_add(request):
 
 
 @staff_member_required
+@permission_required('portal.change_faq', raise_exception=True)
 def faq_edit(request, pk):
     """Formulaire de modification de FAQ"""
     from django.shortcuts import get_object_or_404
@@ -329,6 +345,7 @@ def faq_edit(request, pk):
 
 
 @staff_member_required
+@permission_required('portal.delete_faq', raise_exception=True)
 def faq_delete(request, pk):
     """Suppression d'une FAQ"""
     from django.shortcuts import get_object_or_404
