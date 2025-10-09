@@ -222,7 +222,7 @@ def service_image_path(instance, filename):
 
 class Service(models.Model):
     """
-    Modèle pour les services offerts par PPA
+    Modèle pour les services offerts par Seafood
     """
     name = models.CharField(max_length=200, verbose_name='Nom du service')
     slug = models.SlugField(max_length=250, unique=True, blank=True, verbose_name='Slug')

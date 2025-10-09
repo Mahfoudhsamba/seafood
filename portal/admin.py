@@ -7,8 +7,8 @@ from . import views
 
 # Custom Portal Admin Site
 class PortalAdminSite(AdminSite):
-    site_header = 'PPA Admin Portal'
-    site_title = 'PPA Admin'
+    site_header = 'Seafood Admin Portal'
+    site_title = 'Seafood Admin'
     index_title = 'Tableau de Bord'
 
     def get_urls(self):
