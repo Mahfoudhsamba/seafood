@@ -49,11 +49,15 @@ def product_add(request):
     """Formulaire d'ajout de produit"""
     if request.method == 'POST':
         try:
+            import os
+            from django.core.files.base import ContentFile
+
+            # Sauvegarder d'abord sans image pour obtenir l'ID
+            uploaded_image = request.FILES.get('image')
             product = Product(
                 product=request.POST.get('product'),
                 local_name=request.POST.get('local_name', ''),
                 scientific_name=request.POST.get('scientific_name', ''),
-                image=request.FILES.get('image'),
                 weight=request.POST.get('weight'),
                 description=request.POST.get('description'),
                 price=request.POST.get('price'),
@@ -63,7 +67,29 @@ def product_add(request):
                 stock_quantity=request.POST.get('stock_quantity', 0),
                 minimum_order=request.POST.get('minimum_order', 1.00)
             )
+
+            if uploaded_image:
+                # Lire le contenu du fichier
+                file_content = uploaded_image.read()
+                ext = uploaded_image.name.split('.')[-1].lower()
+
+                # Sauvegarder temporairement
+                product.image.save(f'temp_{uploaded_image.name}', ContentFile(file_content), save=False)
+
             product.save()
+
+            # Maintenant renommer l'image avec l'ID
+            if uploaded_image:
+                old_path = product.image.path
+                new_filename = f'product_{product.pk}.{ext}'
+
+                # Supprimer l'ancien fichier
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+
+                # Sauvegarder avec le bon nom
+                product.image.save(new_filename, ContentFile(file_content), save=True)
+
             messages.success(request, 'Produit ajouté avec succès!')
             return redirect('portal_admin:product_list')
         except Exception as e:
@@ -83,11 +109,26 @@ def product_edit(request, pk):
 
     if request.method == 'POST':
         try:
+            import os
+            from django.core.files.base import ContentFile
+
             product.product = request.POST.get('product')
             product.local_name = request.POST.get('local_name', '')
             product.scientific_name = request.POST.get('scientific_name', '')
+
             if 'image' in request.FILES:
-                product.image = request.FILES.get('image')
+                uploaded_image = request.FILES.get('image')
+                file_content = uploaded_image.read()
+                ext = uploaded_image.name.split('.')[-1].lower()
+                new_filename = f'product_{product.pk}.{ext}'
+
+                # Supprimer l'ancienne image si elle existe
+                if product.image and os.path.isfile(product.image.path):
+                    os.remove(product.image.path)
+
+                # Sauvegarder avec le nouveau nom
+                product.image.save(new_filename, ContentFile(file_content), save=False)
+
             product.weight = request.POST.get('weight')
             product.description = request.POST.get('description')
             product.price = request.POST.get('price')
@@ -144,14 +185,40 @@ def gallery_add(request):
     """Formulaire d'ajout d'image"""
     if request.method == 'POST':
         try:
-            image = Gallery(
-                image=request.FILES.get('image'),
+            import os
+            from django.core.files.base import ContentFile
+
+            # Sauvegarder d'abord sans image pour obtenir l'ID
+            uploaded_image = request.FILES.get('image')
+            gallery_item = Gallery(
                 title=request.POST.get('title'),
                 description=request.POST.get('description'),
                 is_active=request.POST.get('is_active') == 'on',
                 order=request.POST.get('order', 0)
             )
-            image.save()
+
+            if uploaded_image:
+                # Lire le contenu du fichier
+                file_content = uploaded_image.read()
+                ext = uploaded_image.name.split('.')[-1].lower()
+
+                # Sauvegarder temporairement
+                gallery_item.image.save(f'temp_{uploaded_image.name}', ContentFile(file_content), save=False)
+
+            gallery_item.save()
+
+            # Maintenant renommer l'image avec l'ID
+            if uploaded_image:
+                old_path = gallery_item.image.path
+                new_filename = f'gallery_{gallery_item.pk}.{ext}'
+
+                # Supprimer l'ancien fichier
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+
+                # Sauvegarder avec le bon nom
+                gallery_item.image.save(new_filename, ContentFile(file_content), save=True)
+
             messages.success(request, 'Image ajoutée avec succès!')
             return redirect('portal_admin:gallery_list')
         except Exception as e:
@@ -169,8 +236,22 @@ def gallery_edit(request, pk):
 
     if request.method == 'POST':
         try:
+            import os
+            from django.core.files.base import ContentFile
+
             if 'image' in request.FILES:
-                gallery_item.image = request.FILES.get('image')
+                uploaded_image = request.FILES.get('image')
+                file_content = uploaded_image.read()
+                ext = uploaded_image.name.split('.')[-1].lower()
+                new_filename = f'gallery_{gallery_item.pk}.{ext}'
+
+                # Supprimer l'ancienne image si elle existe
+                if gallery_item.image and os.path.isfile(gallery_item.image.path):
+                    os.remove(gallery_item.image.path)
+
+                # Sauvegarder avec le nouveau nom
+                gallery_item.image.save(new_filename, ContentFile(file_content), save=False)
+
             gallery_item.title = request.POST.get('title')
             gallery_item.description = request.POST.get('description')
             gallery_item.is_active = request.POST.get('is_active') == 'on'

@@ -2,8 +2,9 @@ from django.db import models
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
+import os
 
 # Create your models here.
 
@@ -46,11 +47,19 @@ def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
 
+def gallery_image_path(instance, filename):
+    """Génère le chemin de l'image de galerie avec nomenclature"""
+    ext = filename.split('.')[-1].lower()
+    if instance.pk:
+        return f'gallery/gallery_{instance.pk}.{ext}'
+    return f'gallery/{filename}'
+
+
 class Gallery(models.Model):
     """
     Modèle pour la galerie d'images
     """
-    image = models.ImageField(upload_to='gallery/', verbose_name='Image')
+    image = models.ImageField(upload_to=gallery_image_path, verbose_name='Image')
     title = models.CharField(max_length=200, verbose_name='Titre')
     description = models.TextField(verbose_name='Description')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Date de création')
@@ -65,6 +74,38 @@ class Gallery(models.Model):
 
     def __str__(self):
         return self.title
+
+
+@receiver(pre_save, sender=Gallery)
+def delete_old_gallery_image_on_update(sender, instance, **kwargs):
+    """Supprime l'ancienne image lors de la modification"""
+    if not instance.pk:
+        return False
+
+    try:
+        old_instance = Gallery.objects.get(pk=instance.pk)
+    except Gallery.DoesNotExist:
+        return False
+
+    if old_instance.image and old_instance.image != instance.image:
+        if os.path.isfile(old_instance.image.path):
+            os.remove(old_instance.image.path)
+
+
+@receiver(pre_delete, sender=Gallery)
+def delete_gallery_image_on_delete(sender, instance, **kwargs):
+    """Supprime l'image lors de la suppression de l'objet Gallery"""
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+
+
+def product_image_path(instance, filename):
+    """Génère le chemin de l'image de produit avec nomenclature"""
+    ext = filename.split('.')[-1].lower()
+    if instance.pk:
+        return f'products/product_{instance.pk}.{ext}'
+    return f'products/{filename}'
 
 
 class Product(models.Model):
@@ -83,7 +124,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=250, unique=True, blank=True, verbose_name='Slug')
     local_name = models.CharField(max_length=200, blank=True, verbose_name='Nom local')
     scientific_name = models.CharField(max_length=200, blank=True, verbose_name='Nom scientifique')
-    image = models.ImageField(upload_to='products/', verbose_name='Image')
+    image = models.ImageField(upload_to=product_image_path, verbose_name='Image')
     weight = models.DecimalField(
         max_digits=6,
         decimal_places=2,
@@ -145,6 +186,30 @@ class Product(models.Model):
     def is_in_stock(self):
         """Vérifie si le produit est en stock"""
         return self.stock_quantity > 0
+
+
+@receiver(pre_save, sender=Product)
+def delete_old_product_image_on_update(sender, instance, **kwargs):
+    """Supprime l'ancienne image lors de la modification"""
+    if not instance.pk:
+        return False
+
+    try:
+        old_instance = Product.objects.get(pk=instance.pk)
+    except Product.DoesNotExist:
+        return False
+
+    if old_instance.image and old_instance.image != instance.image:
+        if os.path.isfile(old_instance.image.path):
+            os.remove(old_instance.image.path)
+
+
+@receiver(pre_delete, sender=Product)
+def delete_product_image_on_delete(sender, instance, **kwargs):
+    """Supprime l'image lors de la suppression de l'objet Product"""
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
 
 
 class Service(models.Model):
