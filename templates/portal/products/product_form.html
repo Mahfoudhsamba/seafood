@@ -1,13 +1,13 @@
 {% extends "layouts/portal/base.html" %}
 {% load static %}
 
-{% block title %}Ajouter un Produit - Seafood Portal{% endblock %}
+{% block title %}{% if product %}Modifier{% else %}Ajouter{% endif %} un Produit - Seafood Portal{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Ajouter un Produit</h2>
+      <h2 class="mb-0">{% if product %}Modifier{% else %}Ajouter{% endif %} un Produit</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:product_list' %}" class="btn btn-secondary">
@@ -33,17 +33,17 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label for="product" class="form-label">Nom du produit <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="product" name="product" required>
+            <input type="text" class="form-control" id="product" name="product" value="{{ product.product|default:'' }}" required>
           </div>
 
           <div class="col-md-6">
             <label for="local_name" class="form-label">Nom local</label>
-            <input type="text" class="form-control" id="local_name" name="local_name">
+            <input type="text" class="form-control" id="local_name" name="local_name" value="{{ product.local_name|default:'' }}">
           </div>
 
           <div class="col-md-6">
             <label for="scientific_name" class="form-label">Nom scientifique</label>
-            <input type="text" class="form-control" id="scientific_name" name="scientific_name">
+            <input type="text" class="form-control" id="scientific_name" name="scientific_name" value="{{ product.scientific_name|default:'' }}">
           </div>
 
           <div class="col-md-6">
@@ -51,44 +51,47 @@
             <select class="form-select" id="category" name="category" required>
               <option value="">Sélectionner une catégorie</option>
               {% for value, label in categories %}
-                <option value="{{ value }}">{{ label }}</option>
+                <option value="{{ value }}" {% if product.category == value %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
             </select>
           </div>
 
           <div class="col-md-4">
             <label for="weight" class="form-label">Poids (kg) <span class="text-danger">*</span></label>
-            <input type="number" step="0.01" min="0.01" class="form-control" id="weight" name="weight" required>
+            <input type="number" step="0.01" min="0.01" class="form-control" id="weight" name="weight" value="{{ product.weight|default:'' }}" required>
           </div>
 
           <div class="col-md-4">
             <label for="price" class="form-label">Prix par kg (FCFA) <span class="text-danger">*</span></label>
-            <input type="number" step="0.01" min="0.01" class="form-control" id="price" name="price" required>
+            <input type="number" step="0.01" min="0.01" class="form-control" id="price" name="price" value="{{ product.price|default:'' }}" required>
           </div>
 
           <div class="col-md-4">
             <label for="stock_quantity" class="form-label">Stock (kg)</label>
-            <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" value="0">
+            <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" value="{{ product.stock_quantity|default:'0' }}">
           </div>
 
           <div class="col-md-4">
             <label for="minimum_order" class="form-label">Commande minimale (kg)</label>
-            <input type="number" step="0.01" min="0.01" class="form-control" id="minimum_order" name="minimum_order" value="1.00">
+            <input type="number" step="0.01" min="0.01" class="form-control" id="minimum_order" name="minimum_order" value="{{ product.minimum_order|default:'1.00' }}">
           </div>
 
           <div class="col-md-8">
-            <label for="image" class="form-label">Image <span class="text-danger">*</span></label>
-            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+            <label for="image" class="form-label">Image {% if not product %}<span class="text-danger">*</span>{% endif %}</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*" {% if not product %}required{% endif %}>
+            {% if product.image %}
+              <small class="text-muted">Image actuelle: <a href="{{ product.image.url }}" target="_blank">{{ product.image.name }}</a></small>
+            {% endif %}
           </div>
 
           <div class="col-12">
             <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            <textarea class="form-control" id="description" name="description" rows="4" required>{{ product.description|default:'' }}</textarea>
           </div>
 
           <div class="col-md-6">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="is_available" name="is_available" checked>
+              <input class="form-check-input" type="checkbox" id="is_available" name="is_available" {% if product.is_available or not product %}checked{% endif %}>
               <label class="form-check-label" for="is_available">
                 Disponible
               </label>
@@ -97,7 +100,7 @@
 
           <div class="col-md-6">
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured">
+              <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" {% if product.is_featured %}checked{% endif %}>
               <label class="form-check-label" for="is_featured">
                 Produit vedette
               </label>

@@ -1,13 +1,13 @@
 {% extends "layouts/portal/base.html" %}
 {% load static %}
 
-{% block title %}Ajouter une Question - Seafood Portal{% endblock %}
+{% block title %}{% if faq %}Modifier{% else %}Ajouter{% endif %} une Question - Seafood Portal{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Ajouter une Question FAQ</h2>
+      <h2 class="mb-0">{% if faq %}Modifier{% else %}Ajouter{% endif %} une Question FAQ</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:faq_list' %}" class="btn btn-secondary">
@@ -33,7 +33,7 @@
         <div class="row g-3">
           <div class="col-md-8">
             <label for="question" class="form-label">Question <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="question" name="question" required>
+            <input type="text" class="form-control" id="question" name="question" value="{{ faq.question|default:'' }}" required>
           </div>
 
           <div class="col-md-4">
@@ -41,25 +41,25 @@
             <select class="form-select" id="service" name="service">
               <option value="">Général (aucun service)</option>
               {% for service in services %}
-                <option value="{{ service.id }}">{{ service.name }}</option>
+                <option value="{{ service.id }}" {% if faq.service.id == service.id %}selected{% endif %}>{{ service.name }}</option>
               {% endfor %}
             </select>
           </div>
 
           <div class="col-12">
             <label for="answer" class="form-label">Réponse <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="answer" name="answer" rows="5" required></textarea>
+            <textarea class="form-control" id="answer" name="answer" rows="5" required>{{ faq.answer|default:'' }}</textarea>
           </div>
 
           <div class="col-md-6">
             <label for="order" class="form-label">Ordre d'affichage</label>
-            <input type="number" class="form-control" id="order" name="order" value="0">
+            <input type="number" class="form-control" id="order" name="order" value="{{ faq.order|default:'0' }}">
           </div>
 
           <div class="col-md-6">
             <label for="is_active" class="form-label">Statut</label>
             <div class="form-check mt-2">
-              <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+              <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if faq.is_active or not faq %}checked{% endif %}>
               <label class="form-check-label" for="is_active">
                 Actif
               </label>

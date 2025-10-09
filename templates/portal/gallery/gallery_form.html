@@ -1,13 +1,13 @@
 {% extends "layouts/portal/base.html" %}
 {% load static %}
 
-{% block title %}Ajouter une Image - Seafood Portal{% endblock %}
+{% block title %}{% if gallery_item %}Modifier{% else %}Ajouter{% endif %} une Image - Seafood Portal{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Ajouter une Image</h2>
+      <h2 class="mb-0">{% if gallery_item %}Modifier{% else %}Ajouter{% endif %} une Image</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:gallery_list' %}" class="btn btn-secondary">
@@ -33,18 +33,18 @@
         <div class="row g-3">
           <div class="col-md-6">
             <label for="title" class="form-label">Titre <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="title" name="title" required>
+            <input type="text" class="form-control" id="title" name="title" value="{{ gallery_item.title|default:'' }}" required>
           </div>
 
           <div class="col-md-3">
             <label for="order" class="form-label">Ordre d'affichage</label>
-            <input type="number" class="form-control" id="order" name="order" value="0">
+            <input type="number" class="form-control" id="order" name="order" value="{{ gallery_item.order|default:'0' }}">
           </div>
 
           <div class="col-md-3">
             <label for="is_active" class="form-label">Statut</label>
             <div class="form-check mt-2">
-              <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+              <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if gallery_item.is_active or not gallery_item %}checked{% endif %}>
               <label class="form-check-label" for="is_active">
                 Actif
               </label>
@@ -52,13 +52,16 @@
           </div>
 
           <div class="col-12">
-            <label for="image" class="form-label">Image <span class="text-danger">*</span></label>
-            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+            <label for="image" class="form-label">Image {% if not gallery_item %}<span class="text-danger">*</span>{% endif %}</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*" {% if not gallery_item %}required{% endif %}>
+            {% if gallery_item.image %}
+              <small class="text-muted">Image actuelle: <a href="{{ gallery_item.image.url }}" target="_blank">{{ gallery_item.image.name }}</a></small>
+            {% endif %}
           </div>
 
           <div class="col-12">
             <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+            <textarea class="form-control" id="description" name="description" rows="4" required>{{ gallery_item.description|default:'' }}</textarea>
           </div>
 
           <div class="col-12">
