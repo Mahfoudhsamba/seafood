@@ -303,14 +303,40 @@ def service_add(request):
     """Formulaire d'ajout de service"""
     if request.method == 'POST':
         try:
+            import os
+            from django.core.files.base import ContentFile
+
+            # Sauvegarder d'abord sans image pour obtenir l'ID
+            uploaded_image = request.FILES.get('image') if 'image' in request.FILES else None
             service = Service(
                 name=request.POST.get('name'),
                 description=request.POST.get('description'),
-                image=request.FILES.get('image') if 'image' in request.FILES else None,
                 is_active=request.POST.get('is_active') == 'on',
                 order=request.POST.get('order', 0)
             )
+
+            if uploaded_image:
+                # Lire le contenu du fichier
+                file_content = uploaded_image.read()
+                ext = uploaded_image.name.split('.')[-1].lower()
+
+                # Sauvegarder temporairement
+                service.image.save(f'temp_{uploaded_image.name}', ContentFile(file_content), save=False)
+
             service.save()
+
+            # Maintenant renommer l'image avec l'ID
+            if uploaded_image:
+                old_path = service.image.path
+                new_filename = f'service_{service.pk}.{ext}'
+
+                # Supprimer l'ancien fichier
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+
+                # Sauvegarder avec le bon nom
+                service.image.save(new_filename, ContentFile(file_content), save=True)
+
             messages.success(request, 'Service ajouté avec succès!')
             return redirect('portal_admin:service_list')
         except Exception as e:
@@ -328,10 +354,25 @@ def service_edit(request, pk):
 
     if request.method == 'POST':
         try:
+            import os
+            from django.core.files.base import ContentFile
+
             service.name = request.POST.get('name')
             service.description = request.POST.get('description')
+
             if 'image' in request.FILES:
-                service.image = request.FILES.get('image')
+                uploaded_image = request.FILES.get('image')
+                file_content = uploaded_image.read()
+                ext = uploaded_image.name.split('.')[-1].lower()
+                new_filename = f'service_{service.pk}.{ext}'
+
+                # Supprimer l'ancienne image si elle existe
+                if service.image and os.path.isfile(service.image.path):
+                    os.remove(service.image.path)
+
+                # Sauvegarder avec le nouveau nom
+                service.image.save(new_filename, ContentFile(file_content), save=False)
+
             service.is_active = request.POST.get('is_active') == 'on'
             service.order = request.POST.get('order', 0)
             service.save()

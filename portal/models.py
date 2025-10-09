@@ -212,6 +212,14 @@ def delete_product_image_on_delete(sender, instance, **kwargs):
             os.remove(instance.image.path)
 
 
+def service_image_path(instance, filename):
+    """Génère le chemin de l'image de service avec nomenclature"""
+    ext = filename.split('.')[-1].lower()
+    if instance.pk:
+        return f'services/service_{instance.pk}.{ext}'
+    return f'services/{filename}'
+
+
 class Service(models.Model):
     """
     Modèle pour les services offerts par PPA
@@ -219,7 +227,7 @@ class Service(models.Model):
     name = models.CharField(max_length=200, verbose_name='Nom du service')
     slug = models.SlugField(max_length=250, unique=True, blank=True, verbose_name='Slug')
     description = models.TextField(verbose_name='Description')
-    image = models.ImageField(upload_to='services/', verbose_name='Image', blank=True, null=True)
+    image = models.ImageField(upload_to=service_image_path, verbose_name='Image', blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name='Actif')
     order = models.IntegerField(default=0, verbose_name='Ordre d\'affichage')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Date de création')
@@ -237,6 +245,30 @@ class Service(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+
+
+@receiver(pre_save, sender=Service)
+def delete_old_service_image_on_update(sender, instance, **kwargs):
+    """Supprime l'ancienne image lors de la modification"""
+    if not instance.pk:
+        return False
+
+    try:
+        old_instance = Service.objects.get(pk=instance.pk)
+    except Service.DoesNotExist:
+        return False
+
+    if old_instance.image and instance.image and old_instance.image != instance.image:
+        if os.path.isfile(old_instance.image.path):
+            os.remove(old_instance.image.path)
+
+
+@receiver(pre_delete, sender=Service)
+def delete_service_image_on_delete(sender, instance, **kwargs):
+    """Supprime l'image lors de la suppression de l'objet Service"""
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
 
 
 class FAQ(models.Model):
