@@ -1,0 +1,80 @@
+{% extends "layouts/portal/base.html" %}
+{% load static %}
+
+{% block title %}Supprimer Client - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Supprimer un Client</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:client_list' %}" class="btn btn-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour à la liste
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-danger">
+    <div class="card-body">
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <span class="fas fa-exclamation-triangle me-3 fs-3"></span>
+        <div>
+          <strong>Attention !</strong> Cette action est irréversible.
+        </div>
+      </div>
+
+      <h5 class="mb-3">Êtes-vous sûr de vouloir supprimer ce client ?</h5>
+
+      <div class="card bg-light mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-2 text-center">
+              {% if client.logo %}
+                <img src="{{ client.logo.url }}" alt="{{ client.name }}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;">
+              {% else %}
+                <div style="width: 80px; height: 80px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                  <span class="fas fa-user fa-2x text-muted"></span>
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-md-10">
+              <h6 class="mb-2"><strong>{{ client.name }}</strong></h6>
+              <p class="mb-1"><strong>Code:</strong> {{ client.accounting_code }}</p>
+              <p class="mb-1"><strong>Type:</strong> {{ client.get_client_type_display }}</p>
+              {% if client.email %}
+                <p class="mb-1"><strong>Email:</strong> {{ client.email }}</p>
+              {% endif %}
+              {% if client.mobile %}
+                <p class="mb-1"><strong>Mobile:</strong> {{ client.mobile }}</p>
+              {% endif %}
+              <p class="mb-0"><strong>Statut:</strong>
+                {% if client.status == 'active' %}
+                  <span class="badge bg-success">{{ client.get_status_display }}</span>
+                {% elif client.status == 'inactive' %}
+                  <span class="badge bg-secondary">{{ client.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-warning">{{ client.get_status_display }}</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-danger">
+            <span class="fas fa-trash me-2"></span>Oui, supprimer définitivement
+          </button>
+          <a href="{% url 'portal_admin:client_list' %}" class="btn btn-secondary">
+            <span class="fas fa-times me-2"></span>Non, annuler
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

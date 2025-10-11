@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'authentication',
     'portal',
     'seafood',
+    'operations',
 ]
 
 MIDDLEWARE = [

@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import Product, Gallery, Service, FAQ, UserProfile
+from operations.models import Client
 
 # Create your views here.
 
@@ -582,4 +583,148 @@ def password_change_view(request):
 
     return render(request, 'portal/profile/password_change.html', {
         'form': form
+    })
+
+
+# ============ CLIENT VIEWS ============
+
+@staff_member_required
+@permission_required('operations.view_client', raise_exception=True)
+def client_list(request):
+    """Liste des clients"""
+    clients = Client.objects.all().order_by('-created_at')
+    return render(request, 'portal/clients/client_list.html', {'clients': clients})
+
+
+@staff_member_required
+@permission_required('operations.add_client', raise_exception=True)
+def client_add(request):
+    """Formulaire d'ajout de client"""
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            # Sauvegarder d'abord sans logo pour obtenir l'ID
+            uploaded_logo = request.FILES.get('logo') if 'logo' in request.FILES else None
+            client = Client(
+                name=request.POST.get('name'),
+                client_type=request.POST.get('client_type'),
+                website=request.POST.get('website', ''),
+                responsible=request.POST.get('responsible', ''),
+                mobile=request.POST.get('mobile', ''),
+                phone=request.POST.get('phone', ''),
+                email=request.POST.get('email', ''),
+                address=request.POST.get('address', ''),
+                city=request.POST.get('city', ''),
+                postal_code=request.POST.get('postal_code', ''),
+                country=request.POST.get('country', 'Mauritanie'),
+                trade_register=request.POST.get('trade_register', ''),
+                tax_id=request.POST.get('tax_id', ''),
+                status=request.POST.get('status', 'active'),
+                observations=request.POST.get('observations', '')
+            )
+
+            if uploaded_logo:
+                # Lire le contenu du fichier
+                file_content = uploaded_logo.read()
+                ext = uploaded_logo.name.split('.')[-1].lower()
+
+                # Sauvegarder temporairement
+                client.logo.save(f'temp_{uploaded_logo.name}', ContentFile(file_content), save=False)
+
+            client.save()
+
+            # Maintenant renommer le logo avec l'ID
+            if uploaded_logo:
+                old_path = client.logo.path
+                new_filename = f'client_{client.pk}.{ext}'
+
+                # Supprimer l'ancien fichier
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+
+                # Sauvegarder avec le bon nom
+                client.logo.save(new_filename, ContentFile(file_content), save=True)
+
+            messages.success(request, 'Client ajouté avec succès!')
+            return redirect('portal_admin:client_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    return render(request, 'portal/clients/client_form.html', {
+        'client_types': Client.CLIENT_TYPE_CHOICES,
+        'statuses': Client.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_client', raise_exception=True)
+def client_edit(request, pk):
+    """Formulaire de modification de client"""
+    client = get_object_or_404(Client, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            client.name = request.POST.get('name')
+            client.client_type = request.POST.get('client_type')
+            client.website = request.POST.get('website', '')
+            client.responsible = request.POST.get('responsible', '')
+            client.mobile = request.POST.get('mobile', '')
+            client.phone = request.POST.get('phone', '')
+            client.email = request.POST.get('email', '')
+            client.address = request.POST.get('address', '')
+            client.city = request.POST.get('city', '')
+            client.postal_code = request.POST.get('postal_code', '')
+            client.country = request.POST.get('country', 'Mauritanie')
+            client.trade_register = request.POST.get('trade_register', '')
+            client.tax_id = request.POST.get('tax_id', '')
+            client.status = request.POST.get('status', 'active')
+            client.observations = request.POST.get('observations', '')
+
+            if 'logo' in request.FILES:
+                uploaded_logo = request.FILES.get('logo')
+                file_content = uploaded_logo.read()
+                ext = uploaded_logo.name.split('.')[-1].lower()
+                new_filename = f'client_{client.pk}.{ext}'
+
+                # Supprimer l'ancien logo si il existe
+                if client.logo and os.path.isfile(client.logo.path):
+                    os.remove(client.logo.path)
+
+                # Sauvegarder avec le nouveau nom
+                client.logo.save(new_filename, ContentFile(file_content), save=False)
+
+            client.save()
+            messages.success(request, 'Client modifié avec succès!')
+            return redirect('portal_admin:client_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'portal/clients/client_form.html', {
+        'client': client,
+        'client_types': Client.CLIENT_TYPE_CHOICES,
+        'statuses': Client.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_client', raise_exception=True)
+def client_delete(request, pk):
+    """Suppression d'un client"""
+    client = get_object_or_404(Client, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            client.delete()
+            messages.success(request, 'Client supprimé avec succès!')
+            return redirect('portal_admin:client_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'portal/clients/client_confirm_delete.html', {
+        'client': client
     })

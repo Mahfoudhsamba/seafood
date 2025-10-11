@@ -47,6 +47,12 @@ class PortalAdminSite(AdminSite):
             path('faq/add/', views.faq_add, name='faq_add'),
             path('faq/<int:pk>/edit/', views.faq_edit, name='faq_edit'),
             path('faq/<int:pk>/delete/', views.faq_delete, name='faq_delete'),
+
+            # Clients
+            path('clients/', views.client_list, name='client_list'),
+            path('clients/add/', views.client_add, name='client_add'),
+            path('clients/<int:pk>/edit/', views.client_edit, name='client_edit'),
+            path('clients/<int:pk>/delete/', views.client_delete, name='client_delete'),
         ]
         return custom_urls + urls
 
