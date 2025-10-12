@@ -26,12 +26,12 @@ def portal_login(request):
         else:
             messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect')
 
-    return render(request, 'auth/sign-in.html')
+    return render(request, 'seafood/auth/sign-in.html')
 
 @staff_member_required
 def home(request):
     """Page d'accueil du portail admin"""
-    return render(request, 'home.html')
+    return render(request, 'seafood/home.html')
 
 
 # ============ PROFILE VIEWS ============
@@ -106,7 +106,7 @@ def profile_view(request):
         except Exception as e:
             messages.error(request, f'Erreur lors de la mise à jour: {str(e)}')
 
-    return render(request, 'profile/profile.html', {
+    return render(request, 'seafood/profile/profile.html', {
         'user': user,
         'profile': profile
     })
@@ -128,7 +128,7 @@ def password_change_view(request):
     else:
         form = PasswordChangeForm(request.user)
 
-    return render(request, 'profile/password_change.html', {
+    return render(request, 'seafood/profile/password_change.html', {
         'form': form
     })
 
@@ -140,7 +140,7 @@ def password_change_view(request):
 def client_list(request):
     """Liste des clients"""
     clients = Client.objects.all().order_by('-created_at')
-    return render(request, 'clients/client_list.html', {'clients': clients})
+    return render(request, 'seafood/clients/client_list.html', {'clients': clients})
 
 
 @staff_member_required
@@ -199,7 +199,7 @@ def client_add(request):
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
 
-    return render(request, 'clients/client_form.html', {
+    return render(request, 'seafood/clients/client_form.html', {
         'client_types': Client.CLIENT_TYPE_CHOICES,
         'statuses': Client.STATUS_CHOICES
     })
@@ -251,7 +251,7 @@ def client_edit(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification: {str(e)}')
 
-    return render(request, 'clients/client_form.html', {
+    return render(request, 'seafood/clients/client_form.html', {
         'client': client,
         'client_types': Client.CLIENT_TYPE_CHOICES,
         'statuses': Client.STATUS_CHOICES
@@ -272,6 +272,6 @@ def client_delete(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
-    return render(request, 'clients/client_confirm_delete.html', {
+    return render(request, 'seafood/clients/client_confirm_delete.html', {
         'client': client
     })

@@ -139,6 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authentication.User'
 
 # Login/Logout URLs
-LOGIN_URL = '/seafood/login/'
-LOGIN_REDIRECT_URL = '/seafood/'
-LOGOUT_REDIRECT_URL = '/seafood/login/'
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
