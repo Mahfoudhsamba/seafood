@@ -1,0 +1,218 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Détails Client - {{ client.name }} - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Détails du Client</h2>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        {% if perms.operations.change_client %}
+        <a href="{% url 'portal_admin:client_edit' client.pk %}" class="btn btn-primary">
+          <span class="fas fa-edit me-2"></span>Modifier
+        </a>
+        {% endif %}
+        {% if perms.operations.delete_client %}
+        <a href="{% url 'portal_admin:client_delete' client.pk %}" class="btn btn-phoenix-danger">
+          <span class="fas fa-trash me-2"></span>Supprimer
+        </a>
+        {% endif %}
+        <a href="{% url 'portal_admin:client_list' %}" class="btn btn-secondary">
+          <span class="fas fa-arrow-left me-2"></span>Retour à la liste
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Informations principales -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          {% if client.logo %}
+            <img src="{{ client.logo.url }}" alt="{{ client.name }}" class="rounded mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+          {% else %}
+            <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+              <span class="fas fa-user fa-4x text-muted"></span>
+            </div>
+          {% endif %}
+
+          <h4 class="mb-2">{{ client.name }}</h4>
+          <p class="text-muted mb-2">{{ client.get_client_type_display }}</p>
+
+          <div class="mb-3">
+            {% if client.status == 'active' %}
+              <span class="badge bg-success fs-9">{{ client.get_status_display }}</span>
+            {% elif client.status == 'inactive' %}
+              <span class="badge bg-secondary fs-9">{{ client.get_status_display }}</span>
+            {% else %}
+              <span class="badge bg-warning fs-9">{{ client.get_status_display }}</span>
+            {% endif %}
+          </div>
+
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Code Comptable:</span>
+              <strong>{{ client.accounting_code }}</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Créé le:</span>
+              <strong>{{ client.created_at|date:"d/m/Y" }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Détails -->
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Nom du client</label>
+              <p class="mb-0"><strong>{{ client.name }}</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Type de client</label>
+              <p class="mb-0"><strong>{{ client.get_client_type_display }}</strong></p>
+            </div>
+            {% if client.responsible %}
+            <div class="col-md-6">
+              <label class="text-muted small">Responsable</label>
+              <p class="mb-0">{{ client.responsible }}</p>
+            </div>
+            {% endif %}
+            <div class="col-md-6">
+              <label class="text-muted small">Statut</label>
+              <p class="mb-0">
+                {% if client.status == 'active' %}
+                  <span class="badge bg-success">{{ client.get_status_display }}</span>
+                {% elif client.status == 'inactive' %}
+                  <span class="badge bg-secondary">{{ client.get_status_display }}</span>
+                {% else %}
+                  <span class="badge bg-warning">{{ client.get_status_display }}</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-address-book me-2"></span>Coordonnées</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            {% if client.email %}
+            <div class="col-md-6">
+              <label class="text-muted small">Email</label>
+              <p class="mb-0">
+                <a href="mailto:{{ client.email }}">
+                  <span class="fas fa-envelope me-2"></span>{{ client.email }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if client.mobile %}
+            <div class="col-md-6">
+              <label class="text-muted small">Portable</label>
+              <p class="mb-0">
+                <a href="tel:{{ client.mobile }}">
+                  <span class="fas fa-mobile-alt me-2"></span>{{ client.mobile }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if client.phone %}
+            <div class="col-md-6">
+              <label class="text-muted small">Téléphone</label>
+              <p class="mb-0">
+                <a href="tel:{{ client.phone }}">
+                  <span class="fas fa-phone me-2"></span>{{ client.phone }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if client.website %}
+            <div class="col-md-6">
+              <label class="text-muted small">Site web</label>
+              <p class="mb-0">
+                <a href="{{ client.website }}" target="_blank">
+                  <span class="fas fa-globe me-2"></span>{{ client.website }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-map-marker-alt me-2"></span>Adresse</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            {% if client.address %}
+            <div class="col-12">
+              <label class="text-muted small">Adresse</label>
+              <p class="mb-0">{{ client.address }}</p>
+            </div>
+            {% endif %}
+            <div class="col-md-4">
+              <label class="text-muted small">Ville</label>
+              <p class="mb-0">{{ client.city|default:"-" }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small">Code postal</label>
+              <p class="mb-0">{{ client.postal_code|default:"-" }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small">Pays</label>
+              <p class="mb-0">{{ client.country|default:"-" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-file-alt me-2"></span>Informations légales</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Numéro de registre de commerce</label>
+              <p class="mb-0">{{ client.trade_register|default:"-" }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Numéro d'identification fiscal</label>
+              <p class="mb-0">{{ client.tax_id|default:"-" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if client.observations %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-comment me-2"></span>Observations</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-0">{{ client.observations }}</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

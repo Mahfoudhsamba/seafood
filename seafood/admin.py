@@ -24,8 +24,16 @@ class PortalAdminSite(AdminSite):
             # Clients
             path('clients/', views.client_list, name='client_list'),
             path('clients/add/', views.client_add, name='client_add'),
+            path('clients/<int:pk>/', views.client_detail, name='client_detail'),
             path('clients/<int:pk>/edit/', views.client_edit, name='client_edit'),
             path('clients/<int:pk>/delete/', views.client_delete, name='client_delete'),
+
+            # Suppliers
+            path('suppliers/', views.supplier_list, name='supplier_list'),
+            path('suppliers/add/', views.supplier_add, name='supplier_add'),
+            path('suppliers/<int:pk>/', views.supplier_detail, name='supplier_detail'),
+            path('suppliers/<int:pk>/edit/', views.supplier_edit, name='supplier_edit'),
+            path('suppliers/<int:pk>/delete/', views.supplier_delete, name='supplier_delete'),
         ]
         return custom_urls + urls
 

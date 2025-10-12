@@ -15,7 +15,7 @@
                         </div>
                     </li>
 
-                    {% if perms.operations.view_client or perms.operations.add_client %}
+                    {% if perms.operations.view_client or perms.operations.add_client or perms.seafood.view_supplier or perms.seafood.add_supplier %}
                     <li class="nav-item">
                         <p class="navbar-vertical-label">Opérations</p>
                         <hr class="navbar-vertical-line" />
@@ -41,6 +41,35 @@
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'client_list' %}active{% endif %}" href="{% url 'portal_admin:client_list' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Liste des clients</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if perms.seafood.view_supplier or perms.seafood.add_supplier %}
+                        <div class="nav-item-wrapper">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-suppliers" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'supplier' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-suppliers">
+                                <div class="d-flex align-items-center">
+                                    <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="truck"></span></span><span class="nav-link-text">Fournisseurs</span>
+                                </div>
+                            </a>
+                            <div class="parent-wrapper label-1">
+                                <ul class="nav collapse parent {% if 'supplier' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-suppliers">
+                                    <li class="collapsed-nav-item-title d-none">Fournisseurs</li>
+                                    {% if perms.seafood.add_supplier %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'supplier_add' %}active{% endif %}" href="{% url 'portal_admin:supplier_add' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter un fournisseur</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.seafood.view_supplier %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'supplier_list' %}active{% endif %}" href="{% url 'portal_admin:supplier_list' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Liste des fournisseurs</span></div>
                                         </a>
                                     </li>
                                     {% endif %}

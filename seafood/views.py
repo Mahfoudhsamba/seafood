@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from .models import UserProfile, Client
+from .models import UserProfile, Client, Supplier
 
 # Create your views here.
 
@@ -143,6 +143,14 @@ def client_list(request):
 
 
 @staff_member_required
+@permission_required('operations.view_client', raise_exception=True)
+def client_detail(request, pk):
+    """Détails d'un client"""
+    client = get_object_or_404(Client, pk=pk)
+    return render(request, 'seafood/clients/client_detail.html', {'client': client})
+
+
+@staff_member_required
 @permission_required('operations.add_client', raise_exception=True)
 def client_add(request):
     """Formulaire d'ajout de client"""
@@ -273,4 +281,152 @@ def client_delete(request, pk):
 
     return render(request, 'seafood/clients/client_confirm_delete.html', {
         'client': client
+    })
+
+
+# ============ SUPPLIER VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.view_supplier', raise_exception=True)
+def supplier_list(request):
+    """Liste des fournisseurs"""
+    suppliers = Supplier.objects.all().order_by('-created_at')
+    return render(request, 'seafood/suppliers/supplier_list.html', {'suppliers': suppliers})
+
+
+@staff_member_required
+@permission_required('seafood.view_supplier', raise_exception=True)
+def supplier_detail(request, pk):
+    """Détails d'un fournisseur"""
+    supplier = get_object_or_404(Supplier, pk=pk)
+    return render(request, 'seafood/suppliers/supplier_detail.html', {'supplier': supplier})
+
+
+@staff_member_required
+@permission_required('seafood.add_supplier', raise_exception=True)
+def supplier_add(request):
+    """Formulaire d'ajout de fournisseur"""
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            # Sauvegarder d'abord sans logo pour obtenir l'ID
+            uploaded_logo = request.FILES.get('logo') if 'logo' in request.FILES else None
+            supplier = Supplier(
+                name=request.POST.get('name'),
+                category=request.POST.get('category'),
+                tax_id=request.POST.get('tax_id', ''),
+                trade_register=request.POST.get('trade_register', ''),
+                payment_terms=request.POST.get('payment_terms', 30),
+                contact_phone=request.POST.get('contact_phone', ''),
+                mobile=request.POST.get('mobile', ''),
+                email=request.POST.get('email', ''),
+                website=request.POST.get('website', ''),
+                address=request.POST.get('address', ''),
+                city=request.POST.get('city', ''),
+                country=request.POST.get('country', 'Mauritanie'),
+                status=request.POST.get('status', 'active')
+            )
+
+            if uploaded_logo:
+                # Lire le contenu du fichier
+                file_content = uploaded_logo.read()
+                ext = uploaded_logo.name.split('.')[-1].lower()
+
+                # Sauvegarder temporairement
+                supplier.logo.save(f'temp_{uploaded_logo.name}', ContentFile(file_content), save=False)
+
+            supplier.save()
+
+            # Maintenant renommer le logo avec l'ID
+            if uploaded_logo:
+                old_path = supplier.logo.path
+                new_filename = f'supplier_{supplier.pk}.{ext}'
+
+                # Supprimer l'ancien fichier
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+
+                # Sauvegarder avec le bon nom
+                supplier.logo.save(new_filename, ContentFile(file_content), save=True)
+
+            messages.success(request, 'Fournisseur ajouté avec succès!')
+            return redirect('portal_admin:supplier_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    return render(request, 'seafood/suppliers/supplier_form.html', {
+        'categories': Supplier.CATEGORY_CHOICES,
+        'statuses': Supplier.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_supplier', raise_exception=True)
+def supplier_edit(request, pk):
+    """Formulaire de modification de fournisseur"""
+    supplier = get_object_or_404(Supplier, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            supplier.name = request.POST.get('name')
+            supplier.category = request.POST.get('category')
+            supplier.tax_id = request.POST.get('tax_id', '')
+            supplier.trade_register = request.POST.get('trade_register', '')
+            supplier.payment_terms = request.POST.get('payment_terms', 30)
+            supplier.contact_phone = request.POST.get('contact_phone', '')
+            supplier.mobile = request.POST.get('mobile', '')
+            supplier.email = request.POST.get('email', '')
+            supplier.website = request.POST.get('website', '')
+            supplier.address = request.POST.get('address', '')
+            supplier.city = request.POST.get('city', '')
+            supplier.country = request.POST.get('country', 'Mauritanie')
+            supplier.status = request.POST.get('status', 'active')
+
+            if 'logo' in request.FILES:
+                uploaded_logo = request.FILES.get('logo')
+                file_content = uploaded_logo.read()
+                ext = uploaded_logo.name.split('.')[-1].lower()
+                new_filename = f'supplier_{supplier.pk}.{ext}'
+
+                # Supprimer l'ancien logo si il existe
+                if supplier.logo and os.path.isfile(supplier.logo.path):
+                    os.remove(supplier.logo.path)
+
+                # Sauvegarder avec le nouveau nom
+                supplier.logo.save(new_filename, ContentFile(file_content), save=False)
+
+            supplier.save()
+            messages.success(request, 'Fournisseur modifié avec succès!')
+            return redirect('portal_admin:supplier_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'seafood/suppliers/supplier_form.html', {
+        'supplier': supplier,
+        'categories': Supplier.CATEGORY_CHOICES,
+        'statuses': Supplier.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.delete_supplier', raise_exception=True)
+def supplier_delete(request, pk):
+    """Suppression d'un fournisseur"""
+    supplier = get_object_or_404(Supplier, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            supplier.delete()
+            messages.success(request, 'Fournisseur supprimé avec succès!')
+            return redirect('portal_admin:supplier_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/suppliers/supplier_confirm_delete.html', {
+        'supplier': supplier
     })
