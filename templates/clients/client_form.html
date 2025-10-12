@@ -1,0 +1,172 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{% if client %}Modifier{% else %}Ajouter{% endif %} un Client - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">{% if client %}Modifier{% else %}Ajouter{% endif %} un Client</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:client_list' %}" class="btn btn-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour à la liste
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <!-- Informations de base -->
+          <div class="col-12">
+            <h5 class="border-bottom pb-2 mb-3">Informations de base</h5>
+          </div>
+
+          {% if client %}
+          <div class="col-md-4">
+            <label for="accounting_code" class="form-label">Code Comptable</label>
+            <input type="text" class="form-control" id="accounting_code" value="{{ client.accounting_code }}" disabled>
+            <small class="text-muted">Généré automatiquement</small>
+          </div>
+          {% endif %}
+
+          <div class="col-md-{% if client %}4{% else %}6{% endif %}">
+            <label for="name" class="form-label">Nom du client <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ client.name|default:'' }}" required>
+          </div>
+
+          <div class="col-md-4">
+            <label for="client_type" class="form-label">Type de client <span class="text-danger">*</span></label>
+            <select class="form-select" id="client_type" name="client_type" required>
+              {% for value, label in client_types %}
+                <option value="{{ value }}" {% if client.client_type == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label for="responsible" class="form-label">Responsable</label>
+            <input type="text" class="form-control" id="responsible" name="responsible" value="{{ client.responsible|default:'' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label for="status" class="form-label">Statut</label>
+            <select class="form-select" id="status" name="status">
+              {% for value, label in statuses %}
+                <option value="{{ value }}" {% if client.status == value or not client and value == 'active' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Coordonnées -->
+          <div class="col-12 mt-4">
+            <h5 class="border-bottom pb-2 mb-3">Coordonnées</h5>
+          </div>
+
+          <div class="col-md-6">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ client.email|default:'' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label for="website" class="form-label">Site web</label>
+            <input type="url" class="form-control" id="website" name="website" value="{{ client.website|default:'' }}" placeholder="https://example.com">
+          </div>
+
+          <div class="col-md-6">
+            <label for="mobile" class="form-label">Portable</label>
+            <input type="tel" class="form-control" id="mobile" name="mobile" value="{{ client.mobile|default:'' }}" placeholder="+222 12 34 56 78">
+          </div>
+
+          <div class="col-md-6">
+            <label for="phone" class="form-label">Téléphone</label>
+            <input type="tel" class="form-control" id="phone" name="phone" value="{{ client.phone|default:'' }}" placeholder="+222 12 34 56 78">
+          </div>
+
+          <!-- Adresse -->
+          <div class="col-12 mt-4">
+            <h5 class="border-bottom pb-2 mb-3">Adresse</h5>
+          </div>
+
+          <div class="col-12">
+            <label for="address" class="form-label">Adresse</label>
+            <textarea class="form-control" id="address" name="address" rows="2">{{ client.address|default:'' }}</textarea>
+          </div>
+
+          <div class="col-md-4">
+            <label for="city" class="form-label">Ville</label>
+            <input type="text" class="form-control" id="city" name="city" value="{{ client.city|default:'' }}">
+          </div>
+
+          <div class="col-md-4">
+            <label for="postal_code" class="form-label">Code postal</label>
+            <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ client.postal_code|default:'' }}">
+          </div>
+
+          <div class="col-md-4">
+            <label for="country" class="form-label">Pays</label>
+            <input type="text" class="form-control" id="country" name="country" value="{{ client.country|default:'Mauritanie' }}">
+          </div>
+
+          <!-- Informations légales -->
+          <div class="col-12 mt-4">
+            <h5 class="border-bottom pb-2 mb-3">Informations légales</h5>
+          </div>
+
+          <div class="col-md-6">
+            <label for="trade_register" class="form-label">Numéro de registre de commerce</label>
+            <input type="text" class="form-control" id="trade_register" name="trade_register" value="{{ client.trade_register|default:'' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label for="tax_id" class="form-label">Numéro d'identification fiscal</label>
+            <input type="text" class="form-control" id="tax_id" name="tax_id" value="{{ client.tax_id|default:'' }}">
+          </div>
+
+          <!-- Logo et observations -->
+          <div class="col-12 mt-4">
+            <h5 class="border-bottom pb-2 mb-3">Autres informations</h5>
+          </div>
+
+          <div class="col-md-6">
+            <label for="logo" class="form-label">Logo</label>
+            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+            {% if client.logo %}
+              <small class="text-muted">Logo actuel: <a href="{{ client.logo.url }}" target="_blank">{{ client.logo.name }}</a></small>
+            {% endif %}
+          </div>
+
+          <div class="col-12">
+            <label for="observations" class="form-label">Observations</label>
+            <textarea class="form-control" id="observations" name="observations" rows="4" placeholder="Informations supplémentaires sur le client...">{{ client.observations|default:'' }}</textarea>
+          </div>
+
+          <div class="col-12 mt-4">
+            <hr class="my-2">
+            <button type="submit" class="btn btn-primary">
+              <span class="fas fa-save me-2"></span>Enregistrer
+            </button>
+            <a href="{% url 'portal_admin:client_list' %}" class="btn btn-secondary">
+              Annuler
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

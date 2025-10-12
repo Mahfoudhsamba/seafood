@@ -23,7 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'authentication',
-    'portal',
     'seafood',
     'operations',
 ]
@@ -140,6 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authentication.User'
 
 # Login/Logout URLs
-LOGIN_URL = '/portal/login/'
-LOGIN_REDIRECT_URL = '/portal/'
-LOGOUT_REDIRECT_URL = '/portal/login/'
+LOGIN_URL = '/seafood/login/'
+LOGIN_REDIRECT_URL = '/seafood/'
+LOGOUT_REDIRECT_URL = '/seafood/login/'

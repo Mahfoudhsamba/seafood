@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="default">
+  <title>{% block title %}Seafood{% endblock %}</title>
+  {% block extra_css %}{% endblock %}
+  {% include 'layouts/includes/head.html' %}
+  <body>
+    <main class="main" id="top">
+      {% include 'layouts/includes/navbar.html' %}
+      {% include 'layouts/includes/navbar_top.html' %}
+      
+      <div class="content">
+        {% block content %}
+
+        {% endblock %}
+        {% include 'layouts/includes/footer.html' %}
+      </div>
+    </main>
+    {% include 'layouts/includes/scripts.html' %}
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
