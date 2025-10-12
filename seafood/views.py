@@ -4,8 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from .models import UserProfile
-from operations.models import Client
+from .models import UserProfile, Client
 
 # Create your views here.
 
