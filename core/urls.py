@@ -25,10 +25,14 @@ handler403 = 'django.views.defaults.permission_denied'
 
 urlpatterns = [
     path('administration/', include(('authentication.urls', 'authentication'), namespace='authentication')),
-    path('', portal_admin_site.urls),
 ]
 
-# Servir les fichiers média en développement
+# Servir les fichiers média et statiques en développement (doit être avant le catch-all)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+
+# Pattern catch-all doit être en dernier
+urlpatterns += [
+    path('', portal_admin_site.urls),
+]
