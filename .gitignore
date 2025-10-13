@@ -17,6 +17,7 @@ __pycache__/
 media/
 static_collected/
 note.md
+security.md
 
 # Fichiers de sauvegarde claude
 .claude/

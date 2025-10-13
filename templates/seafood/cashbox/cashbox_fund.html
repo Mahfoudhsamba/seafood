@@ -1,0 +1,265 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Alimenter la caisse - {{ cashbox.folder_code }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Alimenter la caisse {{ cashbox.folder_code }}</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:cashbox_detail' cashbox.pk %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-12 col-xl-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Informations de la caisse</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Code caisse :</strong></div>
+            <div class="col-sm-8">{{ cashbox.folder_code }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Description :</strong></div>
+            <div class="col-sm-8">{{ cashbox.description }}</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-4"><strong>Solde actuel :</strong></div>
+            <div class="col-sm-8"><strong class="text-success fs-4">{{ cashbox.current_balance|floatformat:2 }} MRU</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-3">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0"><span class="fas fa-plus-circle me-2"></span>Formulaire d'alimentation</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label for="transaction_date" class="form-label">Date de transaction <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="transaction_date" name="transaction_date" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="amount" class="form-label">Montant (MRU) <span class="text-danger">*</span></label>
+                <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+              </div>
+
+              <div class="col-12">
+                <label for="source" class="form-label">Mode d'alimentation <span class="text-danger">*</span></label>
+                <select class="form-select" id="source" name="source" required>
+                  <option value="">Sélectionner un mode</option>
+                  {% for value, label in sources %}
+                    <option value="{{ value }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Champs pour Transfert Mobile -->
+              <div id="mobile_transfer_fields" class="col-12" style="display: none;">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="mb-3">Détails du transfert mobile</h6>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="issuing_bank_mobile" class="form-label">Banque émettrice <span class="text-danger">*</span></label>
+                        <select class="form-select" id="issuing_bank_mobile" name="issuing_bank">
+                          <option value="">Sélectionner une banque</option>
+                          {% for bank in bank_accounts %}
+                            <option value="{{ bank.pk }}">{{ bank.bank_identifier }} - {{ bank.bank_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="transaction_id" class="form-label">ID Transaction <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="transaction_id" name="transaction_id" placeholder="Ex: TRX123456">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Champs pour Chèque -->
+              <div id="check_fields" class="col-12" style="display: none;">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="mb-3">Détails du chèque</h6>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label for="check_number" class="form-label">Numéro de chèque <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="check_number" name="check_number" placeholder="Ex: CHQ123456">
+                      </div>
+                      <div class="col-md-4">
+                        <label for="issuing_bank_check" class="form-label">Banque émettrice <span class="text-danger">*</span></label>
+                        <select class="form-select" id="issuing_bank_check" name="issuing_bank">
+                          <option value="">Sélectionner une banque</option>
+                          {% for bank in bank_accounts %}
+                            <option value="{{ bank.pk }}">{{ bank.bank_identifier }} - {{ bank.bank_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="check_date" class="form-label">Date du chèque <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="check_date" name="check_date">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Champs pour Versement -->
+              <div id="deposit_fields" class="col-12" style="display: none;">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="mb-3">Détails du versement</h6>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label for="check_number_deposit" class="form-label">Numéro de versement <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="check_number_deposit" name="check_number" placeholder="Ex: VER123456">
+                      </div>
+                      <div class="col-md-4">
+                        <label for="issuing_bank_deposit" class="form-label">Banque émettrice <span class="text-danger">*</span></label>
+                        <select class="form-select" id="issuing_bank_deposit" name="issuing_bank">
+                          <option value="">Sélectionner une banque</option>
+                          {% for bank in bank_accounts %}
+                            <option value="{{ bank.pk }}">{{ bank.bank_identifier }} - {{ bank.bank_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="check_date_deposit" class="form-label">Date du versement <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="check_date_deposit" name="check_date">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Champs pour Virement -->
+              <div id="transfer_fields" class="col-12" style="display: none;">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="mb-3">Détails du virement</h6>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label for="transfer_reference" class="form-label">Référence <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="transfer_reference" name="transfer_reference" placeholder="Ex: VIR123456">
+                      </div>
+                      <div class="col-md-4">
+                        <label for="issuing_bank_transfer" class="form-label">Banque émettrice <span class="text-danger">*</span></label>
+                        <select class="form-select" id="issuing_bank_transfer" name="issuing_bank">
+                          <option value="">Sélectionner une banque</option>
+                          {% for bank in bank_accounts %}
+                            <option value="{{ bank.pk }}">{{ bank.bank_identifier }} - {{ bank.bank_name }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="check_date_transfer" class="form-label">Date du virement <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="check_date_transfer" name="check_date">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Motif de l'alimentation (optionnel)"></textarea>
+              </div>
+
+              <div class="col-12">
+                <label for="justification" class="form-label">Pièce justificative <span id="justif_required" class="text-muted">(Optionnel)</span></label>
+                <input type="file" class="form-control" id="justification" name="justification">
+                <small class="text-muted">Document justifiant la transaction</small>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-success">
+                <span class="fas fa-check me-2"></span>Alimenter la caisse
+              </button>
+              <a href="{% url 'portal_admin:cashbox_detail' cashbox.pk %}" class="btn btn-secondary">Annuler</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Définir la date d'aujourd'hui par défaut
+  document.getElementById('transaction_date').valueAsDate = new Date();
+
+  // Gestion des champs conditionnels selon le mode d'alimentation
+  document.getElementById('source').addEventListener('change', function() {
+    const source = this.value;
+
+    // Masquer tous les champs conditionnels
+    document.getElementById('mobile_transfer_fields').style.display = 'none';
+    document.getElementById('check_fields').style.display = 'none';
+    document.getElementById('deposit_fields').style.display = 'none';
+    document.getElementById('transfer_fields').style.display = 'none';
+
+    // Réinitialiser les champs required
+    document.querySelectorAll('#mobile_transfer_fields input, #mobile_transfer_fields select').forEach(el => {
+      el.removeAttribute('required');
+    });
+    document.querySelectorAll('#check_fields input, #check_fields select').forEach(el => {
+      el.removeAttribute('required');
+    });
+    document.querySelectorAll('#deposit_fields input, #deposit_fields select').forEach(el => {
+      el.removeAttribute('required');
+    });
+    document.querySelectorAll('#transfer_fields input, #transfer_fields select').forEach(el => {
+      el.removeAttribute('required');
+    });
+
+    // Afficher et rendre requis les champs selon le mode sélectionné
+    if (source === 'mobile_transfer') {
+      document.getElementById('mobile_transfer_fields').style.display = 'block';
+      document.getElementById('issuing_bank_mobile').setAttribute('required', 'required');
+      document.getElementById('transaction_id').setAttribute('required', 'required');
+    } else if (source === 'check') {
+      document.getElementById('check_fields').style.display = 'block';
+      document.getElementById('check_number').setAttribute('required', 'required');
+      document.getElementById('issuing_bank_check').setAttribute('required', 'required');
+      document.getElementById('check_date').setAttribute('required', 'required');
+    } else if (source === 'deposit') {
+      document.getElementById('deposit_fields').style.display = 'block';
+      document.getElementById('check_number_deposit').setAttribute('required', 'required');
+      document.getElementById('issuing_bank_deposit').setAttribute('required', 'required');
+      document.getElementById('check_date_deposit').setAttribute('required', 'required');
+    } else if (source === 'bank_transfer') {
+      document.getElementById('transfer_fields').style.display = 'block';
+      document.getElementById('transfer_reference').setAttribute('required', 'required');
+      document.getElementById('issuing_bank_transfer').setAttribute('required', 'required');
+      document.getElementById('check_date_transfer').setAttribute('required', 'required');
+    }
+
+    // Pour les modes cash et other, pas de champs supplémentaires
+  });
+</script>
+{% endblock %}

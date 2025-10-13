@@ -1,0 +1,159 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Détails du Bon de Commande - {{ purchase_order.po_number }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Bon de Commande {{ purchase_order.po_number }}</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:purchaseorder_list' %}" class="btn btn-phoenix-secondary me-2">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+      <a href="{% url 'portal_admin:purchaseorder_edit' purchase_order.pk %}" class="btn btn-primary">
+        <span class="fas fa-edit me-2"></span>Modifier
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Informations du bon de commande</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Numéro PO :</strong></div>
+            <div class="col-sm-8"><span class="badge bg-primary fs-6">{{ purchase_order.po_number }}</span></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Date PO :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.po_date|date:"d/m/Y" }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Fournisseur :</strong></div>
+            <div class="col-sm-8">
+              <strong>{{ purchase_order.supplier.name }}</strong><br>
+              <small class="text-muted">{{ purchase_order.supplier.accounting_code }}</small>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Désignation :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.designation }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Quantité :</strong></div>
+            <div class="col-sm-8"><strong>{{ purchase_order.quantity }}</strong></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Prix unitaire :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.unit_price|floatformat:2 }} MRU</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Sous-total :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.subtotal|floatformat:2 }} MRU</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Taxe ({{ purchase_order.tax_rate }}%) :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.tax_amount|floatformat:2 }} MRU</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Total :</strong></div>
+            <div class="col-sm-8"><strong class="text-success fs-3">{{ purchase_order.total|floatformat:2 }} MRU</strong></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Statut :</strong></div>
+            <div class="col-sm-8">
+              {% if purchase_order.status == 'paid' %}
+                <span class="badge bg-success fs-6">{{ purchase_order.get_status_display }}</span>
+              {% elif purchase_order.status == 'approved' %}
+                <span class="badge bg-info fs-6">{{ purchase_order.get_status_display }}</span>
+              {% elif purchase_order.status == 'cancelled' %}
+                <span class="badge bg-danger fs-6">{{ purchase_order.get_status_display }}</span>
+              {% elif purchase_order.status == 'draft' %}
+                <span class="badge bg-secondary fs-6">{{ purchase_order.get_status_display }}</span>
+              {% else %}
+                <span class="badge bg-warning fs-6">{{ purchase_order.get_status_display }}</span>
+              {% endif %}
+            </div>
+          </div>
+          {% if purchase_order.note %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Note :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.note }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Informations de paiement</h5>
+        </div>
+        <div class="card-body">
+          {% if purchase_order.payment_date %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Date de paiement :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.payment_date|date:"d/m/Y" }}</div>
+          </div>
+          {% endif %}
+          {% if purchase_order.payment_bank %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Compte bancaire :</strong></div>
+            <div class="col-sm-8">
+              {{ purchase_order.payment_bank.bank_name }}<br>
+              <small class="text-muted">{{ purchase_order.payment_bank.bank_identifier }} - {{ purchase_order.payment_bank.account_number }}</small>
+            </div>
+          </div>
+          {% endif %}
+          {% if purchase_order.file %}
+          <div class="row">
+            <div class="col-sm-4"><strong>Fichier :</strong></div>
+            <div class="col-sm-8">
+              <a href="{{ purchase_order.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                <span class="fas fa-download me-1"></span>Télécharger
+              </a>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Métadonnées</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-muted">Créé le</small><br>
+            <strong>{{ purchase_order.created_at|date:"d/m/Y à H:i" }}</strong>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Modifié le</small><br>
+            <strong>{{ purchase_order.updated_at|date:"d/m/Y à H:i" }}</strong>
+          </div>
+          {% if purchase_order.created_by %}
+          <div class="mb-3">
+            <small class="text-muted">Créé par</small><br>
+            <strong>{{ purchase_order.created_by.get_full_name|default:purchase_order.created_by.username }}</strong>
+          </div>
+          {% endif %}
+          {% if purchase_order.approved_by %}
+          <div class="mb-3">
+            <small class="text-muted">Approuvé par</small><br>
+            <strong>{{ purchase_order.approved_by.get_full_name|default:purchase_order.approved_by.username }}</strong><br>
+            <small class="text-muted">le {{ purchase_order.approved_at|date:"d/m/Y à H:i" }}</small>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

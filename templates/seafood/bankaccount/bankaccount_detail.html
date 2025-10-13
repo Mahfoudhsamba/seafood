@@ -1,0 +1,173 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Détails du Compte Bancaire - {{ bankaccount.bank_identifier }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Détails du Compte Bancaire</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:bankaccount_list' %}" class="btn btn-phoenix-secondary me-2">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+      <a href="{% url 'portal_admin:bankaccount_edit' bankaccount.pk %}" class="btn btn-primary">
+        <span class="fas fa-edit me-2"></span>Modifier
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Informations bancaires</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Identifiant :</strong></div>
+            <div class="col-sm-8"><span class="badge bg-primary fs-6">{{ bankaccount.bank_identifier }}</span></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Banque :</strong></div>
+            <div class="col-sm-8">{{ bankaccount.bank_name }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>N° Compte :</strong></div>
+            <div class="col-sm-8">{{ bankaccount.account_number }}</div>
+          </div>
+          {% if bankaccount.iban %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>IBAN :</strong></div>
+            <div class="col-sm-8">{{ bankaccount.iban }}</div>
+          </div>
+          {% endif %}
+          {% if bankaccount.agency %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Agence :</strong></div>
+            <div class="col-sm-8">{{ bankaccount.agency }}</div>
+          </div>
+          {% endif %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Type :</strong></div>
+            <div class="col-sm-8"><span class="badge bg-secondary">{{ bankaccount.get_account_type_display }}</span></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Catégorie :</strong></div>
+            <div class="col-sm-8"><span class="badge bg-info">{{ bankaccount.get_category_display }}</span></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Devise :</strong></div>
+            <div class="col-sm-8"><span class="badge bg-primary">{{ bankaccount.currency }}</span></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Solde actuel :</strong></div>
+            <div class="col-sm-8"><strong class="text-success fs-3">{{ bankaccount.current_balance|floatformat:2 }} {{ bankaccount.currency }}</strong></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Statut :</strong></div>
+            <div class="col-sm-8">
+              {% if bankaccount.status == 'active' %}
+                <span class="badge bg-success">{{ bankaccount.get_status_display }}</span>
+              {% elif bankaccount.status == 'inactive' %}
+                <span class="badge bg-secondary">{{ bankaccount.get_status_display }}</span>
+              {% elif bankaccount.status == 'closed' %}
+                <span class="badge bg-dark">{{ bankaccount.get_status_display }}</span>
+              {% else %}
+                <span class="badge bg-warning">{{ bankaccount.get_status_display }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Contact et Titulaire</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Titulaire :</strong></div>
+            <div class="col-sm-8">{{ bankaccount.account_holder }}</div>
+          </div>
+          {% if bankaccount.phone %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Téléphone :</strong></div>
+            <div class="col-sm-8"><span class="fas fa-phone me-2"></span>{{ bankaccount.phone }}</div>
+          </div>
+          {% endif %}
+          {% if bankaccount.email %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Email :</strong></div>
+            <div class="col-sm-8"><span class="fas fa-envelope me-2"></span>{{ bankaccount.email }}</div>
+          </div>
+          {% endif %}
+          {% if bankaccount.address %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Adresse :</strong></div>
+            <div class="col-sm-8">{{ bankaccount.address }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Documents</h5>
+        </div>
+        <div class="card-body">
+          {% if bankaccount.rib_scan %}
+          <div class="mb-3">
+            <strong>RIB :</strong>
+            <a href="{{ bankaccount.rib_scan.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+              <span class="fas fa-download me-1"></span>Télécharger
+            </a>
+          </div>
+          {% endif %}
+          {% if bankaccount.contract %}
+          <div class="mb-3">
+            <strong>Contrat :</strong>
+            <a href="{{ bankaccount.contract.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+              <span class="fas fa-download me-1"></span>Télécharger
+            </a>
+          </div>
+          {% endif %}
+          {% if not bankaccount.rib_scan and not bankaccount.contract %}
+          <p class="text-muted mb-0">Aucun document disponible</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Métadonnées</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-muted">Date d'ouverture</small><br>
+            <strong>{{ bankaccount.account_opening_date|date:"d/m/Y" }}</strong>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Créé le</small><br>
+            <strong>{{ bankaccount.created_at|date:"d/m/Y à H:i" }}</strong>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Modifié le</small><br>
+            <strong>{{ bankaccount.updated_at|date:"d/m/Y à H:i" }}</strong>
+          </div>
+          {% if bankaccount.created_by %}
+          <div class="mb-3">
+            <small class="text-muted">Créé par</small><br>
+            <strong>{{ bankaccount.created_by.get_full_name|default:bankaccount.created_by.username }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

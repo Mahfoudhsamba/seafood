@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from .models import UserProfile, Client, Supplier
+from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction
 
 # Create your views here.
 
@@ -429,4 +429,642 @@ def supplier_delete(request, pk):
 
     return render(request, 'seafood/suppliers/supplier_confirm_delete.html', {
         'supplier': supplier
+    })
+
+
+# ============ CASHBOX VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.view_cashbox', raise_exception=True)
+def cashbox_list(request):
+    """Liste des caisses"""
+    cashboxes = Cashbox.objects.all().order_by('-created_at')
+    return render(request, 'seafood/cashbox/cashbox_list.html', {'cashboxes': cashboxes})
+
+
+@staff_member_required
+@permission_required('seafood.view_cashbox', raise_exception=True)
+def cashbox_detail(request, pk):
+    """Détails d'une caisse"""
+    cashbox = get_object_or_404(Cashbox, pk=pk)
+    return render(request, 'seafood/cashbox/cashbox_detail.html', {'cashbox': cashbox})
+
+
+@staff_member_required
+@permission_required('seafood.add_cashbox', raise_exception=True)
+def cashbox_add(request):
+    """Formulaire d'ajout de caisse"""
+    if request.method == 'POST':
+        try:
+            cashbox = Cashbox(
+                folder_code=request.POST.get('folder_code'),
+                prefix=request.POST.get('prefix'),
+                description=request.POST.get('description'),
+                current_balance=request.POST.get('current_balance', 0),
+                created_by=request.user
+            )
+            cashbox.save()
+            messages.success(request, 'Caisse ajoutée avec succès!')
+            return redirect('portal_admin:cashbox_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    return render(request, 'seafood/cashbox/cashbox_form.html')
+
+
+@staff_member_required
+@permission_required('seafood.change_cashbox', raise_exception=True)
+def cashbox_edit(request, pk):
+    """Formulaire de modification de caisse"""
+    cashbox = get_object_or_404(Cashbox, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            cashbox.folder_code = request.POST.get('folder_code')
+            cashbox.prefix = request.POST.get('prefix')
+            cashbox.description = request.POST.get('description')
+            cashbox.current_balance = request.POST.get('current_balance', 0)
+            cashbox.save()
+            messages.success(request, 'Caisse modifiée avec succès!')
+            return redirect('portal_admin:cashbox_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'seafood/cashbox/cashbox_form.html', {'cashbox': cashbox})
+
+
+@staff_member_required
+@permission_required('seafood.delete_cashbox', raise_exception=True)
+def cashbox_delete(request, pk):
+    """Suppression d'une caisse"""
+    cashbox = get_object_or_404(Cashbox, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            cashbox.delete()
+            messages.success(request, 'Caisse supprimée avec succès!')
+            return redirect('portal_admin:cashbox_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/cashbox/cashbox_confirm_delete.html', {'cashbox': cashbox})
+
+
+# ============ BANK ACCOUNT VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.view_bankaccount', raise_exception=True)
+def bankaccount_list(request):
+    """Liste des comptes bancaires"""
+    bankaccounts = BankAccount.objects.all().order_by('-created_at')
+    return render(request, 'seafood/bankaccount/bankaccount_list.html', {'bankaccounts': bankaccounts})
+
+
+@staff_member_required
+@permission_required('seafood.view_bankaccount', raise_exception=True)
+def bankaccount_detail(request, pk):
+    """Détails d'un compte bancaire"""
+    bankaccount = get_object_or_404(BankAccount, pk=pk)
+    return render(request, 'seafood/bankaccount/bankaccount_detail.html', {'bankaccount': bankaccount})
+
+
+@staff_member_required
+@permission_required('seafood.add_bankaccount', raise_exception=True)
+def bankaccount_add(request):
+    """Formulaire d'ajout de compte bancaire"""
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            rib_scan_file = request.FILES.get('rib_scan') if 'rib_scan' in request.FILES else None
+            contract_file = request.FILES.get('contract') if 'contract' in request.FILES else None
+
+            bankaccount = BankAccount(
+                bank_name=request.POST.get('bank_name'),
+                account_number=request.POST.get('account_number'),
+                iban=request.POST.get('iban', ''),
+                agency=request.POST.get('agency', ''),
+                account_type=request.POST.get('account_type'),
+                category=request.POST.get('category'),
+                currency=request.POST.get('currency'),
+                status=request.POST.get('status'),
+                account_holder=request.POST.get('account_holder'),
+                phone=request.POST.get('phone', ''),
+                email=request.POST.get('email', ''),
+                address=request.POST.get('address', ''),
+                current_balance=request.POST.get('current_balance', 0),
+                account_opening_date=request.POST.get('account_opening_date'),
+                created_by=request.user
+            )
+
+            if rib_scan_file:
+                bankaccount.rib_scan.save(rib_scan_file.name, rib_scan_file, save=False)
+            if contract_file:
+                bankaccount.contract.save(contract_file.name, contract_file, save=False)
+
+            bankaccount.save()
+            messages.success(request, 'Compte bancaire ajouté avec succès!')
+            return redirect('portal_admin:bankaccount_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    return render(request, 'seafood/bankaccount/bankaccount_form.html', {
+        'account_types': BankAccount.ACCOUNT_TYPE_CHOICES,
+        'categories': BankAccount.CATEGORY_CHOICES,
+        'currencies': BankAccount.CURRENCY_CHOICES,
+        'statuses': BankAccount.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_bankaccount', raise_exception=True)
+def bankaccount_edit(request, pk):
+    """Formulaire de modification de compte bancaire"""
+    bankaccount = get_object_or_404(BankAccount, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            bankaccount.bank_name = request.POST.get('bank_name')
+            bankaccount.account_number = request.POST.get('account_number')
+            bankaccount.iban = request.POST.get('iban', '')
+            bankaccount.agency = request.POST.get('agency', '')
+            bankaccount.account_type = request.POST.get('account_type')
+            bankaccount.category = request.POST.get('category')
+            bankaccount.currency = request.POST.get('currency')
+            bankaccount.status = request.POST.get('status')
+            bankaccount.account_holder = request.POST.get('account_holder')
+            bankaccount.phone = request.POST.get('phone', '')
+            bankaccount.email = request.POST.get('email', '')
+            bankaccount.address = request.POST.get('address', '')
+            bankaccount.current_balance = request.POST.get('current_balance', 0)
+            bankaccount.account_opening_date = request.POST.get('account_opening_date')
+
+            if 'rib_scan' in request.FILES:
+                if bankaccount.rib_scan:
+                    bankaccount.rib_scan.delete(save=False)
+                bankaccount.rib_scan = request.FILES['rib_scan']
+            if 'contract' in request.FILES:
+                if bankaccount.contract:
+                    bankaccount.contract.delete(save=False)
+                bankaccount.contract = request.FILES['contract']
+
+            bankaccount.save()
+            messages.success(request, 'Compte bancaire modifié avec succès!')
+            return redirect('portal_admin:bankaccount_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'seafood/bankaccount/bankaccount_form.html', {
+        'bankaccount': bankaccount,
+        'account_types': BankAccount.ACCOUNT_TYPE_CHOICES,
+        'categories': BankAccount.CATEGORY_CHOICES,
+        'currencies': BankAccount.CURRENCY_CHOICES,
+        'statuses': BankAccount.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.delete_bankaccount', raise_exception=True)
+def bankaccount_delete(request, pk):
+    """Suppression d'un compte bancaire"""
+    bankaccount = get_object_or_404(BankAccount, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            bankaccount.delete()
+            messages.success(request, 'Compte bancaire supprimé avec succès!')
+            return redirect('portal_admin:bankaccount_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/bankaccount/bankaccount_confirm_delete.html', {'bankaccount': bankaccount})
+
+
+# ============ PURCHASE REQUEST VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.view_purchaserequest', raise_exception=True)
+def purchaserequest_list(request):
+    """Liste des demandes d'achat"""
+    purchase_requests = PurchaseRequest.objects.all().order_by('-pr_date', '-created_at')
+    return render(request, 'seafood/purchaserequest/purchaserequest_list.html', {'purchase_requests': purchase_requests})
+
+
+@staff_member_required
+@permission_required('seafood.view_purchaserequest', raise_exception=True)
+def purchaserequest_detail(request, pk):
+    """Détails d'une demande d'achat"""
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
+    return render(request, 'seafood/purchaserequest/purchaserequest_detail.html', {'purchase_request': purchase_request})
+
+
+@staff_member_required
+@permission_required('seafood.add_purchaserequest', raise_exception=True)
+def purchaserequest_add(request):
+    """Formulaire d'ajout de demande d'achat"""
+    if request.method == 'POST':
+        try:
+            from decimal import Decimal
+
+            # Créer le PR (toujours en status brouillon)
+            purchase_request = PurchaseRequest(
+                pr_date=request.POST.get('pr_date'),
+                requester_first_name=request.POST.get('requester_first_name'),
+                requester_last_name=request.POST.get('requester_last_name'),
+                position=request.POST.get('position'),
+                requester_phone=request.POST.get('requester_phone'),
+                deadline=request.POST.get('deadline'),
+                description=request.POST.get('description', ''),
+                status='draft',  # Toujours brouillon à la création
+                created_by=request.user
+            )
+            purchase_request.save()
+
+            # Récupérer les lignes d'articles
+            designations = request.POST.getlist('designation[]')
+            quantities = request.POST.getlist('quantity[]')
+            units = request.POST.getlist('unit[]')
+
+            # Créer les items
+            for i, designation in enumerate(designations):
+                if designation.strip():  # Ignorer les lignes vides
+                    PurchaseRequestItem.objects.create(
+                        purchase_request=purchase_request,
+                        designation=designation,
+                        quantity=Decimal(quantities[i]),
+                        unit=units[i],
+                        order=i
+                    )
+
+            messages.success(request, 'Demande d\'achat ajoutée avec succès!')
+            return redirect('portal_admin:purchaserequest_detail', pk=purchase_request.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    return render(request, 'seafood/purchaserequest/purchaserequest_form.html', {
+        'units': PurchaseRequestItem.UNIT_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaserequest', raise_exception=True)
+def purchaserequest_edit(request, pk):
+    """Formulaire de modification de demande d'achat"""
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
+
+    # Ne permettre la modification que si le statut est brouillon
+    if purchase_request.status != 'draft':
+        messages.error(request, 'Seules les demandes en brouillon peuvent être modifiées!')
+        return redirect('portal_admin:purchaserequest_detail', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            from decimal import Decimal
+
+            purchase_request.pr_date = request.POST.get('pr_date')
+            purchase_request.requester_first_name = request.POST.get('requester_first_name')
+            purchase_request.requester_last_name = request.POST.get('requester_last_name')
+            purchase_request.position = request.POST.get('position')
+            purchase_request.requester_phone = request.POST.get('requester_phone')
+            purchase_request.deadline = request.POST.get('deadline')
+            purchase_request.description = request.POST.get('description', '')
+            purchase_request.save()
+
+            # Supprimer les anciens items
+            purchase_request.items.all().delete()
+
+            # Recréer les items
+            designations = request.POST.getlist('designation[]')
+            quantities = request.POST.getlist('quantity[]')
+            units = request.POST.getlist('unit[]')
+
+            for i, designation in enumerate(designations):
+                if designation.strip():
+                    PurchaseRequestItem.objects.create(
+                        purchase_request=purchase_request,
+                        designation=designation,
+                        quantity=Decimal(quantities[i]),
+                        unit=units[i],
+                        order=i
+                    )
+
+            messages.success(request, 'Demande d\'achat modifiée avec succès!')
+            return redirect('portal_admin:purchaserequest_detail', pk=pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'seafood/purchaserequest/purchaserequest_form.html', {
+        'purchase_request': purchase_request,
+        'units': PurchaseRequestItem.UNIT_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaserequest', raise_exception=True)
+def purchaserequest_approve(request, pk):
+    """Approuver une demande d'achat et créer le bon de commande"""
+    from decimal import Decimal
+    from datetime import date
+
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            # Récupérer le fournisseur
+            supplier_id = request.POST.get('supplier')
+            if not supplier_id:
+                messages.error(request, 'Veuillez sélectionner un fournisseur!')
+                return render(request, 'seafood/purchaserequest/purchaserequest_approve.html', {
+                    'purchase_request': purchase_request,
+                    'suppliers': Supplier.objects.filter(status='active')
+                })
+
+            # Récupérer tous les items de la PR
+            items = purchase_request.items.all()
+
+            if not items:
+                messages.error(request, 'Aucun article trouvé dans cette demande d\'achat!')
+                return redirect('portal_admin:purchaserequest_detail', pk=pk)
+
+            # Valider que tous les prix sont renseignés
+            for item in items:
+                unit_price = request.POST.get(f'unit_price_{item.pk}')
+                if not unit_price:
+                    messages.error(request, f'Veuillez renseigner le prix unitaire pour l\'article: {item.designation}')
+                    return render(request, 'seafood/purchaserequest/purchaserequest_approve.html', {
+                        'purchase_request': purchase_request,
+                        'suppliers': Supplier.objects.filter(status='active')
+                    })
+
+            # Créer le PO
+            purchase_order = PurchaseOrder(
+                po_date=date.today(),
+                supplier_id=supplier_id,
+                status='draft',
+                note=f'Créé automatiquement depuis PR-{purchase_request.pr_number}',
+                created_by=request.user
+            )
+            purchase_order.save()
+
+            # Créer les items du PO
+            for index, item in enumerate(items):
+                unit_price = request.POST.get(f'unit_price_{item.pk}')
+                tax_rate = request.POST.get(f'tax_rate_{item.pk}', '0')
+
+                PurchaseOrderItem.objects.create(
+                    purchase_order=purchase_order,
+                    designation=item.designation,
+                    quantity=item.quantity,
+                    unit=item.unit,
+                    unit_price=Decimal(unit_price),
+                    tax_rate=Decimal(tax_rate),
+                    order=index
+                )
+
+            # Calculer les totaux du PO
+            purchase_order.calculate_totals()
+
+            # Approuver la demande d'achat
+            purchase_request.status = 'approved'
+            purchase_request.rejection_reason = ''
+            purchase_request.save()
+
+            messages.success(
+                request,
+                f'Demande d\'achat approuvée avec succès! Bon de commande {purchase_order.po_number} créé avec {items.count()} article(s).'
+            )
+            return redirect('portal_admin:purchaseorder_detail', pk=purchase_order.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'approbation: {str(e)}')
+            return render(request, 'seafood/purchaserequest/purchaserequest_approve.html', {
+                'purchase_request': purchase_request,
+                'suppliers': Supplier.objects.filter(status='active')
+            })
+
+    # GET: Afficher le formulaire
+    suppliers = Supplier.objects.filter(status='active')
+    return render(request, 'seafood/purchaserequest/purchaserequest_approve.html', {
+        'purchase_request': purchase_request,
+        'suppliers': suppliers
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaserequest', raise_exception=True)
+def purchaserequest_reject(request, pk):
+    """Rejeter une demande d'achat"""
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
+
+    if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', '').strip()
+        if not rejection_reason:
+            messages.error(request, 'Le motif de rejet est obligatoire!')
+            return render(request, 'seafood/purchaserequest/purchaserequest_reject.html', {'purchase_request': purchase_request})
+
+        purchase_request.status = 'rejected'
+        purchase_request.rejection_reason = rejection_reason
+        purchase_request.save()
+        messages.success(request, 'Demande d\'achat rejetée!')
+        return redirect('portal_admin:purchaserequest_detail', pk=pk)
+
+    return render(request, 'seafood/purchaserequest/purchaserequest_reject.html', {'purchase_request': purchase_request})
+
+
+@staff_member_required
+@permission_required('seafood.delete_purchaserequest', raise_exception=True)
+def purchaserequest_delete(request, pk):
+    """Suppression d'une demande d'achat"""
+    purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            purchase_request.delete()
+            messages.success(request, 'Demande d\'achat supprimée avec succès!')
+            return redirect('portal_admin:purchaserequest_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/purchaserequest/purchaserequest_confirm_delete.html', {'purchase_request': purchase_request})
+
+
+# ============ PURCHASE ORDER VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.view_purchaseorder', raise_exception=True)
+def purchaseorder_list(request):
+    """Liste des bons de commande"""
+    purchase_orders = PurchaseOrder.objects.all().order_by('-po_date', '-created_at')
+    return render(request, 'seafood/purchaseorder/purchaseorder_list.html', {'purchase_orders': purchase_orders})
+
+
+@staff_member_required
+@permission_required('seafood.view_purchaseorder', raise_exception=True)
+def purchaseorder_detail(request, pk):
+    """Détails d'un bon de commande"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+    return render(request, 'seafood/purchaseorder/purchaseorder_detail.html', {'purchase_order': purchase_order})
+
+
+@staff_member_required
+@permission_required('seafood.add_purchaseorder', raise_exception=True)
+def purchaseorder_add(request):
+    """Formulaire d'ajout de bon de commande"""
+    if request.method == 'POST':
+        try:
+            file = request.FILES.get('file') if 'file' in request.FILES else None
+
+            purchase_order = PurchaseOrder(
+                po_date=request.POST.get('po_date'),
+                payment_date=request.POST.get('payment_date') or None,
+                payment_bank_id=request.POST.get('payment_bank') or None,
+                supplier_id=request.POST.get('supplier'),
+                designation=request.POST.get('designation'),
+                quantity=request.POST.get('quantity'),
+                unit_price=request.POST.get('unit_price'),
+                tax_rate=request.POST.get('tax_rate', 0),
+                note=request.POST.get('note', ''),
+                status=request.POST.get('status', 'draft'),
+                created_by=request.user
+            )
+
+            if file:
+                purchase_order.file.save(file.name, file, save=False)
+
+            purchase_order.save()
+            messages.success(request, 'Bon de commande ajouté avec succès!')
+            return redirect('portal_admin:purchaseorder_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    suppliers = Supplier.objects.filter(status='active')
+    bank_accounts = BankAccount.objects.filter(status='active')
+    return render(request, 'seafood/purchaseorder/purchaseorder_form.html', {
+        'suppliers': suppliers,
+        'bank_accounts': bank_accounts,
+        'statuses': PurchaseOrder.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaseorder', raise_exception=True)
+def purchaseorder_edit(request, pk):
+    """Formulaire de modification de bon de commande"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            purchase_order.po_date = request.POST.get('po_date')
+            purchase_order.payment_date = request.POST.get('payment_date') or None
+            purchase_order.payment_bank_id = request.POST.get('payment_bank') or None
+            purchase_order.supplier_id = request.POST.get('supplier')
+            purchase_order.designation = request.POST.get('designation')
+            purchase_order.quantity = request.POST.get('quantity')
+            purchase_order.unit_price = request.POST.get('unit_price')
+            purchase_order.tax_rate = request.POST.get('tax_rate', 0)
+            purchase_order.note = request.POST.get('note', '')
+            purchase_order.status = request.POST.get('status')
+
+            if 'file' in request.FILES:
+                if purchase_order.file:
+                    purchase_order.file.delete(save=False)
+                purchase_order.file = request.FILES['file']
+
+            purchase_order.save()
+            messages.success(request, 'Bon de commande modifié avec succès!')
+            return redirect('portal_admin:purchaseorder_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    suppliers = Supplier.objects.filter(status='active')
+    bank_accounts = BankAccount.objects.filter(status='active')
+    return render(request, 'seafood/purchaseorder/purchaseorder_form.html', {
+        'purchase_order': purchase_order,
+        'suppliers': suppliers,
+        'bank_accounts': bank_accounts,
+        'statuses': PurchaseOrder.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.delete_purchaseorder', raise_exception=True)
+def purchaseorder_delete(request, pk):
+    """Suppression d'un bon de commande"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            purchase_order.delete()
+            messages.success(request, 'Bon de commande supprimé avec succès!')
+            return redirect('portal_admin:purchaseorder_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/purchaseorder/purchaseorder_confirm_delete.html', {'purchase_order': purchase_order})
+
+
+# ============ CASHBOX TRANSACTION VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.add_cashboxtransaction', raise_exception=True)
+def cashbox_fund(request, cashbox_pk):
+    """Formulaire d'alimentation de caisse"""
+    from decimal import Decimal
+    cashbox = get_object_or_404(Cashbox, pk=cashbox_pk)
+
+    if request.method == 'POST':
+        try:
+            source = request.POST.get('source')
+
+            transaction = CashboxTransaction(
+                cashbox=cashbox,
+                transaction_type='in',
+                source=source,
+                amount=Decimal(request.POST.get('amount')),
+                transaction_date=request.POST.get('transaction_date'),
+                description=request.POST.get('description'),
+                created_by=request.user
+            )
+
+            # Champs spécifiques selon le mode de paiement
+            if source == 'mobile_transfer':
+                transaction.transaction_id = request.POST.get('transaction_id', '')
+                transaction.issuing_bank_id = request.POST.get('issuing_bank') or None
+            elif source in ['check', 'deposit']:
+                transaction.check_number = request.POST.get('check_number', '')
+                transaction.issuing_bank_id = request.POST.get('issuing_bank') or None
+                transaction.check_date = request.POST.get('check_date') or None
+            elif source == 'bank_transfer':
+                transaction.transfer_reference = request.POST.get('transfer_reference', '')
+                transaction.issuing_bank_id = request.POST.get('issuing_bank') or None
+                transaction.check_date = request.POST.get('check_date') or None
+
+            if 'justification' in request.FILES:
+                transaction.justification = request.FILES['justification']
+
+            transaction.save()
+            messages.success(request, 'Caisse alimentée avec succès!')
+            return redirect('portal_admin:cashbox_detail', pk=cashbox_pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'alimentation: {str(e)}')
+
+    bank_accounts = BankAccount.objects.filter(status='active')
+    return render(request, 'seafood/cashbox/cashbox_fund.html', {
+        'cashbox': cashbox,
+        'bank_accounts': bank_accounts,
+        'sources': CashboxTransaction.SOURCE_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.view_cashboxtransaction', raise_exception=True)
+def cashbox_transactions(request, cashbox_pk):
+    """Liste des transactions d'une caisse"""
+    cashbox = get_object_or_404(Cashbox, pk=cashbox_pk)
+    transactions = CashboxTransaction.objects.filter(cashbox=cashbox).order_by('-transaction_date', '-created_at')
+
+    return render(request, 'seafood/cashbox/cashbox_transactions.html', {
+        'cashbox': cashbox,
+        'transactions': transactions
     })

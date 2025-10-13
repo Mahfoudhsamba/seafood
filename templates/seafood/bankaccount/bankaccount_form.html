@@ -1,0 +1,170 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{% if bankaccount %}Modifier{% else %}Ajouter{% endif %} un Compte Bancaire{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">{% if bankaccount %}Modifier{% else %}Ajouter{% endif %} un Compte Bancaire</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:bankaccount_list' %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h5 class="mb-3">Informations bancaires</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label for="bank_name" class="form-label">Nom de la banque <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="bank_name" name="bank_name"
+                       value="{% if bankaccount %}{{ bankaccount.bank_name }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="account_number" class="form-label">Numéro de compte <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="account_number" name="account_number"
+                       value="{% if bankaccount %}{{ bankaccount.account_number }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="iban" class="form-label">IBAN</label>
+                <input type="text" class="form-control" id="iban" name="iban"
+                       value="{% if bankaccount %}{{ bankaccount.iban }}{% endif %}">
+              </div>
+
+              <div class="col-md-6">
+                <label for="agency" class="form-label">Agence</label>
+                <input type="text" class="form-control" id="agency" name="agency"
+                       value="{% if bankaccount %}{{ bankaccount.agency }}{% endif %}">
+              </div>
+
+              <div class="col-md-3">
+                <label for="account_type" class="form-label">Type de compte <span class="text-danger">*</span></label>
+                <select class="form-select" id="account_type" name="account_type" required>
+                  {% for value, label in account_types %}
+                    <option value="{{ value }}" {% if bankaccount and bankaccount.account_type == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label for="category" class="form-label">Catégorie <span class="text-danger">*</span></label>
+                <select class="form-select" id="category" name="category" required>
+                  {% for value, label in categories %}
+                    <option value="{{ value }}" {% if bankaccount and bankaccount.category == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label for="currency" class="form-label">Devise <span class="text-danger">*</span></label>
+                <select class="form-select" id="currency" name="currency" required>
+                  {% for value, label in currencies %}
+                    <option value="{{ value }}" {% if bankaccount and bankaccount.currency == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
+                <select class="form-select" id="status" name="status" required>
+                  {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if bankaccount and bankaccount.status == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <h5 class="mb-3">Contact et Titulaire</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label for="account_holder" class="form-label">Titulaire du compte <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="account_holder" name="account_holder"
+                       value="{% if bankaccount %}{{ bankaccount.account_holder }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="phone" class="form-label">Téléphone</label>
+                <input type="tel" class="form-control" id="phone" name="phone"
+                       value="{% if bankaccount %}{{ bankaccount.phone }}{% endif %}">
+              </div>
+
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email"
+                       value="{% if bankaccount %}{{ bankaccount.email }}{% endif %}">
+              </div>
+
+              <div class="col-md-6">
+                <label for="address" class="form-label">Adresse</label>
+                <textarea class="form-control" id="address" name="address" rows="2">{% if bankaccount %}{{ bankaccount.address }}{% endif %}</textarea>
+              </div>
+            </div>
+
+            <h5 class="mb-3">Documents</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label for="rib_scan" class="form-label">Scan RIB</label>
+                <input type="file" class="form-control" id="rib_scan" name="rib_scan" accept=".pdf,.jpg,.jpeg,.png">
+                {% if bankaccount and bankaccount.rib_scan %}
+                  <small class="text-muted">Fichier actuel: <a href="{{ bankaccount.rib_scan.url }}" target="_blank">Voir</a></small>
+                {% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label for="contract" class="form-label">Contrat</label>
+                <input type="file" class="form-control" id="contract" name="contract" accept=".pdf,.jpg,.jpeg,.png">
+                {% if bankaccount and bankaccount.contract %}
+                  <small class="text-muted">Fichier actuel: <a href="{{ bankaccount.contract.url }}" target="_blank">Voir</a></small>
+                {% endif %}
+              </div>
+            </div>
+
+            <h5 class="mb-3">Informations financières</h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="current_balance" class="form-label">Solde actuel</label>
+                <input type="number" step="0.01" class="form-control" id="current_balance" name="current_balance"
+                       value="{% if bankaccount %}{{ bankaccount.current_balance }}{% else %}0{% endif %}">
+              </div>
+
+              <div class="col-md-6">
+                <label for="account_opening_date" class="form-label">Date d'ouverture <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="account_opening_date" name="account_opening_date"
+                       value="{% if bankaccount %}{{ bankaccount.account_opening_date|date:'Y-m-d' }}{% endif %}" required>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary">
+                <span class="fas fa-save me-2"></span>{% if bankaccount %}Modifier{% else %}Ajouter{% endif %}
+              </button>
+              <a href="{% url 'portal_admin:bankaccount_list' %}" class="btn btn-secondary">Annuler</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

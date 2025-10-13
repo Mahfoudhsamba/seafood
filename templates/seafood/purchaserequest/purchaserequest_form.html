@@ -1,0 +1,204 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{% if purchase_request %}Modifier{% else %}Créer{% endif %} une Demande d'Achat{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">{% if purchase_request %}Modifier{% else %}Créer{% endif %} une Demande d'Achat (PR)</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:purchaserequest_list' %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-12">
+      <form method="post" id="prForm">
+        {% csrf_token %}
+
+        <div class="card mb-3">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Informations générales</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="pr_date" class="form-label">Date PR <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="pr_date" name="pr_date"
+                       value="{% if purchase_request %}{{ purchase_request.pr_date|date:'Y-m-d' }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="deadline" class="form-label">Échéance <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="deadline" name="deadline"
+                       value="{% if purchase_request %}{{ purchase_request.deadline|date:'Y-m-d' }}{% endif %}" required>
+              </div>
+
+              <div class="col-12">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="2" placeholder="Description générale (optionnel)">{% if purchase_request %}{{ purchase_request.description }}{% endif %}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">Informations du demandeur</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="requester_first_name" class="form-label">Prénom <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="requester_first_name" name="requester_first_name"
+                       value="{% if purchase_request %}{{ purchase_request.requester_first_name }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="requester_last_name" class="form-label">Nom <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="requester_last_name" name="requester_last_name"
+                       value="{% if purchase_request %}{{ purchase_request.requester_last_name }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="position" class="form-label">Position <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="position" name="position"
+                       value="{% if purchase_request %}{{ purchase_request.position }}{% endif %}" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="requester_phone" class="form-label">Téléphone <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="requester_phone" name="requester_phone"
+                       value="{% if purchase_request %}{{ purchase_request.requester_phone }}{% endif %}" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Articles demandés</h5>
+            <button type="button" class="btn btn-sm btn-success" onclick="addItemRow()">
+              <span class="fas fa-plus me-1"></span>Ajouter une ligne
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="itemsTable">
+                <thead>
+                  <tr>
+                    <th width="50%">Désignation <span class="text-danger">*</span></th>
+                    <th width="20%">Quantité <span class="text-danger">*</span></th>
+                    <th width="20%">Unité <span class="text-danger">*</span></th>
+                    <th width="10%">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="itemsBody">
+                  {% if purchase_request and purchase_request.items.all %}
+                    {% for item in purchase_request.items.all %}
+                      <tr>
+                        <td><input type="text" class="form-control" name="designation[]" value="{{ item.designation }}" required></td>
+                        <td><input type="number" step="0.01" class="form-control" name="quantity[]" value="{{ item.quantity }}" required></td>
+                        <td>
+                          <select class="form-select" name="unit[]" required>
+                            {% for value, label in units %}
+                              <option value="{{ value }}" {% if item.unit == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                          </select>
+                        </td>
+                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItemRow(this)"><span class="fas fa-trash"></span></button></td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td><input type="text" class="form-control" name="designation[]" required></td>
+                      <td><input type="number" step="0.01" class="form-control" name="quantity[]" required></td>
+                      <td>
+                        <select class="form-select" name="unit[]" required>
+                          {% for value, label in units %}
+                            <option value="{{ value }}">{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                      </td>
+                      <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItemRow(this)"><span class="fas fa-trash"></span></button></td>
+                    </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" class="btn btn-primary">
+            <span class="fas fa-save me-2"></span>{% if purchase_request %}Modifier{% else %}Créer{% endif %} la demande
+          </button>
+          <a href="{% url 'portal_admin:purchaserequest_list' %}" class="btn btn-secondary">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Définir la date d'aujourd'hui par défaut
+  if (!document.getElementById('pr_date').value) {
+    document.getElementById('pr_date').valueAsDate = new Date();
+  }
+
+  // Template pour les options d'unité
+  const unitOptions = `{% for value, label in units %}<option value="{{ value }}">{{ label }}</option>{% endfor %}`;
+
+  function addItemRow() {
+    const tbody = document.getElementById('itemsBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="text" class="form-control" name="designation[]" required></td>
+      <td><input type="number" step="0.01" class="form-control" name="quantity[]" required></td>
+      <td><select class="form-select" name="unit[]" required>${unitOptions}</select></td>
+      <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItemRow(this)"><span class="fas fa-trash"></span></button></td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  function removeItemRow(button) {
+    const tbody = document.getElementById('itemsBody');
+    if (tbody.children.length > 1) {
+      button.closest('tr').remove();
+    } else {
+      alert('Au moins une ligne d\'article est requise!');
+    }
+  }
+
+  // Validation du formulaire
+  document.getElementById('prForm').addEventListener('submit', function(e) {
+    const designations = document.querySelectorAll('input[name="designation[]"]');
+    let hasValidItem = false;
+
+    designations.forEach(function(input) {
+      if (input.value.trim() !== '') {
+        hasValidItem = true;
+      }
+    });
+
+    if (!hasValidItem) {
+      e.preventDefault();
+      alert('Au moins un article est requis!');
+    }
+  });
+</script>
+{% endblock %}

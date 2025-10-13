@@ -1,0 +1,178 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Détails de la Demande d'Achat - PR-{{ purchase_request.pr_number }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Demande d'Achat PR-{{ purchase_request.pr_number }}</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:purchaserequest_list' %}" class="btn btn-phoenix-secondary me-2">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+      {% if purchase_request.status == 'draft' %}
+        <a href="{% url 'portal_admin:purchaserequest_edit' purchase_request.pk %}" class="btn btn-primary">
+          <span class="fas fa-edit me-2"></span>Modifier
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <div class="card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Informations générales</h5>
+          {% if purchase_request.status == 'draft' %}
+            <span class="badge badge-phoenix badge-phoenix-warning">Brouillon</span>
+          {% elif purchase_request.status == 'approved' %}
+            <span class="badge badge-phoenix badge-phoenix-success">Accepté</span>
+          {% elif purchase_request.status == 'rejected' %}
+            <span class="badge badge-phoenix badge-phoenix-danger">Rejeté</span>
+          {% endif %}
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Numéro PR :</strong></div>
+            <div class="col-sm-8"><span class="badge bg-primary fs-6">PR-{{ purchase_request.pr_number }}</span></div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Date PR :</strong></div>
+            <div class="col-sm-8">{{ purchase_request.pr_date|date:"d/m/Y" }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Échéance :</strong></div>
+            <div class="col-sm-8"><strong class="text-warning">{{ purchase_request.deadline|date:"d/m/Y" }}</strong></div>
+          </div>
+          {% if purchase_request.description %}
+            <div class="row mb-3">
+              <div class="col-sm-4"><strong>Description :</strong></div>
+              <div class="col-sm-8">{{ purchase_request.description }}</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Informations du demandeur</h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Nom complet :</strong></div>
+            <div class="col-sm-8">{{ purchase_request.requester_first_name }} {{ purchase_request.requester_last_name }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Position :</strong></div>
+            <div class="col-sm-8">{{ purchase_request.position }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Téléphone :</strong></div>
+            <div class="col-sm-8"><span class="fas fa-phone me-2"></span>{{ purchase_request.requester_phone }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Articles demandés</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th width="10%">#</th>
+                  <th width="50%">Désignation</th>
+                  <th width="20%">Quantité</th>
+                  <th width="20%">Unité</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in purchase_request.items.all %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.designation }}</td>
+                    <td>{{ item.quantity|floatformat:2 }}</td>
+                    <td>{{ item.get_unit_display }}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center text-muted">Aucun article</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {% if purchase_request.status == 'rejected' and purchase_request.rejection_reason %}
+        <div class="card mb-3 border-danger">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><span class="fas fa-times-circle me-2"></span>Motif de rejet</h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ purchase_request.rejection_reason }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if purchase_request.status == 'draft' %}
+        <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><span class="fas fa-clipboard-check me-2"></span>Actions de validation</h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-3">Cette demande d'achat est en attente de validation. Veuillez approuver ou rejeter cette demande.</p>
+            <div class="d-flex gap-2">
+              <a href="{% url 'portal_admin:purchaserequest_approve' purchase_request.pk %}" class="btn btn-success">
+                <span class="fas fa-check me-2"></span>Approuver
+              </a>
+              <a href="{% url 'portal_admin:purchaserequest_reject' purchase_request.pk %}" class="btn btn-danger">
+                <span class="fas fa-times me-2"></span>Rejeter
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Métadonnées</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-muted">Créé le</small><br>
+            <strong>{{ purchase_request.created_at|date:"d/m/Y à H:i" }}</strong>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Modifié le</small><br>
+            <strong>{{ purchase_request.updated_at|date:"d/m/Y à H:i" }}</strong>
+          </div>
+          {% if purchase_request.created_by %}
+          <div class="mb-3">
+            <small class="text-muted">Créé par</small><br>
+            <strong>{{ purchase_request.created_by.get_full_name|default:purchase_request.created_by.username }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

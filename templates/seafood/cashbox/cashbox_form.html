@@ -1,0 +1,74 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{% if cashbox %}Modifier{% else %}Ajouter{% endif %} une Caisse{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">{% if cashbox %}Modifier{% else %}Ajouter{% endif %} une Caisse</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:cashbox_list' %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-12 col-xl-8">
+      <div class="card">
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="folder_code" class="form-label">Dossier <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="folder_code" name="folder_code"
+                       value="{% if cashbox %}{{ cashbox.folder_code }}{% endif %}" required>
+                <small class="text-muted">Code unique de la caisse</small>
+              </div>
+
+              <div class="col-md-6">
+                <label for="prefix" class="form-label">Préfixe <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="prefix" name="prefix"
+                       value="{% if cashbox %}{{ cashbox.prefix }}{% endif %}" required>
+                <small class="text-muted">Préfixe pour la numérotation</small>
+              </div>
+
+              <div class="col-12">
+                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="description" name="description" rows="3" required>{% if cashbox %}{{ cashbox.description }}{% endif %}</textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label for="current_balance" class="form-label">Solde actuel (MRU)</label>
+                <input type="number" step="0.01" class="form-control" id="current_balance" name="current_balance"
+                       value="{% if cashbox %}{{ cashbox.current_balance }}{% else %}0{% endif %}">
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary">
+                <span class="fas fa-save me-2"></span>{% if cashbox %}Modifier{% else %}Ajouter{% endif %}
+              </button>
+              <a href="{% url 'portal_admin:cashbox_list' %}" class="btn btn-secondary">Annuler</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
