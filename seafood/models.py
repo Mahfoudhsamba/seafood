@@ -229,22 +229,13 @@ class Supplier(models.Model):
     Modèle pour la gestion des fournisseurs
     """
     CATEGORY_CHOICES = [
-        ('logistics', 'Logistics, Transportation & Warehousing'),
-        ('consulting', 'Consulting'),
-        ('engineering', 'Engineering'),
-        ('finance', 'Finance & Insurance'),
-        ('manufacturing', 'Manufacturing'),
-        ('mechanics', 'Mechanics'),
-        ('mining', 'Mining'),
-        ('construction', 'Construction'),
-        ('administration', 'Administration, Business Support'),
-        ('fish_food', 'Fish & Food'),
-        ('agriculture', 'Agriculture, Forestry, Fishing and Hunting'),
-        ('educational', 'Educational Services'),
-        ('professional', 'Professional, Scientific and Technical Services'),
-        ('advisory', 'Advisory and Financial Services'),
-        ('industrial', 'Industrial Machinery, Gas and Chemicals'),
-        ('retail', 'Retail Market Reports'),
+        ('logistics', 'Logistiques'),
+        ('manufacturing', 'Fabrication'),
+        ('mining', 'Exploitation minière'),
+        ('construction', 'Fabrication'),
+        ('administration', 'Administration'),
+        ('fish_food', 'Pêche & alimentation'),
+        ('other', 'Autre'),
     ]
 
     STATUS_CHOICES = [
