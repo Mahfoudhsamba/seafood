@@ -828,10 +828,10 @@ class PurchaseRequest(models.Model):
 
     # Numéro de PR
     pr_number = models.CharField(
-        max_length=6,
+        max_length=20,
         unique=True,
         verbose_name='Numéro PR',
-        help_text='Numéro sur 6 chiffres (généré automatiquement)'
+        help_text='Format: #PRMMYYXXXXXX (généré automatiquement)'
     )
 
     # Date de la demande
@@ -893,18 +893,28 @@ class PurchaseRequest(models.Model):
 
     @staticmethod
     def generate_pr_number():
-        """Génère un numéro PR unique sur 6 chiffres"""
-        last_pr = PurchaseRequest.objects.order_by('-pr_number').first()
+        """Génère un numéro PR unique au format #PRMMYYXXXXXX"""
+        from django.utils import timezone
+        now = timezone.now()
+        month = now.strftime('%m')  # Mois sur 2 chiffres
+        year = now.strftime('%y')   # Année sur 2 chiffres (ex: 25 pour 2025)
+        prefix = f"PR{month}{year}"   # Ex: PR1025 pour octobre 2025
+
+        # Chercher le dernier PR du mois/année en cours
+        last_pr = PurchaseRequest.objects.filter(
+            pr_number__startswith=prefix
+        ).order_by('-pr_number').first()
+
         if last_pr and last_pr.pr_number:
             # Extraire le numéro et l'incrémenter
-            last_number = int(last_pr.pr_number)
+            last_number = int(last_pr.pr_number[-6:])
             new_number = last_number + 1
         else:
-            # Première demande
+            # Première demande du mois
             new_number = 1
 
-        # Formater avec 6 chiffres
-        return f"{new_number:06d}"
+        # Format: #PRMMYYXXXXXX (ex: #PR1025000001)
+        return f"#{prefix}{new_number:06d}"
 
     @property
     def requester_full_name(self):
@@ -1117,12 +1127,16 @@ class PurchaseOrder(models.Model):
 
     @staticmethod
     def generate_po_number():
-        """Génère un numéro PO unique"""
+        """Génère un numéro PO unique au format #MMYYXXXXXX"""
         from django.utils import timezone
-        year = timezone.now().year
+        now = timezone.now()
+        month = now.strftime('%m')  # Mois sur 2 chiffres
+        year = now.strftime('%y')   # Année sur 2 chiffres (ex: 25 pour 2025)
+        prefix = f"#{month}{year}"   # Ex: #1025 pour octobre 2025
 
+        # Chercher le dernier PO du mois/année en cours
         last_po = PurchaseOrder.objects.filter(
-            po_number__startswith=f'PO{year}'
+            po_number__startswith=prefix
         ).order_by('-po_number').first()
 
         if last_po and last_po.po_number:
@@ -1130,11 +1144,11 @@ class PurchaseOrder(models.Model):
             last_number = int(last_po.po_number[-6:])
             new_number = last_number + 1
         else:
-            # Premier bon de commande de l'année
+            # Premier bon de commande du mois
             new_number = 1
 
-        # Format: PO2025-000001
-        return f"PO{year}-{new_number:06d}"
+        # Format: #MMYYXXXXXX (ex: #1025000001)
+        return f"{prefix}{new_number:06d}"
 
 
 class PurchaseOrderItem(models.Model):

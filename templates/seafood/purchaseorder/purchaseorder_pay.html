@@ -1,0 +1,112 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Marquer comme payé - {{ purchase_order.po_number }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Marquer comme payé - {{ purchase_order.po_number }}</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <div class="alert alert-info">
+            <span class="fas fa-info-circle me-2"></span>
+            Vous êtes sur le point de marquer ce bon de commande comme payé. Veuillez fournir les informations de paiement.
+          </div>
+
+          <h5 class="mb-3">Résumé du Bon de Commande</h5>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Numéro PO :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.po_number }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Date PO :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.po_date|date:"d/m/Y" }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Fournisseur :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.supplier.name }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Total :</strong></div>
+            <div class="col-sm-8"><strong class="text-success">{{ purchase_order.total|floatformat:2 }} MRU</strong></div>
+          </div>
+
+          <hr class="my-4">
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h5 class="mb-3">Informations de paiement</h5>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label for="payment_date" class="form-label">Date de paiement <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="payment_date" name="payment_date" required>
+              </div>
+
+              <div class="col-md-6">
+                <label for="payment_bank" class="form-label">Compte bancaire</label>
+                <select class="form-select" id="payment_bank" name="payment_bank">
+                  <option value="">Aucun</option>
+                  {% for bank in bank_accounts %}
+                    <option value="{{ bank.pk }}">
+                      {{ bank.bank_identifier }} - {{ bank.bank_name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label for="file" class="form-label">Justificatif de paiement (optionnel)</label>
+                <input type="file" class="form-control" id="file" name="file">
+                <small class="text-muted">Vous pouvez joindre un justificatif de paiement (reçu, facture acquittée, etc.)</small>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+                <span class="fas fa-money-bill me-2"></span>Confirmer le paiement
+              </button>
+              <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-secondary">
+                Annuler
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Définir la date d'aujourd'hui par défaut
+  if (!document.getElementById('payment_date').value) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('payment_date').value = `${year}-${month}-${day}`;
+  }
+</script>
+{% endblock %}

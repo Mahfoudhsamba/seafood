@@ -13,9 +13,11 @@
       <a href="{% url 'portal_admin:purchaseorder_list' %}" class="btn btn-phoenix-secondary me-2">
         <span class="fas fa-arrow-left me-2"></span>Retour
       </a>
-      <a href="{% url 'portal_admin:purchaseorder_edit' purchase_order.pk %}" class="btn btn-primary">
-        <span class="fas fa-edit me-2"></span>Modifier
-      </a>
+      {% if purchase_order.status == 'draft' %}
+        <a href="{% url 'portal_admin:purchaseorder_edit' purchase_order.pk %}" class="btn btn-primary me-2">
+          <span class="fas fa-edit me-2"></span>Modifier
+        </a>
+      {% endif %}
     </div>
   </div>
 
@@ -42,30 +44,6 @@
             </div>
           </div>
           <div class="row mb-3">
-            <div class="col-sm-4"><strong>Désignation :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.designation }}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Quantité :</strong></div>
-            <div class="col-sm-8"><strong>{{ purchase_order.quantity }}</strong></div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Prix unitaire :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.unit_price|floatformat:2 }} MRU</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Sous-total :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.subtotal|floatformat:2 }} MRU</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Taxe ({{ purchase_order.tax_rate }}%) :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.tax_amount|floatformat:2 }} MRU</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Total :</strong></div>
-            <div class="col-sm-8"><strong class="text-success fs-3">{{ purchase_order.total|floatformat:2 }} MRU</strong></div>
-          </div>
-          <div class="row mb-3">
             <div class="col-sm-4"><strong>Statut :</strong></div>
             <div class="col-sm-8">
               {% if purchase_order.status == 'paid' %}
@@ -87,6 +65,59 @@
             <div class="col-sm-8">{{ purchase_order.note }}</div>
           </div>
           {% endif %}
+        </div>
+      </div>
+
+      <!-- Articles du bon de commande -->
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Articles commandés</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+              <thead class="table-light">
+                <tr>
+                  <th width="35%">Désignation</th>
+                  <th width="10%" class="text-end">Quantité</th>
+                  <th width="10%">Unité</th>
+                  <th width="15%" class="text-end">Prix unitaire</th>
+                  <th width="10%" class="text-end">Taxe (%)</th>
+                  <th width="20%" class="text-end">Montant TTC</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in purchase_order.items.all %}
+                <tr>
+                  <td>{{ item.designation }}</td>
+                  <td class="text-end">{{ item.quantity|floatformat:2 }}</td>
+                  <td>{{ item.get_unit_display }}</td>
+                  <td class="text-end">{{ item.unit_price|floatformat:2 }} MRU</td>
+                  <td class="text-end">{{ item.tax_rate|floatformat:2 }}%</td>
+                  <td class="text-end"><strong>{{ item.line_total|floatformat:2 }} MRU</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted">Aucun article</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <td colspan="5" class="text-end"><strong>Sous-total HT :</strong></td>
+                  <td class="text-end"><strong>{{ purchase_order.subtotal|floatformat:2 }} MRU</strong></td>
+                </tr>
+                <tr>
+                  <td colspan="5" class="text-end"><strong>Total Taxes :</strong></td>
+                  <td class="text-end"><strong>{{ purchase_order.tax_amount|floatformat:2 }} MRU</strong></td>
+                </tr>
+                <tr class="table-success">
+                  <td colspan="5" class="text-end"><strong class="fs-5">Total TTC :</strong></td>
+                  <td class="text-end"><strong class="text-success fs-4">{{ purchase_order.total|floatformat:2 }} MRU</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -125,6 +156,53 @@
     </div>
 
     <div class="col-12 col-xl-4">
+      <!-- Actions sur le statut -->
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">Actions</h5>
+        </div>
+        <div class="card-body">
+          {% if purchase_order.status == 'draft' %}
+            <div class="d-grid gap-2">
+              <a href="{% url 'portal_admin:purchaseorder_pending' purchase_order.pk %}" class="btn btn-warning">
+                <span class="fas fa-clock me-2"></span>Mettre en attente
+              </a>
+              <a href="{% url 'portal_admin:purchaseorder_approve' purchase_order.pk %}" class="btn btn-success">
+                <span class="fas fa-check me-2"></span>Approuver
+              </a>
+              <a href="{% url 'portal_admin:purchaseorder_reject' purchase_order.pk %}" class="btn btn-danger">
+                <span class="fas fa-times me-2"></span>Rejeter
+              </a>
+            </div>
+          {% elif purchase_order.status == 'pending' %}
+            <div class="d-grid gap-2">
+              <a href="{% url 'portal_admin:purchaseorder_approve' purchase_order.pk %}" class="btn btn-success">
+                <span class="fas fa-check me-2"></span>Approuver
+              </a>
+              <a href="{% url 'portal_admin:purchaseorder_reject' purchase_order.pk %}" class="btn btn-danger">
+                <span class="fas fa-times me-2"></span>Rejeter
+              </a>
+            </div>
+          {% elif purchase_order.status == 'approved' %}
+            <div class="d-grid gap-2">
+              <a href="{% url 'portal_admin:purchaseorder_pay' purchase_order.pk %}" class="btn btn-primary">
+                <span class="fas fa-money-bill me-2"></span>Marquer comme payé
+              </a>
+            </div>
+          {% elif purchase_order.status == 'paid' %}
+            <div class="alert alert-success mb-0">
+              <span class="fas fa-check-circle me-2"></span>
+              Ce bon de commande a été payé.
+            </div>
+          {% elif purchase_order.status == 'cancelled' %}
+            <div class="alert alert-danger mb-0">
+              <span class="fas fa-ban me-2"></span>
+              Ce bon de commande a été rejeté.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header bg-light">
           <h5 class="mb-0">Métadonnées</h5>

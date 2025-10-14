@@ -1,0 +1,62 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Mettre en attente - {{ purchase_order.po_number }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Mettre en attente le Bon de Commande {{ purchase_order.po_number }}</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <div class="card">
+        <div class="card-body">
+          <div class="alert alert-warning">
+            <span class="fas fa-exclamation-triangle me-2"></span>
+            Vous êtes sur le point de mettre ce bon de commande en attente. Cette action permettra de marquer le PO comme en attente de confirmation ou de réception.
+          </div>
+
+          <h5 class="mb-3">Résumé du Bon de Commande</h5>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Numéro PO :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.po_number }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Date PO :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.po_date|date:"d/m/Y" }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Fournisseur :</strong></div>
+            <div class="col-sm-8">{{ purchase_order.supplier.name }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Total :</strong></div>
+            <div class="col-sm-8"><strong class="text-success">{{ purchase_order.total|floatformat:2 }} MRU</strong></div>
+          </div>
+
+          <form method="post" class="mt-4">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-warning">
+                <span class="fas fa-clock me-2"></span>Confirmer la mise en attente
+              </button>
+              <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-secondary">
+                Annuler
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

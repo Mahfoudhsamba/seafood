@@ -67,6 +67,10 @@ class PortalAdminSite(AdminSite):
             path('purchaseorder/<int:pk>/', views.purchaseorder_detail, name='purchaseorder_detail'),
             path('purchaseorder/<int:pk>/edit/', views.purchaseorder_edit, name='purchaseorder_edit'),
             path('purchaseorder/<int:pk>/delete/', views.purchaseorder_delete, name='purchaseorder_delete'),
+            path('purchaseorder/<int:pk>/pending/', views.purchaseorder_pending, name='purchaseorder_pending'),
+            path('purchaseorder/<int:pk>/approve/', views.purchaseorder_approve, name='purchaseorder_approve'),
+            path('purchaseorder/<int:pk>/reject/', views.purchaseorder_reject, name='purchaseorder_reject'),
+            path('purchaseorder/<int:pk>/pay/', views.purchaseorder_pay, name='purchaseorder_pay'),
         ]
         return custom_urls + urls
 

@@ -36,13 +36,10 @@
           </div>
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-md-6">
-                <label for="pr_date" class="form-label">Date PR <span class="text-danger">*</span></label>
-                <input type="date" class="form-control" id="pr_date" name="pr_date"
-                       value="{% if purchase_request %}{{ purchase_request.pr_date|date:'Y-m-d' }}{% endif %}" required>
-              </div>
+              <!-- Champ caché pour Date PR (généré automatiquement) -->
+              <input type="hidden" id="pr_date" name="pr_date" value="">
 
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <label for="deadline" class="form-label">Échéance <span class="text-danger">*</span></label>
                 <input type="date" class="form-control" id="deadline" name="deadline"
                        value="{% if purchase_request %}{{ purchase_request.deadline|date:'Y-m-d' }}{% endif %}" required>
@@ -155,9 +152,13 @@
 </div>
 
 <script>
-  // Définir la date d'aujourd'hui par défaut
+  // Définir la date actuelle automatiquement (format date simple)
   if (!document.getElementById('pr_date').value) {
-    document.getElementById('pr_date').valueAsDate = new Date();
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    document.getElementById('pr_date').value = `${year}-${month}-${day}`;
   }
 
   // Template pour les options d'unité

@@ -52,68 +52,80 @@
                 </select>
               </div>
 
-              <div class="col-12">
-                <label for="designation" class="form-label">Désignation <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="designation" name="designation"
-                       value="{% if purchase_order %}{{ purchase_order.designation }}{% endif %}" required>
-              </div>
-
-              <div class="col-md-4">
-                <label for="quantity" class="form-label">Quantité <span class="text-danger">*</span></label>
-                <input type="number" step="0.01" class="form-control" id="quantity" name="quantity"
-                       value="{% if purchase_order %}{{ purchase_order.quantity }}{% endif %}" required>
-              </div>
-
-              <div class="col-md-4">
-                <label for="unit_price" class="form-label">Prix unitaire (MRU) <span class="text-danger">*</span></label>
-                <input type="number" step="0.01" class="form-control" id="unit_price" name="unit_price"
-                       value="{% if purchase_order %}{{ purchase_order.unit_price }}{% endif %}" required>
-              </div>
-
-              <div class="col-md-4">
-                <label for="tax_rate" class="form-label">Taux de taxe (%)</label>
-                <input type="number" step="0.01" class="form-control" id="tax_rate" name="tax_rate"
-                       value="{% if purchase_order %}{{ purchase_order.tax_rate }}{% else %}0{% endif %}">
-              </div>
             </div>
 
-            <h5 class="mb-3">Paiement</h5>
+            <h5 class="mb-3 mt-4">Articles</h5>
             <div class="row g-3 mb-4">
-              <div class="col-md-6">
-                <label for="payment_date" class="form-label">Date de paiement</label>
-                <input type="date" class="form-control" id="payment_date" name="payment_date"
-                       value="{% if purchase_order and purchase_order.payment_date %}{{ purchase_order.payment_date|date:'Y-m-d' }}{% endif %}">
-              </div>
-
-              <div class="col-md-6">
-                <label for="payment_bank" class="form-label">Compte bancaire</label>
-                <select class="form-select" id="payment_bank" name="payment_bank">
-                  <option value="">Aucun</option>
-                  {% for bank in bank_accounts %}
-                    <option value="{{ bank.pk }}" {% if purchase_order and purchase_order.payment_bank_id == bank.pk %}selected{% endif %}>
-                      {{ bank.bank_identifier }} - {{ bank.bank_name }}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-
-              <div class="col-md-6">
-                <label for="file" class="form-label">Fichier</label>
-                <input type="file" class="form-control" id="file" name="file">
-                {% if purchase_order and purchase_order.file %}
-                  <small class="text-muted">Fichier actuel: <a href="{{ purchase_order.file.url }}" target="_blank">Voir</a></small>
-                {% endif %}
-              </div>
-
-              <div class="col-md-6">
-                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
-                <select class="form-select" id="status" name="status" required>
-                  {% for value, label in statuses %}
-                    <option value="{{ value }}" {% if purchase_order and purchase_order.status == value %}selected{% endif %}>{{ label }}</option>
-                  {% endfor %}
-                </select>
+              <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="text-muted">Liste des articles</span>
+                  <button type="button" class="btn btn-sm btn-success" onclick="addPOItemRow()">
+                    <span class="fas fa-plus me-1"></span>Ajouter un article
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="poItemsTable">
+                    <thead>
+                      <tr>
+                        <th width="30%">Désignation <span class="text-danger">*</span></th>
+                        <th width="15%">Quantité <span class="text-danger">*</span></th>
+                        <th width="15%">Unité <span class="text-danger">*</span></th>
+                        <th width="15%">Prix unitaire <span class="text-danger">*</span></th>
+                        <th width="15%">Taux de taxe (%)</th>
+                        <th width="10%">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="poItemsBody">
+                      {% if purchase_order and purchase_order.items.all %}
+                        {% for item in purchase_order.items.all %}
+                          <tr>
+                            <td><input type="text" class="form-control" name="designation[]" value="{{ item.designation }}" required></td>
+                            <td><input type="number" step="0.01" class="form-control" name="quantity[]" value="{{ item.quantity }}" required></td>
+                            <td>
+                              <select class="form-select" name="unit[]" required>
+                                {% for value, label in units %}
+                                  <option value="{{ value }}" {% if item.unit == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                              </select>
+                            </td>
+                            <td><input type="number" step="0.01" class="form-control" name="unit_price[]" value="{{ item.unit_price }}" required></td>
+                            <td><input type="number" step="0.01" class="form-control" name="tax_rate[]" value="{{ item.tax_rate }}"></td>
+                            <td><button type="button" class="btn btn-sm btn-danger" onclick="removePOItemRow(this)"><span class="fas fa-trash"></span></button></td>
+                          </tr>
+                        {% endfor %}
+                      {% else %}
+                        <tr>
+                          <td><input type="text" class="form-control" name="designation[]" required></td>
+                          <td><input type="number" step="0.01" class="form-control" name="quantity[]" required></td>
+                          <td>
+                            <select class="form-select" name="unit[]" required>
+                              {% for value, label in units %}
+                                <option value="{{ value }}">{{ label }}</option>
+                              {% endfor %}
+                            </select>
+                          </td>
+                          <td><input type="number" step="0.01" class="form-control" name="unit_price[]" required></td>
+                          <td><input type="number" step="0.01" class="form-control" name="tax_rate[]" value="0"></td>
+                          <td><button type="button" class="btn btn-sm btn-danger" onclick="removePOItemRow(this)"><span class="fas fa-trash"></span></button></td>
+                        </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
+
+            {% if purchase_order %}
+            <h5 class="mb-3">Statut</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <span class="fas fa-info-circle me-2"></span>
+                  Le statut du bon de commande peut être modifié depuis la page de détails.
+                </div>
+              </div>
+            </div>
+            {% endif %}
 
             <h5 class="mb-3">Notes</h5>
             <div class="row g-3">
@@ -135,4 +147,41 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Template pour les options d'unité
+  const unitOptions = `{% for value, label in units %}<option value="{{ value }}">{{ label }}</option>{% endfor %}`;
+
+  function addPOItemRow() {
+    const tbody = document.getElementById('poItemsBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="text" class="form-control" name="designation[]" required></td>
+      <td><input type="number" step="0.01" class="form-control" name="quantity[]" required></td>
+      <td><select class="form-select" name="unit[]" required>${unitOptions}</select></td>
+      <td><input type="number" step="0.01" class="form-control" name="unit_price[]" required></td>
+      <td><input type="number" step="0.01" class="form-control" name="tax_rate[]" value="0"></td>
+      <td><button type="button" class="btn btn-sm btn-danger" onclick="removePOItemRow(this)"><span class="fas fa-trash"></span></button></td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  function removePOItemRow(button) {
+    const tbody = document.getElementById('poItemsBody');
+    if (tbody.children.length > 1) {
+      button.closest('tr').remove();
+    } else {
+      alert('Au moins un article est requis!');
+    }
+  }
+
+  // Définir la date d'aujourd'hui par défaut pour po_date
+  if (!document.getElementById('po_date').value) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('po_date').value = `${year}-${month}-${day}`;
+  }
+</script>
 {% endblock %}

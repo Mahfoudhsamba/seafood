@@ -1,13 +1,13 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Détails de la Demande d'Achat - PR-{{ purchase_request.pr_number }}{% endblock %}
+{% block title %}Détails de la Demande d'Achat - {{ purchase_request.pr_number }}{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Demande d'Achat PR-{{ purchase_request.pr_number }}</h2>
+      <h2 class="mb-0">Demande d'Achat {{ purchase_request.pr_number }}</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:purchaserequest_list' %}" class="btn btn-phoenix-secondary me-2">
@@ -46,7 +46,7 @@
         <div class="card-body">
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Numéro PR :</strong></div>
-            <div class="col-sm-8"><span class="badge bg-primary fs-6">PR-{{ purchase_request.pr_number }}</span></div>
+            <div class="col-sm-8"><span class="badge bg-primary fs-6">{{ purchase_request.pr_number }}</span></div>
           </div>
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Date PR :</strong></div>

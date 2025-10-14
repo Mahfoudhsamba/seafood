@@ -666,10 +666,14 @@ def purchaserequest_add(request):
     if request.method == 'POST':
         try:
             from decimal import Decimal
+            from datetime import date
+
+            # Utiliser la date d'aujourd'hui automatiquement
+            pr_date = date.today()
 
             # Créer le PR (toujours en status brouillon)
             purchase_request = PurchaseRequest(
-                pr_date=request.POST.get('pr_date'),
+                pr_date=pr_date,
                 requester_first_name=request.POST.get('requester_first_name'),
                 requester_last_name=request.POST.get('requester_last_name'),
                 position=request.POST.get('position'),
@@ -722,7 +726,7 @@ def purchaserequest_edit(request, pk):
         try:
             from decimal import Decimal
 
-            purchase_request.pr_date = request.POST.get('pr_date')
+            # Ne pas modifier pr_date - il est défini automatiquement à la création
             purchase_request.requester_first_name = request.POST.get('requester_first_name')
             purchase_request.requester_last_name = request.POST.get('requester_last_name')
             purchase_request.position = request.POST.get('position')
@@ -913,19 +917,16 @@ def purchaseorder_add(request):
     """Formulaire d'ajout de bon de commande"""
     if request.method == 'POST':
         try:
+            from decimal import Decimal
+
             file = request.FILES.get('file') if 'file' in request.FILES else None
 
+            # Créer le PO (toujours en brouillon)
             purchase_order = PurchaseOrder(
                 po_date=request.POST.get('po_date'),
-                payment_date=request.POST.get('payment_date') or None,
-                payment_bank_id=request.POST.get('payment_bank') or None,
                 supplier_id=request.POST.get('supplier'),
-                designation=request.POST.get('designation'),
-                quantity=request.POST.get('quantity'),
-                unit_price=request.POST.get('unit_price'),
-                tax_rate=request.POST.get('tax_rate', 0),
                 note=request.POST.get('note', ''),
-                status=request.POST.get('status', 'draft'),
+                status='draft',  # Toujours brouillon à la création
                 created_by=request.user
             )
 
@@ -933,17 +934,38 @@ def purchaseorder_add(request):
                 purchase_order.file.save(file.name, file, save=False)
 
             purchase_order.save()
+
+            # Créer les items
+            designations = request.POST.getlist('designation[]')
+            quantities = request.POST.getlist('quantity[]')
+            units = request.POST.getlist('unit[]')
+            unit_prices = request.POST.getlist('unit_price[]')
+            tax_rates = request.POST.getlist('tax_rate[]')
+
+            for i, designation in enumerate(designations):
+                if designation.strip():
+                    PurchaseOrderItem.objects.create(
+                        purchase_order=purchase_order,
+                        designation=designation,
+                        quantity=Decimal(quantities[i]),
+                        unit=units[i],
+                        unit_price=Decimal(unit_prices[i]),
+                        tax_rate=Decimal(tax_rates[i]) if tax_rates[i] else Decimal('0.00'),
+                        order=i
+                    )
+
+            # Calculer les totaux
+            purchase_order.calculate_totals()
+
             messages.success(request, 'Bon de commande ajouté avec succès!')
-            return redirect('portal_admin:purchaseorder_list')
+            return redirect('portal_admin:purchaseorder_detail', pk=purchase_order.pk)
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
 
     suppliers = Supplier.objects.filter(status='active')
-    bank_accounts = BankAccount.objects.filter(status='active')
     return render(request, 'seafood/purchaseorder/purchaseorder_form.html', {
         'suppliers': suppliers,
-        'bank_accounts': bank_accounts,
-        'statuses': PurchaseOrder.STATUS_CHOICES
+        'units': PurchaseOrderItem.UNIT_CHOICES
     })
 
 
@@ -953,16 +975,19 @@ def purchaseorder_edit(request, pk):
     """Formulaire de modification de bon de commande"""
     purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
 
+    # Ne permettre la modification que si le statut est brouillon
+    if purchase_order.status != 'draft':
+        messages.error(request, 'Seuls les bons de commande en brouillon peuvent être modifiés!')
+        return redirect('portal_admin:purchaseorder_detail', pk=pk)
+
     if request.method == 'POST':
         try:
+            from decimal import Decimal
+
             purchase_order.po_date = request.POST.get('po_date')
             purchase_order.payment_date = request.POST.get('payment_date') or None
             purchase_order.payment_bank_id = request.POST.get('payment_bank') or None
             purchase_order.supplier_id = request.POST.get('supplier')
-            purchase_order.designation = request.POST.get('designation')
-            purchase_order.quantity = request.POST.get('quantity')
-            purchase_order.unit_price = request.POST.get('unit_price')
-            purchase_order.tax_rate = request.POST.get('tax_rate', 0)
             purchase_order.note = request.POST.get('note', '')
             purchase_order.status = request.POST.get('status')
 
@@ -972,8 +997,34 @@ def purchaseorder_edit(request, pk):
                 purchase_order.file = request.FILES['file']
 
             purchase_order.save()
+
+            # Supprimer les anciens items
+            purchase_order.items.all().delete()
+
+            # Créer les nouveaux items
+            designations = request.POST.getlist('designation[]')
+            quantities = request.POST.getlist('quantity[]')
+            units = request.POST.getlist('unit[]')
+            unit_prices = request.POST.getlist('unit_price[]')
+            tax_rates = request.POST.getlist('tax_rate[]')
+
+            for i, designation in enumerate(designations):
+                if designation.strip():
+                    PurchaseOrderItem.objects.create(
+                        purchase_order=purchase_order,
+                        designation=designation,
+                        quantity=Decimal(quantities[i]),
+                        unit=units[i],
+                        unit_price=Decimal(unit_prices[i]),
+                        tax_rate=Decimal(tax_rates[i]) if tax_rates[i] else Decimal('0.00'),
+                        order=i
+                    )
+
+            # Recalculer les totaux
+            purchase_order.calculate_totals()
+
             messages.success(request, 'Bon de commande modifié avec succès!')
-            return redirect('portal_admin:purchaseorder_list')
+            return redirect('portal_admin:purchaseorder_detail', pk=pk)
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification: {str(e)}')
 
@@ -983,7 +1034,8 @@ def purchaseorder_edit(request, pk):
         'purchase_order': purchase_order,
         'suppliers': suppliers,
         'bank_accounts': bank_accounts,
-        'statuses': PurchaseOrder.STATUS_CHOICES
+        'statuses': PurchaseOrder.STATUS_CHOICES,
+        'units': PurchaseOrderItem.UNIT_CHOICES
     })
 
 
@@ -1002,6 +1054,100 @@ def purchaseorder_delete(request, pk):
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'seafood/purchaseorder/purchaseorder_confirm_delete.html', {'purchase_order': purchase_order})
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaseorder', raise_exception=True)
+def purchaseorder_pending(request, pk):
+    """Mettre un bon de commande en attente"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        purchase_order.status = 'pending'
+        purchase_order.save()
+        messages.success(request, 'Bon de commande mis en attente!')
+        return redirect('portal_admin:purchaseorder_detail', pk=pk)
+
+    return render(request, 'seafood/purchaseorder/purchaseorder_pending.html', {'purchase_order': purchase_order})
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaseorder', raise_exception=True)
+def purchaseorder_approve(request, pk):
+    """Approuver un bon de commande"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        purchase_order.status = 'approved'
+        purchase_order.approved_by = request.user
+        from django.utils import timezone
+        purchase_order.approved_at = timezone.now()
+        purchase_order.save()
+        messages.success(request, 'Bon de commande approuvé!')
+        return redirect('portal_admin:purchaseorder_detail', pk=pk)
+
+    return render(request, 'seafood/purchaseorder/purchaseorder_approve.html', {'purchase_order': purchase_order})
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaseorder', raise_exception=True)
+def purchaseorder_reject(request, pk):
+    """Rejeter un bon de commande"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', '').strip()
+        if not rejection_reason:
+            messages.error(request, 'Le motif de rejet est obligatoire!')
+            return render(request, 'seafood/purchaseorder/purchaseorder_reject.html', {'purchase_order': purchase_order})
+
+        purchase_order.status = 'cancelled'
+        purchase_order.rejection_reason = rejection_reason
+        purchase_order.save()
+        messages.success(request, 'Bon de commande rejeté!')
+        return redirect('portal_admin:purchaseorder_detail', pk=pk)
+
+    return render(request, 'seafood/purchaseorder/purchaseorder_reject.html', {'purchase_order': purchase_order})
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaseorder', raise_exception=True)
+def purchaseorder_pay(request, pk):
+    """Marquer un bon de commande comme payé"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        from datetime import date
+
+        payment_date = request.POST.get('payment_date')
+        payment_bank_id = request.POST.get('payment_bank') or None
+
+        if not payment_date:
+            messages.error(request, 'La date de paiement est obligatoire!')
+            bank_accounts = BankAccount.objects.filter(status='active')
+            return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+                'purchase_order': purchase_order,
+                'bank_accounts': bank_accounts
+            })
+
+        purchase_order.status = 'paid'
+        purchase_order.payment_date = payment_date
+        purchase_order.payment_bank_id = payment_bank_id
+
+        if 'file' in request.FILES:
+            if purchase_order.file:
+                purchase_order.file.delete(save=False)
+            purchase_order.file = request.FILES['file']
+
+        purchase_order.save()
+        messages.success(request, 'Bon de commande marqué comme payé!')
+        return redirect('portal_admin:purchaseorder_detail', pk=pk)
+
+    bank_accounts = BankAccount.objects.filter(status='active')
+    return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+        'purchase_order': purchase_order,
+        'bank_accounts': bank_accounts
+    })
 
 
 # ============ CASHBOX TRANSACTION VIEWS ============
