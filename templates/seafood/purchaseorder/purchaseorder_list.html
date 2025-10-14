@@ -34,9 +34,8 @@
               <th>N° PO</th>
               <th>Date</th>
               <th>Fournisseur</th>
-              <th>Désignation</th>
-              <th>Quantité</th>
-              <th>Total</th>
+              <th>Total HT</th>
+              <th>Total TTC</th>
               <th>Statut</th>
               <th>Actions</th>
             </tr>
@@ -50,8 +49,7 @@
                   {{ po.supplier.name }}<br>
                   <small class="text-muted">{{ po.supplier.accounting_code }}</small>
                 </td>
-                <td>{{ po.designation|truncatewords:5 }}</td>
-                <td>{{ po.quantity }}</td>
+                <td><strong>{{ po.subtotal|floatformat:2 }} MRU</strong></td>
                 <td><strong class="text-success">{{ po.total|floatformat:2 }} MRU</strong></td>
                 <td>
                   {% if po.status == 'paid' %}
@@ -81,7 +79,7 @@
               </tr>
             {% empty %}
               <tr>
-                <td colspan="8" class="text-center py-4">
+                <td colspan="7" class="text-center py-4">
                   <p class="text-muted mb-0">Aucun bon de commande trouvé</p>
                 </td>
               </tr>
