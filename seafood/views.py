@@ -801,11 +801,11 @@ def purchaserequest_approve(request, pk):
                         'suppliers': Supplier.objects.filter(status='active')
                     })
 
-            # Créer le PO
+            # Créer le PO (en attente)
             purchase_order = PurchaseOrder(
                 po_date=date.today(),
                 supplier_id=supplier_id,
-                status='draft',
+                status='pending',  # Créé en statut "En attente"
                 note=f'Créé automatiquement depuis PR-{purchase_request.pr_number}',
                 created_by=request.user
             )
@@ -877,20 +877,18 @@ def purchaserequest_reject(request, pk):
 
 
 @staff_member_required
-@permission_required('seafood.delete_purchaserequest', raise_exception=True)
-def purchaserequest_delete(request, pk):
-    """Suppression d'une demande d'achat"""
+@permission_required('seafood.change_purchaserequest', raise_exception=True)
+def purchaserequest_cancel(request, pk):
+    """Annuler une demande d'achat"""
     purchase_request = get_object_or_404(PurchaseRequest, pk=pk)
 
     if request.method == 'POST':
-        try:
-            purchase_request.delete()
-            messages.success(request, 'Demande d\'achat supprimée avec succès!')
-            return redirect('portal_admin:purchaserequest_list')
-        except Exception as e:
-            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+        purchase_request.status = 'cancelled'
+        purchase_request.save()
+        messages.success(request, 'Demande d\'achat annulée!')
+        return redirect('portal_admin:purchaserequest_detail', pk=pk)
 
-    return render(request, 'seafood/purchaserequest/purchaserequest_confirm_delete.html', {'purchase_request': purchase_request})
+    return render(request, 'seafood/purchaserequest/purchaserequest_cancel.html', {'purchase_request': purchase_request})
 
 
 # ============ PURCHASE ORDER VIEWS ============
@@ -1040,23 +1038,6 @@ def purchaseorder_edit(request, pk):
 
 
 @staff_member_required
-@permission_required('seafood.delete_purchaseorder', raise_exception=True)
-def purchaseorder_delete(request, pk):
-    """Suppression d'un bon de commande"""
-    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
-
-    if request.method == 'POST':
-        try:
-            purchase_order.delete()
-            messages.success(request, 'Bon de commande supprimé avec succès!')
-            return redirect('portal_admin:purchaseorder_list')
-        except Exception as e:
-            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
-
-    return render(request, 'seafood/purchaseorder/purchaseorder_confirm_delete.html', {'purchase_order': purchase_order})
-
-
-@staff_member_required
 @permission_required('seafood.change_purchaseorder', raise_exception=True)
 def purchaseorder_pending(request, pk):
     """Mettre un bon de commande en attente"""
@@ -1114,24 +1095,87 @@ def purchaseorder_reject(request, pk):
 @permission_required('seafood.change_purchaseorder', raise_exception=True)
 def purchaseorder_pay(request, pk):
     """Marquer un bon de commande comme payé"""
+    from decimal import Decimal
     purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
 
     if request.method == 'POST':
         from datetime import date
 
         payment_date = request.POST.get('payment_date')
+        payment_method = request.POST.get('payment_method')
+        payment_cashbox_id = request.POST.get('payment_cashbox') or None
         payment_bank_id = request.POST.get('payment_bank') or None
 
+        # Validation
         if not payment_date:
             messages.error(request, 'La date de paiement est obligatoire!')
             bank_accounts = BankAccount.objects.filter(status='active')
+            cashboxes = Cashbox.objects.all()
             return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
                 'purchase_order': purchase_order,
-                'bank_accounts': bank_accounts
+                'bank_accounts': bank_accounts,
+                'cashboxes': cashboxes
             })
 
+        if not payment_method:
+            messages.error(request, 'La méthode de paiement est obligatoire!')
+            bank_accounts = BankAccount.objects.filter(status='active')
+            cashboxes = Cashbox.objects.all()
+            return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+                'purchase_order': purchase_order,
+                'bank_accounts': bank_accounts,
+                'cashboxes': cashboxes
+            })
+
+        if payment_method == 'cashbox' and not payment_cashbox_id:
+            messages.error(request, 'Veuillez sélectionner une caisse!')
+            bank_accounts = BankAccount.objects.filter(status='active')
+            cashboxes = Cashbox.objects.all()
+            return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+                'purchase_order': purchase_order,
+                'bank_accounts': bank_accounts,
+                'cashboxes': cashboxes
+            })
+
+        if payment_method == 'bank' and not payment_bank_id:
+            messages.error(request, 'Veuillez sélectionner un compte bancaire!')
+            bank_accounts = BankAccount.objects.filter(status='active')
+            cashboxes = Cashbox.objects.all()
+            return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+                'purchase_order': purchase_order,
+                'bank_accounts': bank_accounts,
+                'cashboxes': cashboxes
+            })
+
+        # Vérifier que le crédit est suffisant selon la méthode de paiement
+        if payment_method == 'cashbox':
+            cashbox = get_object_or_404(Cashbox, pk=payment_cashbox_id)
+            if cashbox.current_balance < purchase_order.total:
+                messages.error(request, f'Solde insuffisant dans la caisse! Solde disponible: {cashbox.current_balance} MRU, Montant requis: {purchase_order.total} MRU')
+                bank_accounts = BankAccount.objects.filter(status='active')
+                cashboxes = Cashbox.objects.all()
+                return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+                    'purchase_order': purchase_order,
+                    'bank_accounts': bank_accounts,
+                    'cashboxes': cashboxes
+                })
+        elif payment_method == 'bank':
+            bank_account = get_object_or_404(BankAccount, pk=payment_bank_id)
+            if bank_account.current_balance < purchase_order.total:
+                messages.error(request, f'Solde insuffisant dans le compte bancaire! Solde disponible: {bank_account.current_balance} MRU, Montant requis: {purchase_order.total} MRU')
+                bank_accounts = BankAccount.objects.filter(status='active')
+                cashboxes = Cashbox.objects.all()
+                return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
+                    'purchase_order': purchase_order,
+                    'bank_accounts': bank_accounts,
+                    'cashboxes': cashboxes
+                })
+
+        # Mettre à jour le PO
         purchase_order.status = 'paid'
         purchase_order.payment_date = payment_date
+        purchase_order.payment_method = payment_method
+        purchase_order.payment_cashbox_id = payment_cashbox_id
         purchase_order.payment_bank_id = payment_bank_id
 
         if 'file' in request.FILES:
@@ -1140,14 +1184,53 @@ def purchaseorder_pay(request, pk):
             purchase_order.file = request.FILES['file']
 
         purchase_order.save()
+
+        # Décrémenter le solde selon la méthode de paiement
+        if payment_method == 'cashbox':
+            # Créer une transaction de sortie pour la caisse
+            cashbox = get_object_or_404(Cashbox, pk=payment_cashbox_id)
+            transaction = CashboxTransaction(
+                cashbox=cashbox,
+                transaction_type='out',
+                source='purchase_order',
+                amount=purchase_order.total,
+                transaction_date=payment_date,
+                description=f'Paiement du bon de commande {purchase_order.po_number} - {purchase_order.supplier.name}',
+                created_by=request.user
+            )
+            transaction.save()
+            # Le solde de la caisse est automatiquement décrémenté par le signal du modèle CashboxTransaction
+        elif payment_method == 'bank':
+            # Décrémenter le solde du compte bancaire
+            bank_account = get_object_or_404(BankAccount, pk=payment_bank_id)
+            bank_account.current_balance -= purchase_order.total
+            bank_account.save()
+
         messages.success(request, 'Bon de commande marqué comme payé!')
         return redirect('portal_admin:purchaseorder_detail', pk=pk)
 
     bank_accounts = BankAccount.objects.filter(status='active')
+    cashboxes = Cashbox.objects.all()
     return render(request, 'seafood/purchaseorder/purchaseorder_pay.html', {
         'purchase_order': purchase_order,
-        'bank_accounts': bank_accounts
+        'bank_accounts': bank_accounts,
+        'cashboxes': cashboxes
     })
+
+
+@staff_member_required
+@permission_required('seafood.change_purchaseorder', raise_exception=True)
+def purchaseorder_cancel(request, pk):
+    """Annuler un bon de commande"""
+    purchase_order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        purchase_order.status = 'cancelled'
+        purchase_order.save()
+        messages.success(request, 'Bon de commande annulé!')
+        return redirect('portal_admin:purchaseorder_detail', pk=pk)
+
+    return render(request, 'seafood/purchaseorder/purchaseorder_cancel.html', {'purchase_order': purchase_order})
 
 
 # ============ CASHBOX TRANSACTION VIEWS ============

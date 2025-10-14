@@ -66,9 +66,30 @@
               </div>
 
               <div class="col-md-6">
-                <label for="payment_bank" class="form-label">Compte bancaire</label>
+                <label for="payment_method" class="form-label">Méthode de paiement <span class="text-danger">*</span></label>
+                <select class="form-select" id="payment_method" name="payment_method" required>
+                  <option value="">-- Sélectionner --</option>
+                  <option value="cashbox">Caisse</option>
+                  <option value="bank">Compte bancaire</option>
+                </select>
+              </div>
+
+              <div class="col-md-12" id="cashbox_field" style="display: none;">
+                <label for="payment_cashbox" class="form-label">Caisse <span class="text-danger">*</span></label>
+                <select class="form-select" id="payment_cashbox" name="payment_cashbox">
+                  <option value="">-- Sélectionner une caisse --</option>
+                  {% for cashbox in cashboxes %}
+                    <option value="{{ cashbox.pk }}">
+                      {{ cashbox.folder_code }} - {{ cashbox.description }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-12" id="bank_field" style="display: none;">
+                <label for="payment_bank" class="form-label">Compte bancaire <span class="text-danger">*</span></label>
                 <select class="form-select" id="payment_bank" name="payment_bank">
-                  <option value="">Aucun</option>
+                  <option value="">-- Sélectionner un compte --</option>
                   {% for bank in bank_accounts %}
                     <option value="{{ bank.pk }}">
                       {{ bank.bank_identifier }} - {{ bank.bank_name }}
@@ -108,5 +129,34 @@
     const day = String(today.getDate()).padStart(2, '0');
     document.getElementById('payment_date').value = `${year}-${month}-${day}`;
   }
+
+  // Gérer l'affichage des champs de paiement selon la méthode sélectionnée
+  document.getElementById('payment_method').addEventListener('change', function() {
+    var cashboxField = document.getElementById('cashbox_field');
+    var bankField = document.getElementById('bank_field');
+    var paymentCashbox = document.getElementById('payment_cashbox');
+    var paymentBank = document.getElementById('payment_bank');
+
+    if (this.value === 'cashbox') {
+      cashboxField.style.display = 'block';
+      bankField.style.display = 'none';
+      paymentCashbox.required = true;
+      paymentBank.required = false;
+      paymentBank.value = '';
+    } else if (this.value === 'bank') {
+      cashboxField.style.display = 'none';
+      bankField.style.display = 'block';
+      paymentCashbox.required = false;
+      paymentBank.required = true;
+      paymentCashbox.value = '';
+    } else {
+      cashboxField.style.display = 'none';
+      bankField.style.display = 'none';
+      paymentCashbox.required = false;
+      paymentBank.required = false;
+      paymentCashbox.value = '';
+      paymentBank.value = '';
+    }
+  });
 </script>
 {% endblock %}

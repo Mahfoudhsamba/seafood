@@ -655,7 +655,7 @@ class BankAccount(models.Model):
 
     CATEGORY_CHOICES = [
         ('classic', 'Classique'),
-        ('mobile_money', 'Mobile Money'),
+        ('bank_mobile', 'Banque mobile'),
         ('neo_bank', 'Néo-banque'),
         ('payment_gateway', 'Passerelle de paiement'),
         ('e_wallet', 'Portefeuille électronique'),
@@ -824,6 +824,7 @@ class PurchaseRequest(models.Model):
         ('draft', 'Brouillon'),
         ('approved', 'Accepté'),
         ('rejected', 'Rejeté'),
+        ('cancelled', 'Annulé'),
     ]
 
     # Numéro de PR
@@ -1000,6 +1001,11 @@ class PurchaseOrder(models.Model):
         help_text='Numéro unique du bon de commande (généré automatiquement)'
     )
 
+    PAYMENT_METHOD_CHOICES = [
+        ('cashbox', 'Caisse'),
+        ('bank', 'Compte bancaire'),
+    ]
+
     # Dates
     po_date = models.DateField(verbose_name='Date PO')
     payment_date = models.DateField(
@@ -1009,6 +1015,21 @@ class PurchaseOrder(models.Model):
     )
 
     # Paiement
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name='Méthode de paiement'
+    )
+    payment_cashbox = models.ForeignKey(
+        Cashbox,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name='purchase_order_payments',
+        verbose_name='Caisse de paiement'
+    )
     payment_bank = models.ForeignKey(
         BankAccount,
         on_delete=models.PROTECT,

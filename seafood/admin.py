@@ -59,18 +59,18 @@ class PortalAdminSite(AdminSite):
             path('purchaserequest/<int:pk>/edit/', views.purchaserequest_edit, name='purchaserequest_edit'),
             path('purchaserequest/<int:pk>/approve/', views.purchaserequest_approve, name='purchaserequest_approve'),
             path('purchaserequest/<int:pk>/reject/', views.purchaserequest_reject, name='purchaserequest_reject'),
-            path('purchaserequest/<int:pk>/delete/', views.purchaserequest_delete, name='purchaserequest_delete'),
+            path('purchaserequest/<int:pk>/cancel/', views.purchaserequest_cancel, name='purchaserequest_cancel'),
 
             # Purchase Order
             path('purchaseorder/', views.purchaseorder_list, name='purchaseorder_list'),
             path('purchaseorder/add/', views.purchaseorder_add, name='purchaseorder_add'),
             path('purchaseorder/<int:pk>/', views.purchaseorder_detail, name='purchaseorder_detail'),
             path('purchaseorder/<int:pk>/edit/', views.purchaseorder_edit, name='purchaseorder_edit'),
-            path('purchaseorder/<int:pk>/delete/', views.purchaseorder_delete, name='purchaseorder_delete'),
             path('purchaseorder/<int:pk>/pending/', views.purchaseorder_pending, name='purchaseorder_pending'),
             path('purchaseorder/<int:pk>/approve/', views.purchaseorder_approve, name='purchaseorder_approve'),
             path('purchaseorder/<int:pk>/reject/', views.purchaseorder_reject, name='purchaseorder_reject'),
             path('purchaseorder/<int:pk>/pay/', views.purchaseorder_pay, name='purchaseorder_pay'),
+            path('purchaseorder/<int:pk>/cancel/', views.purchaseorder_cancel, name='purchaseorder_cancel'),
         ]
         return custom_urls + urls
 

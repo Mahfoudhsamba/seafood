@@ -71,12 +71,11 @@
                     <a href="{% url 'portal_admin:purchaseorder_detail' po.pk %}" class="btn btn-sm btn-phoenix-info" title="Détails">
                       <span class="fas fa-eye"></span>
                     </a>
+                    {% if po.status == 'draft' %}
                     <a href="{% url 'portal_admin:purchaseorder_edit' po.pk %}" class="btn btn-sm btn-phoenix-primary" title="Modifier">
                       <span class="fas fa-edit"></span>
                     </a>
-                    <a href="{% url 'portal_admin:purchaseorder_delete' po.pk %}" class="btn btn-sm btn-phoenix-danger" title="Supprimer">
-                      <span class="fas fa-trash"></span>
-                    </a>
+                    {% endif %}
                   </div>
                 </td>
               </tr>

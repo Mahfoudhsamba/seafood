@@ -41,6 +41,8 @@
             <span class="badge badge-phoenix badge-phoenix-success">Accepté</span>
           {% elif purchase_request.status == 'rejected' %}
             <span class="badge badge-phoenix badge-phoenix-danger">Rejeté</span>
+          {% elif purchase_request.status == 'cancelled' %}
+            <span class="badge badge-phoenix badge-phoenix-secondary">Annulé</span>
           {% endif %}
         </div>
         <div class="card-body">
@@ -143,6 +145,9 @@
               </a>
               <a href="{% url 'portal_admin:purchaserequest_reject' purchase_request.pk %}" class="btn btn-danger">
                 <span class="fas fa-times me-2"></span>Rejeter
+              </a>
+              <a href="{% url 'portal_admin:purchaserequest_cancel' purchase_request.pk %}" class="btn btn-warning">
+                <span class="fas fa-ban me-2"></span>Annuler
               </a>
             </div>
           </div>
