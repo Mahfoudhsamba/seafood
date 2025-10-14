@@ -486,7 +486,7 @@ class CashboxTransaction(models.Model):
         max_length=20,
         unique=True,
         verbose_name='Numéro de transaction',
-        help_text='Format: TRX-XXXXXX (généré automatiquement)'
+        help_text='Format: TRXXXXXXX (généré automatiquement)'
     )
 
     # Caisse concernée
@@ -635,14 +635,18 @@ class CashboxTransaction(models.Model):
         last_transaction = CashboxTransaction.objects.order_by('-transaction_number').first()
         if last_transaction and last_transaction.transaction_number:
             # Extraire le numéro et l'incrémenter
-            last_number = int(last_transaction.transaction_number.split('-')[1])
+            # Supporter l'ancien format avec tiret et le nouveau sans tiret
+            if '-' in last_transaction.transaction_number:
+                last_number = int(last_transaction.transaction_number.split('-')[1])
+            else:
+                last_number = int(last_transaction.transaction_number[3:])
             new_number = last_number + 1
         else:
             # Première transaction
             new_number = 1
 
-        # Format: TRX-000001
-        return f"TRX-{new_number:06d}"
+        # Format: TRX000001 (sans tiret ni espace)
+        return f"TRX{new_number:06d}"
 
 
 @receiver(pre_delete, sender=CashboxTransaction)

@@ -43,7 +43,6 @@ class PortalAdminSite(AdminSite):
             path('cashbox/<int:pk>/edit/', views.cashbox_edit, name='cashbox_edit'),
             path('cashbox/<int:pk>/delete/', views.cashbox_delete, name='cashbox_delete'),
             path('cashbox/<int:cashbox_pk>/fund/', views.cashbox_fund, name='cashbox_fund'),
-            path('cashbox/<int:cashbox_pk>/transactions/', views.cashbox_transactions, name='cashbox_transactions'),
             path('cashbox/<int:pk>/status/<str:new_status>/', views.cashbox_change_status, name='cashbox_change_status'),
 
             # Bank Account

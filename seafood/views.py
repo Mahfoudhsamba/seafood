@@ -446,8 +446,22 @@ def cashbox_list(request):
 @permission_required('seafood.view_cashbox', raise_exception=True)
 def cashbox_detail(request, pk):
     """Détails d'une caisse"""
+    from decimal import Decimal
+    from django.db.models import Sum
+
     cashbox = get_object_or_404(Cashbox, pk=pk)
-    return render(request, 'seafood/cashbox/cashbox_detail.html', {'cashbox': cashbox})
+    transactions = CashboxTransaction.objects.filter(cashbox=cashbox).order_by('-transaction_date', '-created_at')
+
+    # Calculer les totaux
+    total_in = transactions.filter(transaction_type='in').aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+    total_out = transactions.filter(transaction_type='out').aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
+    return render(request, 'seafood/cashbox/cashbox_detail.html', {
+        'cashbox': cashbox,
+        'transactions': transactions,
+        'total_in': total_in,
+        'total_out': total_out
+    })
 
 
 @staff_member_required
@@ -1344,14 +1358,3 @@ def cashbox_fund(request, cashbox_pk):
     })
 
 
-@staff_member_required
-@permission_required('seafood.view_cashboxtransaction', raise_exception=True)
-def cashbox_transactions(request, cashbox_pk):
-    """Liste des transactions d'une caisse"""
-    cashbox = get_object_or_404(Cashbox, pk=cashbox_pk)
-    transactions = CashboxTransaction.objects.filter(cashbox=cashbox).order_by('-transaction_date', '-created_at')
-
-    return render(request, 'seafood/cashbox/cashbox_transactions.html', {
-        'cashbox': cashbox,
-        'transactions': transactions
-    })
