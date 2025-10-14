@@ -43,14 +43,12 @@
           <tbody>
             {% for pr in purchase_requests %}
               <tr>
-                <td><strong>PR-{{ pr.pr_number }}</strong></td>
+                <td><strong>{{ pr.pr_number }}</strong></td>
                 <td>{{ pr.pr_date|date:"d/m/Y" }}</td>
                 <td>
                   {% with items=pr.items.all %}
                     {% if items %}
                       <span class="badge badge-phoenix badge-phoenix-info">{{ items|length }} article{{ items|length|pluralize }}</span>
-                      <br>
-                      <small class="text-muted">{{ items.0.designation|truncatewords:4 }}{% if items|length > 1 %}...{% endif %}</small>
                     {% else %}
                       <span class="text-muted">-</span>
                     {% endif %}
