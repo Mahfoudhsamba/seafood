@@ -459,7 +459,8 @@ def cashbox_add(request):
             cashbox = Cashbox(
                 folder_code=request.POST.get('folder_code'),
                 prefix=request.POST.get('prefix'),
-                description=request.POST.get('description'),
+                description=request.POST.get('description', ''),
+                status=request.POST.get('status', 'active'),
                 current_balance=request.POST.get('current_balance', 0),
                 created_by=request.user
             )
@@ -469,7 +470,9 @@ def cashbox_add(request):
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
 
-    return render(request, 'seafood/cashbox/cashbox_form.html')
+    return render(request, 'seafood/cashbox/cashbox_form.html', {
+        'statuses': Cashbox.STATUS_CHOICES
+    })
 
 
 @staff_member_required
@@ -482,7 +485,8 @@ def cashbox_edit(request, pk):
         try:
             cashbox.folder_code = request.POST.get('folder_code')
             cashbox.prefix = request.POST.get('prefix')
-            cashbox.description = request.POST.get('description')
+            cashbox.description = request.POST.get('description', '')
+            cashbox.status = request.POST.get('status', 'active')
             cashbox.current_balance = request.POST.get('current_balance', 0)
             cashbox.save()
             messages.success(request, 'Caisse modifiée avec succès!')
@@ -490,7 +494,10 @@ def cashbox_edit(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification: {str(e)}')
 
-    return render(request, 'seafood/cashbox/cashbox_form.html', {'cashbox': cashbox})
+    return render(request, 'seafood/cashbox/cashbox_form.html', {
+        'cashbox': cashbox,
+        'statuses': Cashbox.STATUS_CHOICES
+    })
 
 
 @staff_member_required
@@ -508,6 +515,31 @@ def cashbox_delete(request, pk):
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'seafood/cashbox/cashbox_confirm_delete.html', {'cashbox': cashbox})
+
+
+@staff_member_required
+@permission_required('seafood.change_cashbox', raise_exception=True)
+def cashbox_change_status(request, pk, new_status):
+    """Changer le statut d'une caisse"""
+    cashbox = get_object_or_404(Cashbox, pk=pk)
+
+    # Vérifier que le statut est valide
+    valid_statuses = ['active', 'inactive', 'suspended']
+    if new_status not in valid_statuses:
+        messages.error(request, 'Statut invalide!')
+        return redirect('portal_admin:cashbox_detail', pk=pk)
+
+    # Messages selon le statut
+    status_messages = {
+        'active': 'Caisse activée avec succès!',
+        'inactive': 'Caisse désactivée avec succès!',
+        'suspended': 'Caisse suspendue avec succès!'
+    }
+
+    cashbox.status = new_status
+    cashbox.save()
+    messages.success(request, status_messages.get(new_status, 'Statut modifié avec succès!'))
+    return redirect('portal_admin:cashbox_detail', pk=pk)
 
 
 # ============ BANK ACCOUNT VIEWS ============
@@ -639,6 +671,32 @@ def bankaccount_delete(request, pk):
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'seafood/bankaccount/bankaccount_confirm_delete.html', {'bankaccount': bankaccount})
+
+
+@staff_member_required
+@permission_required('seafood.change_bankaccount', raise_exception=True)
+def bankaccount_change_status(request, pk, new_status):
+    """Changer le statut d'un compte bancaire"""
+    bankaccount = get_object_or_404(BankAccount, pk=pk)
+
+    # Vérifier que le statut est valide
+    valid_statuses = ['active', 'inactive', 'closed', 'frozen']
+    if new_status not in valid_statuses:
+        messages.error(request, 'Statut invalide!')
+        return redirect('portal_admin:bankaccount_detail', pk=pk)
+
+    # Messages selon le statut
+    status_messages = {
+        'active': 'Compte bancaire activé avec succès!',
+        'inactive': 'Compte bancaire désactivé avec succès!',
+        'closed': 'Compte bancaire fermé avec succès!',
+        'frozen': 'Compte bancaire gelé avec succès!'
+    }
+
+    bankaccount.status = new_status
+    bankaccount.save()
+    messages.success(request, status_messages.get(new_status, 'Statut modifié avec succès!'))
+    return redirect('portal_admin:bankaccount_detail', pk=pk)
 
 
 # ============ PURCHASE REQUEST VIEWS ============

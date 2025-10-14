@@ -48,8 +48,20 @@
               </div>
 
               <div class="col-12">
-                <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="description" name="description" rows="3" required>{% if cashbox %}{{ cashbox.description }}{% endif %}</textarea>
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3">{% if cashbox %}{{ cashbox.description }}{% endif %}</textarea>
+                <small class="text-muted">Description de la caisse (optionnel)</small>
+              </div>
+
+              <div class="col-md-6">
+                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
+                <select class="form-select" id="status" name="status" required>
+                  {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if cashbox and cashbox.status == value %}selected{% elif not cashbox and value == 'active' %}selected{% endif %}>
+                      {{ label }}
+                    </option>
+                  {% endfor %}
+                </select>
               </div>
 
               <div class="col-md-6">

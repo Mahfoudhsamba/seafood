@@ -16,6 +16,34 @@
       <a href="{% url 'portal_admin:cashbox_edit' cashbox.pk %}" class="btn btn-primary me-2">
         <span class="fas fa-edit me-2"></span>Modifier
       </a>
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="fas fa-exchange-alt me-2"></span>Changer statut
+        </button>
+        <ul class="dropdown-menu">
+          {% if cashbox.status != 'active' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:cashbox_change_status' cashbox.pk 'active' %}">
+              <span class="fas fa-check text-success me-2"></span>Activer
+            </a>
+          </li>
+          {% endif %}
+          {% if cashbox.status != 'inactive' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:cashbox_change_status' cashbox.pk 'inactive' %}">
+              <span class="fas fa-times text-secondary me-2"></span>Désactiver
+            </a>
+          </li>
+          {% endif %}
+          {% if cashbox.status != 'suspended' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:cashbox_change_status' cashbox.pk 'suspended' %}">
+              <span class="fas fa-pause text-warning me-2"></span>Suspendre
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
       <a href="{% url 'portal_admin:cashbox_fund' cashbox.pk %}" class="btn btn-success">
         <span class="fas fa-plus-circle me-2"></span>Alimenter
       </a>
@@ -37,9 +65,23 @@
             <div class="col-sm-4"><strong>Préfixe :</strong></div>
             <div class="col-sm-8"><span class="badge bg-info">{{ cashbox.prefix }}</span></div>
           </div>
+          {% if cashbox.description %}
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Description :</strong></div>
             <div class="col-sm-8">{{ cashbox.description }}</div>
+          </div>
+          {% endif %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Statut :</strong></div>
+            <div class="col-sm-8">
+              {% if cashbox.status == 'active' %}
+                <span class="badge bg-success fs-6">{{ cashbox.get_status_display }}</span>
+              {% elif cashbox.status == 'inactive' %}
+                <span class="badge bg-secondary fs-6">{{ cashbox.get_status_display }}</span>
+              {% elif cashbox.status == 'suspended' %}
+                <span class="badge bg-warning fs-6">{{ cashbox.get_status_display }}</span>
+              {% endif %}
+            </div>
           </div>
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Solde actuel :</strong></div>

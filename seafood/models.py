@@ -392,6 +392,12 @@ class Cashbox(models.Model):
     """
     Modèle pour la gestion des caisses
     """
+    STATUS_CHOICES = [
+        ('active', 'Actif'),
+        ('inactive', 'Inactif'),
+        ('suspended', 'Suspendu'),
+    ]
+
     # Dossier/Code unique
     folder_code = models.CharField(
         max_length=20,
@@ -409,8 +415,17 @@ class Cashbox(models.Model):
 
     # Description
     description = models.TextField(
+        blank=True,
         verbose_name='Description',
         help_text='Description de la caisse'
+    )
+
+    # Statut
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='Statut'
     )
 
     # Solde actuel
@@ -435,9 +450,12 @@ class Cashbox(models.Model):
         verbose_name = 'Caisse'
         verbose_name_plural = 'Caisses'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+        ]
 
     def __str__(self):
-        return f"{self.folder_code} - {self.description}"
+        return f"{self.folder_code} - {self.description if self.description else 'Sans description'}"
 
 
 def cashbox_transaction_attachment_path(instance, filename):

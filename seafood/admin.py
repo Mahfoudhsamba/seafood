@@ -44,6 +44,7 @@ class PortalAdminSite(AdminSite):
             path('cashbox/<int:pk>/delete/', views.cashbox_delete, name='cashbox_delete'),
             path('cashbox/<int:cashbox_pk>/fund/', views.cashbox_fund, name='cashbox_fund'),
             path('cashbox/<int:cashbox_pk>/transactions/', views.cashbox_transactions, name='cashbox_transactions'),
+            path('cashbox/<int:pk>/status/<str:new_status>/', views.cashbox_change_status, name='cashbox_change_status'),
 
             # Bank Account
             path('bankaccount/', views.bankaccount_list, name='bankaccount_list'),
@@ -51,6 +52,7 @@ class PortalAdminSite(AdminSite):
             path('bankaccount/<int:pk>/', views.bankaccount_detail, name='bankaccount_detail'),
             path('bankaccount/<int:pk>/edit/', views.bankaccount_edit, name='bankaccount_edit'),
             path('bankaccount/<int:pk>/delete/', views.bankaccount_delete, name='bankaccount_delete'),
+            path('bankaccount/<int:pk>/status/<str:new_status>/', views.bankaccount_change_status, name='bankaccount_change_status'),
 
             # Purchase Request
             path('purchaserequest/', views.purchaserequest_list, name='purchaserequest_list'),

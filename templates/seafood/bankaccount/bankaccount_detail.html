@@ -13,9 +13,44 @@
       <a href="{% url 'portal_admin:bankaccount_list' %}" class="btn btn-phoenix-secondary me-2">
         <span class="fas fa-arrow-left me-2"></span>Retour
       </a>
-      <a href="{% url 'portal_admin:bankaccount_edit' bankaccount.pk %}" class="btn btn-primary">
+      <a href="{% url 'portal_admin:bankaccount_edit' bankaccount.pk %}" class="btn btn-primary me-2">
         <span class="fas fa-edit me-2"></span>Modifier
       </a>
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <span class="fas fa-exchange-alt me-2"></span>Changer statut
+        </button>
+        <ul class="dropdown-menu">
+          {% if bankaccount.status != 'active' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:bankaccount_change_status' bankaccount.pk 'active' %}">
+              <span class="fas fa-check text-success me-2"></span>Activer
+            </a>
+          </li>
+          {% endif %}
+          {% if bankaccount.status != 'inactive' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:bankaccount_change_status' bankaccount.pk 'inactive' %}">
+              <span class="fas fa-times text-secondary me-2"></span>Désactiver
+            </a>
+          </li>
+          {% endif %}
+          {% if bankaccount.status != 'closed' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:bankaccount_change_status' bankaccount.pk 'closed' %}">
+              <span class="fas fa-ban text-dark me-2"></span>Fermer
+            </a>
+          </li>
+          {% endif %}
+          {% if bankaccount.status != 'frozen' %}
+          <li>
+            <a class="dropdown-item" href="{% url 'portal_admin:bankaccount_change_status' bankaccount.pk 'frozen' %}">
+              <span class="fas fa-snowflake text-warning me-2"></span>Geler
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
   </div>
 

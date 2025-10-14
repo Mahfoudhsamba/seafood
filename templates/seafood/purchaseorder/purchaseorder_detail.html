@@ -59,6 +59,16 @@
               {% endif %}
             </div>
           </div>
+          {% if purchase_order.rejection_reason %}
+          <div class="row mb-3">
+            <div class="col-sm-4"><strong>Motif {% if purchase_order.status == 'cancelled' %}d'annulation{% else %}de rejet{% endif %} :</strong></div>
+            <div class="col-sm-8">
+              <div class="alert alert-danger mb-0">
+                <span class="fas fa-exclamation-circle me-2"></span>{{ purchase_order.rejection_reason }}
+              </div>
+            </div>
+          </div>
+          {% endif %}
           {% if purchase_order.note %}
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Note :</strong></div>
