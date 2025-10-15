@@ -1,18 +1,27 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Liste des Clients - Seafood Portal{% endblock %}
+{% block title %}Liste des Clients{% endblock %}
 
 {% block content %}
-<div class="pb-5">
-  <div class="row align-items-center justify-content-between g-3 mb-4">
-    <div class="col-auto">
-      <h2 class="mb-0">Liste des Clients</h2>
-    </div>
-    <div class="col-auto">
-      <a href="{% url 'portal_admin:client_add' %}" class="btn btn-primary">
-        <span class="fas fa-plus me-2"></span>Ajouter un client
-      </a>
+
+  <div class="pb-5">
+    <div class="row g-4">
+      <div class="col-12 col-xxl-12">
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            <h2 class="mb-2">LISTE DES CLIENTS</h2>
+            <h5 class="text-body-tertiary fw-semibold">Statut et informations générales sur les clients</h5>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="{% url 'portal_admin:client_add' %}" class="btn btn-primary">
+              <span class="fas fa-plus me-2"></span>Ajouter un client
+            </a>
+          </div>
+        </div>
+        <div class="row align-items-center g-4">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -25,87 +34,95 @@
     {% endfor %}
   {% endif %}
 
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>Logo</th>
-              <th>Code</th>
-              <th>Nom du client</th>
-              <th>Type</th>
-              <th>Contact</th>
-              <th>Ville</th>
-              <th>Statut</th>
-              <th>Date création</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for client in clients %}
+  <div class="mb-2">
+    <div id="orderTable" data-list='{"valueNames":["compte","clients","type","contact","statut","actions","location"],"page":10,"pagination":true}'>
+      <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
+        <div class="table-responsive scrollbar mx-n1 px-1">
+          <table class="table table-sm fs-9 mb-0">
+            <thead>
               <tr>
-                <td>
-                  {% if client.logo %}
-                    <img src="{{ client.logo.url }}" alt="{{ client.name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
-                  {% else %}
-                    <div style="width: 40px; height: 40px; background: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                      <span class="fas fa-user text-muted"></span>
-                    </div>
-                  {% endif %}
-                </td>
-                <td><strong>{{ client.accounting_code }}</strong></td>
-                <td>
-                  <strong>{{ client.name }}</strong>
-                  {% if client.responsible %}
-                    <br><small class="text-muted">{{ client.responsible }}</small>
-                  {% endif %}
-                </td>
-                <td>{{ client.get_client_type_display }}</td>
-                <td>
-                  {% if client.email %}
-                    <div><span class="fas fa-envelope me-1"></span>{{ client.email }}</div>
-                  {% endif %}
-                  {% if client.mobile %}
-                    <div><span class="fas fa-mobile-alt me-1"></span>{{ client.mobile }}</div>
-                  {% endif %}
-                </td>
-                <td>{{ client.city|default:"-" }}</td>
-                <td>
-                  {% if client.status == 'active' %}
-                    <span class="badge bg-success">{{ client.get_status_display }}</span>
-                  {% elif client.status == 'inactive' %}
-                    <span class="badge bg-secondary">{{ client.get_status_display }}</span>
-                  {% else %}
-                    <span class="badge bg-warning">{{ client.get_status_display }}</span>
-                  {% endif %}
-                </td>
-                <td>{{ client.created_at|date:"d/m/Y" }}</td>
-                <td>
-                  <div class="btn-group" role="group">
-                    <a href="{% url 'portal_admin:client_detail' client.pk %}" class="btn btn-sm btn-phoenix-info" title="Détails">
-                      <span class="fas fa-eye"></span>
-                    </a>
-                    <a href="{% url 'portal_admin:client_edit' client.pk %}" class="btn btn-sm btn-phoenix-primary" title="Modifier">
-                      <span class="fas fa-edit"></span>
-                    </a>
-                    <a href="{% url 'portal_admin:client_delete' client.pk %}" class="btn btn-sm btn-phoenix-danger" title="Supprimer">
-                      <span class="fas fa-trash"></span>
-                    </a>
+                <th class="white-space-nowrap fs-9 align-middle ps-0" style="width:26px;">
+                  <div class="form-check mb-0 fs-8">
+                    <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='{"body":"order-table-body"}' />
                   </div>
-                </td>
+                </th>
+                <th class="sort white-space-nowrap align-middle pe-0" scope="col" data-sort="compte">COMPTE</th>
+                <th class="sort align-middle" scope="col" data-sort="clients">CLIENTS</th>
+                <th class="sort align-middle" scope="col" data-sort="statut">STATUT</th>
+                <th class="sort align-middle" scope="col" data-sort="type">CATÉGORIE</th>
+                <th class="sort align-middle" scope="col" data-sort="contact">CONTACT</th>
+                <th class="sort align-middle" scope="col" data-sort="location">LOCATION</th>
+                <th class="sort align-middle text-start" scope="col" data-sort="actions">ACTIONS</th>
               </tr>
-            {% empty %}
-              <tr>
-                <td colspan="9" class="text-center py-4">
-                  <p class="text-muted mb-0">Aucun client trouvé</p>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="list" id="order-table-body">
+                {% for client in clients %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
+                        <td class="compte align-middle white-space-nowrap py-0">
+                          <a class="fw-semibold" href="{% url 'portal_admin:client_detail' client.pk %}">#{{ client.accounting_code }}</a>
+                        </td>
+                        <td class="clients align-middle white-space-nowrap ">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar avatar-xl me-3">
+                              {% if client.logo %}
+                                <img class="rounded-soft" src="{{ client.logo.url }}" alt="{{ client.name }}" >
+                              {% else %}
+                                <div class="avatar-name rounded-soft">
+                                  <span>{{ client.name|first }}</span>
+                                </div>
+                              {% endif %}
+                            </div>
+                            <div>
+                              <a class="fs-8 fw-bold" href="{% url 'portal_admin:client_detail' client.pk %}">{{ client.name }}</a>
+                              <div class="d-flex align-items-center">
+                                <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">
+                                  <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
+                                    <span class="badge-label">{{ client.get_client_type_display }}</span>
+                                    <span class="ms-1" data-feather="activity" style="height:12.8px;width:12.8px;"></span>
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="statut align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
+                            <span class="badge badge-phoenix fs-10 badge-phoenix-{% if client.status == 'active' %}success{% elif client.status == 'inactive' %}danger{% else %}warning{% endif %}">
+                                <span class="badge-label">{{ client.get_status_display }}</span>
+                                <span class="ms-1" data-feather="{% if client.status == 'active' %}check{% elif client.status == 'inactive' %}x{% else %}clock{% endif %}" style="height:12.8px;width:12.8px;"></span>
+                            </span>
+                        </td>
+                        <td class="type align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
+                          <span class="badge text-bg-info fs-9">{{ client.get_client_type_display }}</span>
+                        </td>   
+                        <td class="contact align-middle fw-semibold text-body-highlight">
+                          {% if client.email %}
+                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-square-envelope me-1"></i>{{ client.email }}</p>
+                          {% endif %}
+                          <div class="d-flex align-items-center">
+                            {% if client.mobile %}
+                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-phone-square me-1"></i>{{ client.mobile }}</p>
+                            {% endif %}
+                          </div>
+                        </td>
+                        <td class="location align-middle fw-semibold text-body-highlight">
+                          {{ client.country|default:"-" }}
+                        </td>
+                        <td class="actions align-middle white-space-nowrap text-body fs-9 text-start">
+                          <a href="{% url 'portal_admin:client_detail' client.pk %}"><span class="text-body fs-5" data-feather="eye"></span></a>
+                          <a href="{% url 'portal_admin:client_edit' client.pk %}"><span class="text-body fs-5" data-feather="edit"></span></a>
+                          <a href="{% url 'portal_admin:client_delete' client.pk %}"><span class="text-body fs-5" data-feather="trash-2"></span></a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                      <td colspan="8" class="text-center">Aucun client trouvé</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
 {% endblock %}

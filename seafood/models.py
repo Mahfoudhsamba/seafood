@@ -62,6 +62,7 @@ class Client(models.Model):
     CLIENT_TYPE_CHOICES = [
         ('individual', 'Particulier'),
         ('company', 'Entreprise'),
+        ('restaurant ', 'Restaurant'),
         ('organization', 'Organisation'),
     ]
 
