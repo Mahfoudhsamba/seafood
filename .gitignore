@@ -2,6 +2,7 @@
 env/
 venv/
 repository/
+process/
 
 # Fichiers Python compilés
 __pycache__/
