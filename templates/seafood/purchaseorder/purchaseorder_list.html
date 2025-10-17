@@ -1,18 +1,79 @@
 {% extends "layouts/base.html" %}
 {% load static %}
-
-{% block title %}Liste des Bons de Commande - Seafood Portal{% endblock %}
-
+{% block title %}Liste des Bons de Commande{% endblock %}
 {% block content %}
-<div class="pb-5">
-  <div class="row align-items-center justify-content-between g-3 mb-4">
-    <div class="col-auto">
-      <h2 class="mb-0">Liste des Bons de Commande</h2>
-    </div>
-    <div class="col-auto">
-      <a href="{% url 'portal_admin:purchaseorder_add' %}" class="btn btn-primary">
-        <span class="fas fa-plus me-2"></span>Créer un bon
-      </a>
+
+  <div class="pb-5">
+    <div class="row g-4">
+      <div class="col-12 col-xxl-12">
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            <h2 class="mb-2">LISTE DES BONS DE COMMANDE</h2>
+            <h5 class="text-body-tertiary fw-semibold">Statut et informations générales sur les bons de commande</h5>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="{% url 'portal_admin:purchaseorder_add' %}" class="btn btn-outline-primary"><i class="fa fa-plus me-1"></i>Créer un bon</a>
+          </div>
+        </div>
+
+        <div class="row align-items-center g-4">
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-primary-lighter" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-primary-lighter" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-file-medical text-primary " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">012345 MRU</h4>
+                <p class="text-body-secondary fs-9 mb-0">Montant total</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-lighter" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-success-lighter" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-check-circle text-success " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">012345 MRU</h4>
+                <p class="text-body-secondary fs-9 mb-0">Montant validé</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-info-lighter" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-info-lighter" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-clock text-info " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">012345 MRU</h4>
+                <p class="text-body-secondary fs-9 mb-0">Montant en cours</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-danger-light" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-danger" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-times-circle text-danger " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">012345 MRU</h4>
+                <p class="text-body-secondary fs-9 mb-0">Montant rejeté</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -25,62 +86,81 @@
     {% endfor %}
   {% endif %}
 
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
+  <div id="operationTable" data-list='{"valueNames":["operation_id","date","patient","provider","operation_type","amount","status","actions"],"page":10,"pagination":true}'>
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
+      <div class="table-responsive scrollbar mx-n1 px-1">
+        <table class="table table-sm fs-9 mb-0">
           <thead>
             <tr>
-              <th>N° PO</th>
-              <th>Date</th>
-              <th>Fournisseur</th>
-              <th>Total HT</th>
-              <th>Total TTC</th>
-              <th>Statut</th>
-              <th>Actions</th>
+              <th class="white-space-nowrap fs-9 align-middle ps-0" style="width:26px;">
+                <div class="form-check mb-0 fs-8">
+                  <input class="form-check-input" id="checkbox-bulk-operation-select" type="checkbox" data-bulk-select='{"body":"operation-table-body"}' />
+                </div>
+              </th>
+              <th class="sort white-space-nowrap align-middle" scope="col" data-sort="operation_id">COMMANDE</th>
+              <th class="sort align-middle" scope="col" data-sort="date">DATE</th>
+              <th class="sort align-middle" scope="col" data-sort="provider">FOURNISSEUR</th>
+              <th class="sort align-middle text-start" scope="col" data-sort="status">STATUT</th>
+              <th class="sort align-middle text-end" scope="col" data-sort="operation_type">MONTANT</th>
+              <th class="sort align-middle text-end" scope="col" data-sort="amount">TOTAL</th>
+              <th class="align-middle text-end" scope="col">ACTIONS</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="list" id="operation-table-body">
             {% for po in purchase_orders %}
-              <tr>
-                <td><strong>{{ po.po_number }}</strong></td>
-                <td>{{ po.po_date|date:"d/m/Y" }}</td>
-                <td>
-                  {{ po.supplier.name }}<br>
-                  <small class="text-muted">{{ po.supplier.accounting_code }}</small>
+              <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                <td class="fs-9 align-middle">
+                  <div class="form-check mb-0 fs-8">
+                    <input class="form-check-input" type="checkbox" data-bulk-select-row='' />
+                  </div>
                 </td>
-                <td><strong>{{ po.subtotal|floatformat:2 }} MRU</strong></td>
-                <td><strong class="text-success">{{ po.total|floatformat:2 }} MRU</strong></td>
-                <td>
+                <td class="operation_id align-middle white-space-nowrap">
+                  <a class="fw-semibold" href="{% url 'portal_admin:purchaseorder_detail' po.pk %}">{{ po.po_number }}</a>
+                </td>
+                <td class="date align-middle white-space-nowrap text-body-tertiary">{{ po.po_date|date:"d/m/Y" }}</td>
+                <td class="provider align-middle white-space-nowrap">
+                  <div class="d-flex align-items-center">
+                    {% if po.supplier.logo %}
+                      <div class="avatar avatar-m me-1"><img class="rounded-soft" src="{{ po.supplier.logo.url }}" alt="{{ po.supplier.name }}" /></div>
+                    {% else %}
+                      <div class="avatar-name rounded-soft"><span>{{ po.supplier.name|first }}</span></div>
+                    {% endif %}
+                    <div>
+                      <h6 class="mb-0 text-body">{{ po.supplier.name }}</h6>
+                      <small class="badge text-bg-info">#{{ po.supplier.accounting_code }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td class="status align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
                   {% if po.status == 'paid' %}
-                    <span class="badge bg-success">{{ po.get_status_display }}</span>
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">{{ po.get_status_display }}</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>
                   {% elif po.status == 'approved' %}
-                    <span class="badge bg-info">{{ po.get_status_display }}</span>
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-info"><span class="badge-label">{{ po.get_status_display }}</span><span class="ms-1" data-feather="clock" style="height:12.8px;width:12.8px;"></span></span>
                   {% elif po.status == 'cancelled' %}
-                    <span class="badge bg-danger">{{ po.get_status_display }}</span>
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-danger"><span class="badge-label">{{ po.get_status_display }}</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>
                   {% elif po.status == 'draft' %}
-                    <span class="badge bg-secondary">{{ po.get_status_display }}</span>
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-secondary"><span class="badge-label">{{ po.get_status_display }}</span><span class="ms-1" data-feather="slash" style="height:12.8px;width:12.8px;"></span></span>
                   {% else %}
-                    <span class="badge bg-warning">{{ po.get_status_display }}</span>
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">{{ po.get_status_display }}</span><span class="ms-1" data-feather="alert-circle" style="height:12.8px;width:12.8px;"></span></span>
                   {% endif %}
                 </td>
-                <td>
-                  <div class="btn-group" role="group">
-                    <a href="{% url 'portal_admin:purchaseorder_detail' po.pk %}" class="btn btn-sm btn-phoenix-info" title="Détails">
-                      <span class="fas fa-eye"></span>
-                    </a>
-                    {% if po.status == 'draft' %}
-                    <a href="{% url 'portal_admin:purchaseorder_edit' po.pk %}" class="btn btn-sm btn-phoenix-primary" title="Modifier">
-                      <span class="fas fa-edit"></span>
-                    </a>
-                    {% endif %}
-                  </div>
+                <td class="amount align-middle text-end fw-semibold text-body-highlight">
+                  <span class="fw-bold">{{ po.subtotal|floatformat:2 }} MRU</span>
+                  <div><span class="badge text-bg-warning">{{ po.tax_amount }} MRU</span></div>
+                </td>
+                <td class="operation_type align-middle white-space-nowrap text-end"><span class="fw-bold">{{ po.total|floatformat:2 }} MRU</span></td>
+                <td class="actions align-middle white-space-nowrap text-end">
+                  <a href="{% url 'portal_admin:purchaseorder_detail' po.pk %}" title="Détails"><span class="text-body fs-5" data-feather="eye"></span></a>
+                  <a href="" title="Imprimer"><span class="text-body fs-5" data-feather="printer"></span></span></a>
+                  {% if po.status == 'draft' %}
+                    <a href="{% url 'portal_admin:purchaseorder_edit' po.pk %}" title="Modifier"><span class="text-body fs-5" data-feather="edit"></span></span></a>
+                  {% endif %}
                 </td>
               </tr>
             {% empty %}
               <tr>
-                <td colspan="7" class="text-center py-4">
-                  <p class="text-muted mb-0">Aucun bon de commande trouvé</p>
+                <td colspan="8" class="text-center py-4">
+                  <div class="alert alert-info mb-0">Aucune commande n'a été trouvée.</div>
                 </td>
               </tr>
             {% endfor %}
@@ -89,5 +169,4 @@
       </div>
     </div>
   </div>
-</div>
 {% endblock %}
