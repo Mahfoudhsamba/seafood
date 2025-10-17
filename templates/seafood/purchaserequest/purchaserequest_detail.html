@@ -42,7 +42,7 @@
           {% elif purchase_request.status == 'rejected' %}
             <span class="badge badge-phoenix badge-phoenix-danger">Rejeté</span>
           {% elif purchase_request.status == 'cancelled' %}
-            <span class="badge badge-phoenix badge-phoenix-secondary">Annulé</span>
+            <span class="badge badge-phoenix badge-phoenix-info">Annulé</span>
           {% endif %}
         </div>
         <div class="card-body">
@@ -128,28 +128,6 @@
           </div>
           <div class="card-body">
             <p class="mb-0">{{ purchase_request.rejection_reason }}</p>
-          </div>
-        </div>
-      {% endif %}
-
-      {% if purchase_request.status == 'draft' %}
-        <div class="card bg-body-highlight">
-          <div class="card-header">
-            <h5 class="mb-0"><span class="fas fa-clipboard-check me-2"></span>Actions de validation</h5>
-          </div>
-          <div class="card-body">
-            <p class="mb-3">Cette demande d'achat est en attente de validation. Veuillez approuver ou rejeter cette demande.</p>
-            <div class="d-flex gap-2">
-              <a href="{% url 'portal_admin:purchaserequest_approve' purchase_request.pk %}" class="btn btn-success">
-                <span class="fas fa-check me-2"></span>Approuver
-              </a>
-              <a href="{% url 'portal_admin:purchaserequest_reject' purchase_request.pk %}" class="btn btn-danger">
-                <span class="fas fa-times me-2"></span>Rejeter
-              </a>
-              <a href="{% url 'portal_admin:purchaserequest_cancel' purchase_request.pk %}" class="btn btn-warning">
-                <span class="fas fa-ban me-2"></span>Annuler
-              </a>
-            </div>
           </div>
         </div>
       {% endif %}
