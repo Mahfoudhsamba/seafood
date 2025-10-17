@@ -7,7 +7,7 @@
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Annuler la Demande d'Achat {{ purchase_request.pr_number }}</h2>
+      <h2 class="mb-0">ANNULER LA DEMANDE D'ACHAT {{ purchase_request.pr_number }}</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:purchaserequest_detail' purchase_request.pk %}" class="btn btn-phoenix-secondary">
@@ -26,8 +26,8 @@
   {% endif %}
 
   <div class="row">
-    <div class="col-12 col-lg-8">
-      <div class="card">
+    <div class="col-12 col-lg-12">
+      <div class="card bg-body-highlight">
         <div class="card-body">
           <div class="alert alert-warning">
             <span class="fas fa-exclamation-triangle me-2"></span>
