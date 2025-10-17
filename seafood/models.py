@@ -910,23 +910,42 @@ class PurchaseRequest(models.Model):
         return f"PR-{self.pr_number}"
 
     def save(self, *args, **kwargs):
+        from django.db import transaction, IntegrityError
+
         # Générer le numéro PR s'il n'existe pas
         if not self.pr_number:
-            self.pr_number = self.generate_pr_number()
-        super().save(*args, **kwargs)
+            max_attempts = 10
+            for attempt in range(max_attempts):
+                try:
+                    with transaction.atomic():
+                        self.pr_number = self.generate_pr_number()
+                        super().save(*args, **kwargs)
+                    return  # Succès, sortir de la méthode
+                except IntegrityError:
+                    if attempt == max_attempts - 1:
+                        # Dernière tentative échouée
+                        raise
+                    # Réessayer avec un nouveau numéro
+                    self.pr_number = None
+                    continue
+        else:
+            super().save(*args, **kwargs)
 
     @staticmethod
     def generate_pr_number():
         """Génère un numéro PR unique au format #PRMMYYXXXXXX"""
         from django.utils import timezone
+        from django.db.models import Max
+
         now = timezone.now()
         month = now.strftime('%m')  # Mois sur 2 chiffres
         year = now.strftime('%y')   # Année sur 2 chiffres (ex: 25 pour 2025)
         prefix = f"PR{month}{year}"   # Ex: PR1025 pour octobre 2025
+        prefix_with_hash = f"#{prefix}"  # Ex: #PR1025
 
-        # Chercher le dernier PR du mois/année en cours
+        # Chercher le dernier PR du mois/année en cours avec agrégation
         last_pr = PurchaseRequest.objects.filter(
-            pr_number__startswith=prefix
+            pr_number__startswith=prefix_with_hash
         ).order_by('-pr_number').first()
 
         if last_pr and last_pr.pr_number:
@@ -938,7 +957,7 @@ class PurchaseRequest(models.Model):
             new_number = 1
 
         # Format: #PRMMYYXXXXXX (ex: #PR1025000001)
-        return f"#{prefix}{new_number:06d}"
+        return f"{prefix_with_hash}{new_number:06d}"
 
     @property
     def requester_full_name(self):
@@ -1147,10 +1166,26 @@ class PurchaseOrder(models.Model):
         return f"{self.po_number} - {self.supplier.name}"
 
     def save(self, *args, **kwargs):
+        from django.db import transaction, IntegrityError
+
         # Générer le numéro PO s'il n'existe pas
         if not self.po_number:
-            self.po_number = self.generate_po_number()
-        super().save(*args, **kwargs)
+            max_attempts = 10
+            for attempt in range(max_attempts):
+                try:
+                    with transaction.atomic():
+                        self.po_number = self.generate_po_number()
+                        super().save(*args, **kwargs)
+                    return  # Succès, sortir de la méthode
+                except IntegrityError:
+                    if attempt == max_attempts - 1:
+                        # Dernière tentative échouée
+                        raise
+                    # Réessayer avec un nouveau numéro
+                    self.po_number = None
+                    continue
+        else:
+            super().save(*args, **kwargs)
 
     def calculate_totals(self):
         """Calculer les totaux à partir des items"""
@@ -1173,6 +1208,8 @@ class PurchaseOrder(models.Model):
     def generate_po_number():
         """Génère un numéro PO unique au format #MMYYXXXXXX"""
         from django.utils import timezone
+        from django.db.models import Max
+
         now = timezone.now()
         month = now.strftime('%m')  # Mois sur 2 chiffres
         year = now.strftime('%y')   # Année sur 2 chiffres (ex: 25 pour 2025)
