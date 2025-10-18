@@ -1,13 +1,11 @@
 {% extends "layouts/base.html" %}
 {% load static %}
-
 {% block title %}Alimenter la caisse - {{ cashbox.folder_code }}{% endblock %}
-
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Alimenter la caisse {{ cashbox.folder_code }}</h2>
+      <h2 class="mb-0">ALIMENTER LA CAISSE {{ cashbox.folder_code|upper }}</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:cashbox_detail' cashbox.pk %}" class="btn btn-phoenix-secondary">
@@ -26,9 +24,9 @@
   {% endif %}
 
   <div class="row">
-    <div class="col-12 col-xl-8 mx-auto">
+    <div class="col-12 col-xl-12 mx-auto">
       <div class="card">
-        <div class="card-header bg-light">
+        <div class="card-header">
           <h5 class="mb-0">Informations de la caisse</h5>
         </div>
         <div class="card-body">
@@ -78,7 +76,7 @@
 
               <!-- Champs pour Transfert Mobile -->
               <div id="mobile_transfer_fields" class="col-12" style="display: none;">
-                <div class="card bg-light">
+                <div class="card">
                   <div class="card-body">
                     <h6 class="mb-3">Détails du transfert mobile</h6>
                     <div class="row g-3">
@@ -102,7 +100,7 @@
 
               <!-- Champs pour Chèque -->
               <div id="check_fields" class="col-12" style="display: none;">
-                <div class="card bg-light">
+                <div class="card">
                   <div class="card-body">
                     <h6 class="mb-3">Détails du chèque</h6>
                     <div class="row g-3">
@@ -130,7 +128,7 @@
 
               <!-- Champs pour Versement -->
               <div id="deposit_fields" class="col-12" style="display: none;">
-                <div class="card bg-light">
+                <div class="card">
                   <div class="card-body">
                     <h6 class="mb-3">Détails du versement</h6>
                     <div class="row g-3">
@@ -158,7 +156,7 @@
 
               <!-- Champs pour Virement -->
               <div id="transfer_fields" class="col-12" style="display: none;">
-                <div class="card bg-light">
+                <div class="card">
                   <div class="card-body">
                     <h6 class="mb-3">Détails du virement</h6>
                     <div class="row g-3">

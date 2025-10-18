@@ -54,16 +54,26 @@
     </div>
   </div>
 
+  
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
   <div class="row g-3">
     <div class="col-12 col-xl-8">
       <div class="card mb-3">
-        <div class="card-header bg-light">
+        <div class="card-header bg-body-highlight">
           <h5 class="mb-0">Informations bancaires</h5>
         </div>
         <div class="card-body">
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Identifiant :</strong></div>
-            <div class="col-sm-8"><span class="badge bg-primary fs-6">{{ bankaccount.bank_identifier }}</span></div>
+            <div class="col-sm-8"><span class="badge bg-primary fs-8">{{ bankaccount.bank_identifier }}</span></div>
           </div>
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Banque :</strong></div>
@@ -99,7 +109,7 @@
           </div>
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Solde actuel :</strong></div>
-            <div class="col-sm-8"><strong class="text-success fs-3">{{ bankaccount.current_balance|floatformat:2 }} {{ bankaccount.currency }}</strong></div>
+            <div class="col-sm-8"><strong class="text-success fs-7">{{ bankaccount.current_balance|floatformat:2 }} {{ bankaccount.currency }}</strong></div>
           </div>
           <div class="row mb-3">
             <div class="col-sm-4"><strong>Statut :</strong></div>
@@ -119,7 +129,7 @@
       </div>
 
       <div class="card mb-3">
-        <div class="card-header bg-light">
+        <div class="card-header bg-body-highlight">
           <h5 class="mb-0">Contact et Titulaire</h5>
         </div>
         <div class="card-body">
@@ -148,15 +158,18 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header bg-light">
+    </div>
+    
+    <div class="col-12 col-xl-4">
+      <div class="card mb-3">
+        <div class="card-header bg-body-highlight">
           <h5 class="mb-0">Documents</h5>
         </div>
         <div class="card-body">
           {% if bankaccount.rib_scan %}
           <div class="mb-3">
             <strong>RIB :</strong>
-            <a href="{{ bankaccount.rib_scan.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+            <a href="{{ bankaccount.rib_scan.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2" download>
               <span class="fas fa-download me-1"></span>Télécharger
             </a>
           </div>
@@ -164,7 +177,7 @@
           {% if bankaccount.contract %}
           <div class="mb-3">
             <strong>Contrat :</strong>
-            <a href="{{ bankaccount.contract.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+            <a href="{{ bankaccount.contract.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2" download>
               <span class="fas fa-download me-1"></span>Télécharger
             </a>
           </div>
@@ -174,11 +187,8 @@
           {% endif %}
         </div>
       </div>
-    </div>
-
-    <div class="col-12 col-xl-4">
-      <div class="card">
-        <div class="card-header bg-light">
+      <div class="card mb-3">
+        <div class="card-header bg-body-highlight">
           <h5 class="mb-0">Métadonnées</h5>
         </div>
         <div class="card-body">

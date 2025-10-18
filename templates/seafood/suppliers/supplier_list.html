@@ -95,7 +95,7 @@
             {% for supplier in suppliers %}
               <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                 <td class="fs-9 align-middle  py-2"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row='' /></div></td>
-                <td class="Compte align-middle white-space-nowrap fw-bold"><a href="">#{{ supplier.accounting_code }}</a></td>
+                <td class="Compte align-middle white-space-nowrap fw-bold"><a href="{% url 'portal_admin:supplier_detail' supplier.pk %}">#{{ supplier.accounting_code }}</a></td>
                 <td class="Fournisseur align-middle fw-semibold text-body-highlight">
                   <div class="d-flex align-items-center">
                     <div class="avatar avatar-xl me-2">
