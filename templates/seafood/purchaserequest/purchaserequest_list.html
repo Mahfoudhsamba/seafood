@@ -1,18 +1,20 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Liste des Demandes d'Achat - Seafood Portal{% endblock %}
+{% block title %}Liste des Demandes d'Achat{% endblock %}
 
 {% block content %}
-<div class="pb-5">
+
   <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto"><h2 class="mb-0">LISTE DES DEMANDES D'ACHAT</h2></div>
     <div class="col-auto">
-      <h2 class="mb-0">Liste des Demandes d'Achat</h2>
-    </div>
-    <div class="col-auto">
-      <a href="{% url 'portal_admin:purchaserequest_add' %}" class="btn btn-primary">
-        <span class="fas fa-plus me-2"></span>Créer une demande
-      </a>
+      <div class="row g-3"> 
+        <div class="col-auto">
+          <a href="{% url 'portal_admin:purchaserequest_add' %}" class="btn btn-primary">
+            <span class="fas fa-plus me-2"></span>Faire une demande
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -24,28 +26,32 @@
       </div>
     {% endfor %}
   {% endif %}
-
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped table-hover">
+   
+  <div class="row g-5 mt-2 mb-3">
+    <div class="border-translucent" data-list='{"valueNames":["DEMANDE", "DATE", "ARTICLE", "DEMANDEUR", "ÉCHÉANCE", "STATUT", "ACTIONS"]}'>
+      <div class="table-responsive scrollbar">
+        <table class="table table-sm fs-9 mb-0">
           <thead>
             <tr>
-              <th>N° PR</th>
-              <th>Date</th>
-              <th>Articles</th>
-              <th>Demandeur</th>
-              <th>Échéance</th>
-              <th>Statut</th>
-              <th>Actions</th>
+              <th class="sort align-middle" scope="col" data-sort="DEMANDE">DEMANDE</th>
+              <th class="sort align-middle" scope="col" data-sort="DATE">DATE</th>
+              <th class="sort align-middle" scope="col" data-sort="ARTICLE">ARTICLE</th>
+              <th class="sort align-middle" scope="col" data-sort="DEMANDEUR">DEMANDEUR</th>
+              <th class="sort align-middle" scope="col" data-sort="ÉCHÉANCE">ÉCHÉANCE</th>
+              <th class="sort align-middle" scope="col" data-sort="STATUT">STATUT</th>
+              <th class="sort align-middle text-end" scope="col" data-sort="ACTIONS">ACTIONS</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="list" id="customer-order-table-body">
             {% for pr in purchase_requests %}
-              <tr>
-                <td><strong>{{ pr.pr_number }}</strong></td>
-                <td>{{ pr.pr_date|date:"d/m/Y" }}</td>
-                <td>
+              <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                <td class="DEMANDE align-middle ps-0">
+                  <a class="fw-semibold" href="{% url 'portal_admin:purchaserequest_detail' pr.pk %}">{{ pr.pr_number }}</a>
+                </td>
+                <td class="DATE align-middle fs-9">
+                  {{ pr.pr_date|date:"d/m/Y" }}
+                </td>
+                <td class="ARTICLE align-middle fw-semibold text-body-highlight">
                   {% with items=pr.items.all %}
                     {% if items %}
                       <span class="badge badge-phoenix badge-phoenix-info">{{ items|length }} article{{ items|length|pluralize }}</span>
@@ -54,32 +60,46 @@
                     {% endif %}
                   {% endwith %}
                 </td>
-                <td>
-                  {{ pr.requester_first_name }} {{ pr.requester_last_name }}<br>
-                  <small class="text-muted">{{ pr.position }}</small>
-                </td>
-                <td>{{ pr.deadline|date:"d/m/Y" }}</td>
-                <td>
-                  {% if pr.status == 'draft' %}
-                    <span class="badge badge-phoenix badge-phoenix-warning">{{ pr.get_status_display }}</span>
-                  {% elif pr.status == 'approved' %}
-                    <span class="badge badge-phoenix badge-phoenix-success">{{ pr.get_status_display }}</span>
-                  {% elif pr.status == 'rejected' %}
-                    <span class="badge badge-phoenix badge-phoenix-danger">{{ pr.get_status_display }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <div class="btn-group" role="group">
-                    <a href="{% url 'portal_admin:purchaserequest_detail' pr.pk %}" class="btn btn-sm btn-phoenix-info" title="Détails">
-                      <span class="fas fa-eye"></span>
-                    </a>
-                    {% if pr.status == 'draft' %}
-                      <a href="{% url 'portal_admin:purchaserequest_edit' pr.pk %}" class="btn btn-sm btn-phoenix-primary" title="Modifier">
-                        <span class="fas fa-edit"></span>
-                      </a>
-                    {% endif %}
+                <td class="DEMANDEUR align-middle text-body fs-8">
+                  <div class="flex-1">
+                    <h6 class="mb-0">{{ pr.requester_first_name }} {{ pr.requester_last_name }}</h6>
+                    <small class="text-muted">{{ pr.position }}</small>
                   </div>
                 </td>
+                <td class="ÉCHÉANCE align-middle fw-bold text-body-tertiary">
+                  {{ pr.pr_date|date:"d/m/Y" }}
+                </td>
+                <td class="STATUT align-middle text-start fw-bold text-body-tertiary">
+                  {% if pr.status == 'draft' %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
+                      <span class="badge-label">{{ pr.get_status_display }}</span>
+                      <span class="ms-1" data-feather="edit" style="height:12.8px;width:12.8px;"></span>
+                    </span>
+                  {% elif pr.status == 'approved' %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                      <span class="badge-label">{{ pr.get_status_display }}</span>
+                      <span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span>
+                    </span>
+                  {% elif pr.status == 'rejected' %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-danger">
+                      <span class="badge-label">{{ pr.get_status_display }}</span>
+                      <span class="ms-1" data-feather="x-circle" style="height:12.8px;width:12.8px;"></span>
+                    </span> 
+                  {% elif pr.status == 'cancelled' %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-primary">
+                      <span class="badge-label">{{ pr.get_status_display }}</span>
+                      <span class="ms-1" data-feather="trash-2" style="height:12.8px;width:12.8px;"></span>
+                    </span>  
+                  {% endif %}
+                  
+                </td>
+                <td class="ACTIONS align-middle text-end">
+                  <a href="{% url 'portal_admin:purchaserequest_detail' pr.pk %}" title="Détails"><span class="text-body fs-5" data-feather="eye"></span></a>
+                  <a href="" title="Imprimer"><span class="text-body fs-5" data-feather="printer"></span></span></a>
+                  {% if pr.status == 'draft' %}
+                    <a href="{% url 'portal_admin:purchaserequest_edit' pr.pk %}" title="Modifier"><span class="text-body fs-5" data-feather="edit"></span></span></a>
+                  {% endif %}
+                  </td>
               </tr>
             {% empty %}
               <tr>
@@ -93,5 +113,4 @@
       </div>
     </div>
   </div>
-</div>
 {% endblock %}

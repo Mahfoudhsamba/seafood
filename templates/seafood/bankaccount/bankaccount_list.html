@@ -27,7 +27,7 @@
   {% endif %}
 
  
-  <div id="orderTable" data-list='{"valueNames":["order","total","customer","payment_status","fulfilment_status","delivery_type","date"],"page":10,"pagination":true}'>
+  <div data-list='{"valueNames":["Identifiant", "Banque", "Compte", "Statut", "Type", "Devise", "Solde", "Actions"],"page":10,"pagination":true}'>
     <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
       <div class="table-responsive scrollbar mx-n1 px-1">
         <table class="table table-sm fs-9 mb-0">
@@ -38,17 +38,17 @@
                   <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='{"body":"order-table-body"}' />
                 </div>
               </th>
-              <th class="sort align-middle" scope="col" data-sort="order">IDENTIFIANT</th>
-              <th class="sort align-middle" scope="col" data-sort="total" >BANQUE</th>
-              <th class="sort align-middle" scope="col" data-sort="customer">N° COMPTE</th>
-              <th class="sort align-middle" scope="col" data-sort="date">STATUT</th>
-              <th class="sort align-middle" scope="col" data-sort="payment_status" >TYPE</th>
-              <th class="sort align-middle" scope="col" data-sort="fulfilment_status">DEVISE</th>
-              <th class="sort align-middle text-end" scope="col" data-sort="delivery_type" >SOLDE</th>
-              <th class="sort align-middle text-end" scope="col" data-sort="delivery_type" >ACTIONS</th>
+              <th class="sort align-middle" scope="col" data-sort="Identifiant">IDENTIFIANT</th>
+              <th class="sort align-middle" scope="col" data-sort="Banque">BANQUE</th>
+              <th class="sort align-middle" scope="col" data-sort="Compte">N° COMPTE</th>
+              <th class="sort align-middle" scope="col" data-sort="Statut">STATUT</th>
+              <th class="sort align-middle" scope="col" data-sort="Type">TYPE</th>
+              <th class="sort align-middle" scope="col" data-sort="Devise">DEVISE</th>
+              <th class="sort align-middle text-end" scope="col" data-sort="Solde">SOLDE</th>
+              <th class="sort align-middle text-end" scope="col" data-sort="Actions">ACTIONS</th>
             </tr>
           </thead>
-          <tbody class="list" id="order-table-body">
+          <tbody class="list">
 
             {% for account in bankaccounts %}
 
@@ -58,17 +58,17 @@
                     <input class="form-check-input" type="checkbox" data-bulk-select-row='{"order":2453,"total":87,"customer":{"avatar":"/team/32.webp","name":"Carry Anna"},"payment_status":{"label":"Complete","type":"badge-phoenix-success","icon":"check"},"fulfilment_status":{"label":"Cancelled","type":"badge-phoenix-secondary","icon":"x"},"delivery_type":"Cash on delivery","date":"Dec 12, 12:56 PM"}' />
                   </div>
                 </td>
-                <td class="order align-middle">
+                <td class="Identifiant align-middle">
                   <a class="fw-semibold" href="{% url 'portal_admin:bankaccount_detail' account.pk %}">#{{ account.bank_identifier }}</a>
                 </td>
-                <td class="total align-middle fw-semibold text-body-highlight">
+                <td class="Banque align-middle fw-semibold text-body-highlight">
                   {{ account.bank_name }}
                   {% if account.agency %}<br><small class="text-muted">{{ account.agency }}</small>{% endif %}
                 </td>
-                <td class="customer align-middle">
+                <td class="Compte align-middle">
                   <h6 class="text-body">{{ account.account_number }}</h6>
                 </td>
-                <td class="delivery_type align-middle fs-9">
+                <td class="Statut align-middle fs-9">
                   {% if account.status == 'active' %}
                     <span class="badge badge-phoenix fs-10 badge-phoenix-success"><span class="badge-label">{{ account.get_status_display }}</span><span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span></span>
                   {% elif account.status == 'inactive' %}
@@ -79,21 +79,19 @@
                     <span class="badge badge-phoenix fs-10 badge-phoenix-warning"><span class="badge-label">{{ account.get_status_display }}</span><span class="ms-1" data-feather="x" style="height:12.8px;width:12.8px;"></span></span>
                   {% endif %}
                 </td>
-                <td class="payment_status align-middle fw-bold">
+                <td class="Type align-middle fw-bold">
                   <span class="badge bg-secondary fs-10">{{ account.get_account_type_display }}</span>
                 </td>
-                <td class="fulfilment_status align-middle fw-bold">
+                <td class="Devise align-middle fw-bold">
                   <span class="badge bg-primary fs-10">{{ account.currency }}</span>
                 </td>
-                <td class="date align-middle fw-bold fs-8 text-end">{{ account.current_balance|floatformat:2 }}</td>
-              
-                <td class="actions align-middle white-space-nowrap text-end">
+                <td class="Solde align-middle fw-bold fs-8 text-end">{{ account.current_balance|floatformat:2 }}</td>
+                <td class="Actions align-middle white-space-nowrap text-end">
                   <a href="{% url 'portal_admin:bankaccount_detail' account.pk %}" title="Détails"><span class="text-body fs-5" data-feather="eye"></span></a>
                   <a href="{% url 'portal_admin:bankaccount_edit' account.pk %}" title="Modifier"><span class="text-body fs-5" data-feather="edit"></span></span></a>
                   <a href="{% url 'portal_admin:bankaccount_delete' account.pk %}" title="Supprimer"><span class="text-body fs-5" data-feather="trash-2"></span></span></a>
                 </td>
               </tr>
-              
             {% empty %}
               <tr>
                 <td colspan="8" class="text-center py-4">
