@@ -37,8 +37,8 @@
                   <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='{"body":"order-table-body"}' />
                 </div>
               </th>
-              <th class="sort align-middle" scope="col" data-sort="Dossier">DOSSIER</th>
               <th class="sort align-middle" scope="col" data-sort="Prefixe">PRÉFIXE</th>
+              <th class="sort align-middle" scope="col" data-sort="Dossier">DOSSIER</th>
               <th class="sort align-middle" scope="col" data-sort="Description">DESCRIPTION</th>
               <th class="sort align-middle" scope="col" data-sort="Statut">STATUT</th>
               <th class="sort align-middle" scope="col" data-sort="Création">CRÉATION</th>
@@ -55,14 +55,14 @@
                     <input class="form-check-input" type="checkbox" data-bulk-select-row='' />
                   </div>
                 </td>
-                <td class="Dossier align-middle">
-                  <a class="fw-semibold" href="{% url 'portal_admin:cashbox_detail' cashbox.pk %}">#{{ cashbox.folder_code }}</a>
+                <td class="Prefixe align-middle fw-bold fs-8 text-body-highlight">
+                  <a class="fw-semibold" href="{% url 'portal_admin:cashbox_detail' cashbox.pk %}">{{ cashbox.prefix }}</a>
                 </td>
-                <td class="Prefixe align-middle fw-semibold text-body-highlight">
-                  {{ cashbox.prefix }}
+                <td class="Dossier align-middle">
+                 {{ cashbox.folder_code }}
                 </td>
                 <td class="Description align-middle">
-                  <h6 class="text-body">{{ cashbox.description|truncatewords:10 }}</h6>
+                  <h6 class="text-body">{{ cashbox.description|truncatewords:6 }}</h6>
                 </td>
                 <td class="Statut align-middle fs-9">
                   {% if cashbox.status == 'active' %}

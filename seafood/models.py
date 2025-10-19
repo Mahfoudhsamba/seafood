@@ -399,19 +399,19 @@ class Cashbox(models.Model):
         ('suspended', 'Suspendu'),
     ]
 
-    # Dossier/Code unique
+    # Dossier (nom de la caisse)
     folder_code = models.CharField(
-        max_length=20,
-        unique=True,
+        max_length=200,
         verbose_name='Dossier',
-        help_text='Code unique de la caisse'
+        help_text='Nom de la caisse (ex: Technologie de l\'information)'
     )
 
-    # Prefix pour la numérotation
+    # Prefix unique pour la numérotation
     prefix = models.CharField(
-        max_length=10,
+        max_length=6,
+        unique=True,
         verbose_name='Préfixe',
-        help_text='Préfixe pour la numérotation des documents'
+        help_text='Préfixe unique pour la numérotation des documents (max 6 caractères)'
     )
 
     # Description
