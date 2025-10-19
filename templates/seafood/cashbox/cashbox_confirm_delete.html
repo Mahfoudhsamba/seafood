@@ -7,7 +7,7 @@
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Supprimer une Caisse</h2>
+      <h2 class="mb-0">SUPPRIMER UNE CAISSE</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:cashbox_list' %}" class="btn btn-phoenix-secondary">
@@ -26,49 +26,41 @@
   {% endif %}
 
   <div class="row">
-    <div class="col-12 col-xl-6 mx-auto">
-      <div class="card border-danger">
-        <div class="card-header bg-danger text-white">
-          <h5 class="mb-0"><span class="fas fa-exclamation-triangle me-2"></span>Confirmation de suppression</h5>
-        </div>
-        <div class="card-body">
-          <p class="mb-3">Êtes-vous sûr de vouloir supprimer cette caisse ?</p>
+    <p class="mb-3">Êtes-vous sûr de vouloir supprimer cette caisse ?</p>
 
-          <div class="alert alert-warning">
-            <strong>Attention :</strong> Cette action est irréversible. Toutes les données associées à cette caisse seront supprimées.
-          </div>
+    <div class="alert alert-warning">
+      <strong>Attention :</strong> Cette action est irréversible. Toutes les données associées à cette caisse seront supprimées.
+    </div>
 
-          <div class="bg-light p-3 rounded mb-3">
-            <div class="row mb-2">
-              <div class="col-sm-4"><strong>Dossier :</strong></div>
-              <div class="col-sm-8">{{ cashbox.folder_code }}</div>
-            </div>
-            <div class="row mb-2">
-              <div class="col-sm-4"><strong>Préfixe :</strong></div>
-              <div class="col-sm-8">{{ cashbox.prefix }}</div>
-            </div>
-            <div class="row mb-2">
-              <div class="col-sm-4"><strong>Description :</strong></div>
-              <div class="col-sm-8">{{ cashbox.description }}</div>
-            </div>
-            <div class="row">
-              <div class="col-sm-4"><strong>Solde actuel :</strong></div>
-              <div class="col-sm-8">{{ cashbox.current_balance|floatformat:2 }} MRU</div>
-            </div>
-          </div>
-
-          <form method="post">
-            {% csrf_token %}
-            <div class="d-flex justify-content-end gap-2">
-              <a href="{% url 'portal_admin:cashbox_list' %}" class="btn btn-secondary">Annuler</a>
-              <button type="submit" class="btn btn-danger">
-                <span class="fas fa-trash me-2"></span>Oui, supprimer
-              </button>
-            </div>
-          </form>
-        </div>
+    <div class="bg-body-highlight p-3 rounded mb-3">
+      <div class="row mb-2">
+        <div class="col-sm-4"><strong>Dossier :</strong></div>
+        <div class="col-sm-8">{{ cashbox.folder_code }}</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-sm-4"><strong>Préfixe :</strong></div>
+        <div class="col-sm-8">{{ cashbox.prefix }}</div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-sm-4"><strong>Description :</strong></div>
+        <div class="col-sm-8">{{ cashbox.description }}</div>
+      </div>
+      <div class="row">
+        <div class="col-sm-4"><strong>Solde actuel :</strong></div>
+        <div class="col-sm-8">{{ cashbox.current_balance|floatformat:2 }} MRU</div>
       </div>
     </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="d-flex justify-content-end gap-2">
+        <a href="{% url 'portal_admin:cashbox_list' %}" class="btn btn-secondary">Annuler</a>
+        <button type="submit" class="btn btn-danger">
+          <span class="fas fa-trash me-2"></span>Oui, supprimer
+        </button>
+      </div>
+    </form>
+    
   </div>
 </div>
 {% endblock %}

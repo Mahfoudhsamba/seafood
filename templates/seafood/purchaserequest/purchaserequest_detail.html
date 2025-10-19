@@ -121,20 +121,20 @@
         </div>
       </div>
 
-      {% if purchase_request.status == 'rejected' and purchase_request.rejection_reason %}
-        <div class="card mb-3 border-danger">
-          <div class="card-header bg-danger text-white">
-            <h5 class="mb-0"><span class="fas fa-times-circle me-2"></span>Motif de rejet</h5>
-          </div>
-          <div class="card-body">
-            <p class="mb-0">{{ purchase_request.rejection_reason }}</p>
-          </div>
-        </div>
-      {% endif %}
     </div>
 
     <div class="col-12 col-xl-4">
-       {% if purchase_request.status == 'draft' %}
+      {% if purchase_request.status == 'rejected' and purchase_request.rejection_reason %}
+      <div class="alert alert-subtle-danger" role="alert">
+        <h4 class="alert-heading fw-semibold">Motif de rejet:</h4>
+        <hr class="bg-body-tertiary" />
+        <p>{{ purchase_request.rejection_reason }}</p>
+     </div>
+    
+      
+      {% endif %}
+
+      {% if purchase_request.status == 'draft' %}
         <div class="card mb-3 bg-body-highlight">
           <div class="card-header">
             <h5 class="mb-0"><span class="fas fa-clipboard-check me-2"></span>Actions de validation</h5>
