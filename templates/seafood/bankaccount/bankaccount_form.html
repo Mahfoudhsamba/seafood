@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block title %}{% if bankaccount %}Modifier{% else %}Ajouter{% endif %} un Compte Bancaire{% endblock %}
+{% block extra_css %}
+    <link href="{% static 'vendors/choices/choices.min.css' %}" rel="stylesheet" />
+{% endblock %}
 
 {% block content %}
 <div class="pb-5">
@@ -78,7 +81,7 @@
 
               <div class="col-md-3">
                 <label for="currency" class="form-label">Devise <span class="text-danger">*</span></label>
-                <select class="form-select" id="currency" name="currency" required>
+                <select class="form-select" id="currency" name="currency" required  data-choices="data-choices" data-options='{"removeItemButton":true,"placeholder":true}'>
                   {% for value, label in currencies %}
                     <option value="{{ value }}" {% if bankaccount and bankaccount.currency == value %}selected{% endif %}>{{ label }}</option>
                   {% endfor %}
@@ -167,4 +170,8 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'vendors/choices/choices.min.js' %}"></script>
 {% endblock %}
