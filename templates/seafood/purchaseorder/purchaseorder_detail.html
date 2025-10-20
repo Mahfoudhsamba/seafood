@@ -206,7 +206,7 @@
           <div class="card-body">
             {% if purchase_order.status == 'draft' %}
               <div class="d-grid gap-2">
-                <a href="{% url 'portal_admin:purchaseorder_pending' purchase_order.pk %}" class="btn btn-warning">
+                <a href="{% url 'portal_admin:purchaseorder_pending' purchase_order.pk %}" class="btn btn-primary">
                   <span class="fas fa-clock me-2"></span>Mettre en attente
                 </a>
                 <a href="{% url 'portal_admin:purchaseorder_approve' purchase_order.pk %}" class="btn btn-success">
@@ -215,7 +215,7 @@
                 <a href="{% url 'portal_admin:purchaseorder_reject' purchase_order.pk %}" class="btn btn-danger">
                   <span class="fas fa-times me-2"></span>Rejeter
                 </a>
-                <a href="{% url 'portal_admin:purchaseorder_cancel' purchase_order.pk %}" class="btn btn-outline-warning">
+                <a href="{% url 'portal_admin:purchaseorder_cancel' purchase_order.pk %}" class="btn btn-warning">
                   <span class="fas fa-ban me-2"></span>Annuler
                 </a>
               </div>

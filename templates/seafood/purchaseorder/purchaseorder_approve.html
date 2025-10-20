@@ -10,52 +10,48 @@
       <h2 class="mb-0">Approuver le Bon de Commande {{ purchase_order.po_number }}</h2>
     </div>
     <div class="col-auto">
-      <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-phoenix-secondary">
-        <span class="fas fa-arrow-left me-2"></span>Retour
-      </a>
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">
+          <span class="fas fa-check me-2"></span>Confirmer l'approbation
+        </button>
+        <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-phoenix-secondary">
+          <span class="fas fa-arrow-left me-2"></span> Annuler
+        </a>
+      </form>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-12 col-lg-8">
-      <div class="card">
-        <div class="card-body">
-          <div class="alert alert-success">
-            <span class="fas fa-check-circle me-2"></span>
-            Vous êtes sur le point d'approuver ce bon de commande. Cette action confirme que le bon de commande est validé et prêt pour le paiement.
-          </div>
-
-          <h5 class="mb-3">Résumé du Bon de Commande</h5>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Numéro PO :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.po_number }}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Date PO :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.po_date|date:"d/m/Y" }}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Fournisseur :</strong></div>
-            <div class="col-sm-8">{{ purchase_order.supplier.name }}</div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-sm-4"><strong>Total :</strong></div>
-            <div class="col-sm-8"><strong class="text-success">{{ purchase_order.total|floatformat:2 }} MRU</strong></div>
-          </div>
-
-          <form method="post" class="mt-4">
-            {% csrf_token %}
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-success">
-                <span class="fas fa-check me-2"></span>Confirmer l'approbation
-              </button>
-              <a href="{% url 'portal_admin:purchaseorder_detail' purchase_order.pk %}" class="btn btn-secondary">
-                Annuler
-              </a>
-            </div>
-          </form>
-        </div>
+   {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
+    {% endfor %}
+  {% endif %}
+  
+  <div class="row">
+    <div class="alert alert-success mb-3">
+      <span class="fas fa-check-circle me-2"></span>
+      Vous êtes sur le point d'approuver ce bon de commande. Cette action confirme que le bon de commande est validé et prêt pour le paiement.
+    </div>
+    <h5 class="mb-3 mt-2">Résumé du Bon de Commande</h5>
+    <div class="row mb-3">
+      <div class="col-sm-4"><strong>Numéro PO :</strong></div>
+      <div class="col-sm-8">{{ purchase_order.po_number }}</div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-sm-4"><strong>Date PO :</strong></div>
+      <div class="col-sm-8">{{ purchase_order.po_date|date:"d/m/Y" }}</div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-sm-4"><strong>Fournisseur :</strong></div>
+      <div class="col-sm-8">{{ purchase_order.supplier.name }}</div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-sm-4"><strong>Total :</strong></div>
+      <div class="col-sm-8"><strong class="text-success">{{ purchase_order.total|floatformat:2 }} MRU</strong></div>
     </div>
   </div>
 </div>
