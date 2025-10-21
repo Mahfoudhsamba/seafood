@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction
+from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
 
 # Create your views here.
 
@@ -1356,5 +1356,199 @@ def cashbox_fund(request, cashbox_pk):
         'bank_accounts': bank_accounts,
         'sources': CashboxTransaction.SOURCE_CHOICES
     })
+
+
+# ============ PROSPECT VIEWS ============
+
+@staff_member_required
+@permission_required('seafood.view_prospect', raise_exception=True)
+def prospect_list(request):
+    """Liste des prospects"""
+    prospects = Prospect.objects.all().order_by('-created_at')
+
+    # Filtrage par statut
+    status_filter = request.GET.get('status')
+    if status_filter:
+        prospects = prospects.filter(status=status_filter)
+
+    # Recherche
+    search = request.GET.get('search')
+    if search:
+        from django.db.models import Q
+        prospects = prospects.filter(
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search) |
+            Q(company_name__icontains=search) |
+            Q(email__icontains=search)
+        )
+
+    return render(request, 'seafood/prospects/prospect_list.html', {
+        'prospects': prospects,
+        'statuses': Prospect.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.view_prospect', raise_exception=True)
+def prospect_detail(request, pk):
+    """Détails d'un prospect"""
+    prospect = get_object_or_404(Prospect, pk=pk)
+    return render(request, 'seafood/prospects/prospect_detail.html', {'prospect': prospect})
+
+
+@staff_member_required
+@permission_required('seafood.add_prospect', raise_exception=True)
+def prospect_add(request):
+    """Formulaire d'ajout de prospect"""
+    if request.method == 'POST':
+        try:
+            prospect = Prospect(
+                # Contact Person
+                first_name=request.POST.get('first_name'),
+                last_name=request.POST.get('last_name'),
+                email=request.POST.get('email'),
+                mobile=request.POST.get('mobile'),
+                position=request.POST.get('position'),
+                contact_source=request.POST.get('contact_source'),
+                status=request.POST.get('status', 'new'),
+
+                # Enterprise
+                company_name=request.POST.get('company_name'),
+                policy_maker=request.POST.get('policy_maker', ''),
+                last_interaction=request.POST.get('last_interaction') or None,
+                office_number=request.POST.get('office_number', ''),
+                email_contact=request.POST.get('email_contact', ''),
+                website=request.POST.get('website', ''),
+                zip_code=request.POST.get('zip_code', ''),
+                city=request.POST.get('city', ''),
+                country=request.POST.get('country', 'Mauritanie'),
+                address=request.POST.get('address', ''),
+
+                # Social Media
+                linkedin=request.POST.get('linkedin', ''),
+                twitter=request.POST.get('twitter', ''),
+                facebook=request.POST.get('facebook', ''),
+                instagram=request.POST.get('instagram', ''),
+
+                # Remark
+                acquisition_source=request.POST.get('acquisition_source'),
+                trouble=request.POST.get('trouble', ''),
+                remark=request.POST.get('remark', ''),
+
+                # Meta data
+                next_followup=request.POST.get('next_followup') or None,
+                created_by=request.user
+            )
+            prospect.save()
+            messages.success(request, 'Prospect ajouté avec succès!')
+            return redirect('portal_admin:prospect_detail', pk=prospect.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    return render(request, 'seafood/prospects/prospect_form.html', {
+        'statuses': Prospect.STATUS_CHOICES,
+        'sources': Prospect.SOURCE_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.change_prospect', raise_exception=True)
+def prospect_edit(request, pk):
+    """Formulaire de modification de prospect"""
+    prospect = get_object_or_404(Prospect, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            # Contact Person
+            prospect.first_name = request.POST.get('first_name')
+            prospect.last_name = request.POST.get('last_name')
+            prospect.email = request.POST.get('email')
+            prospect.mobile = request.POST.get('mobile')
+            prospect.position = request.POST.get('position')
+            prospect.contact_source = request.POST.get('contact_source')
+            prospect.status = request.POST.get('status', 'new')
+
+            # Enterprise
+            prospect.company_name = request.POST.get('company_name')
+            prospect.policy_maker = request.POST.get('policy_maker', '')
+            prospect.last_interaction = request.POST.get('last_interaction') or None
+            prospect.office_number = request.POST.get('office_number', '')
+            prospect.email_contact = request.POST.get('email_contact', '')
+            prospect.website = request.POST.get('website', '')
+            prospect.zip_code = request.POST.get('zip_code', '')
+            prospect.city = request.POST.get('city', '')
+            prospect.country = request.POST.get('country', 'Mauritanie')
+            prospect.address = request.POST.get('address', '')
+
+            # Social Media
+            prospect.linkedin = request.POST.get('linkedin', '')
+            prospect.twitter = request.POST.get('twitter', '')
+            prospect.facebook = request.POST.get('facebook', '')
+            prospect.instagram = request.POST.get('instagram', '')
+
+            # Remark
+            prospect.acquisition_source = request.POST.get('acquisition_source')
+            prospect.trouble = request.POST.get('trouble', '')
+            prospect.remark = request.POST.get('remark', '')
+
+            # Meta data
+            prospect.next_followup = request.POST.get('next_followup') or None
+
+            prospect.save()
+            messages.success(request, 'Prospect modifié avec succès!')
+            return redirect('portal_admin:prospect_detail', pk=pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'seafood/prospects/prospect_form.html', {
+        'prospect': prospect,
+        'statuses': Prospect.STATUS_CHOICES,
+        'sources': Prospect.SOURCE_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('seafood.delete_prospect', raise_exception=True)
+def prospect_delete(request, pk):
+    """Suppression d'un prospect"""
+    prospect = get_object_or_404(Prospect, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            prospect.delete()
+            messages.success(request, 'Prospect supprimé avec succès!')
+            return redirect('portal_admin:prospect_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/prospects/prospect_confirm_delete.html', {'prospect': prospect})
+
+
+@staff_member_required
+@permission_required('seafood.change_prospect', raise_exception=True)
+def prospect_change_status(request, pk, new_status):
+    """Changer le statut d'un prospect"""
+    prospect = get_object_or_404(Prospect, pk=pk)
+
+    # Vérifier que le statut est valide
+    valid_statuses = ['new', 'contacted', 'qualified', 'relaunched', 'converted', 'lost']
+    if new_status not in valid_statuses:
+        messages.error(request, 'Statut invalide!')
+        return redirect('portal_admin:prospect_detail', pk=pk)
+
+    # Messages selon le statut
+    status_messages = {
+        'new': 'Prospect marqué comme nouveau!',
+        'contacted': 'Prospect marqué comme contacté!',
+        'qualified': 'Prospect qualifié!',
+        'relaunched': 'Prospect relancé!',
+        'converted': 'Prospect converti en client!',
+        'lost': 'Prospect marqué comme perdu!'
+    }
+
+    prospect.status = new_status
+    prospect.save()
+    messages.success(request, status_messages.get(new_status, 'Statut modifié avec succès!'))
+    return redirect('portal_admin:prospect_detail', pk=pk)
 
 

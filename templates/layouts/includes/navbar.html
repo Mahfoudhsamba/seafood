@@ -77,6 +77,35 @@
                             </div>
                         </div>
                         {% endif %}
+
+                        {% if perms.seafood.view_prospect or perms.seafood.add_prospect %}
+                        <div class="nav-item-wrapper">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-prospects" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'prospect' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-prospects">
+                                <div class="d-flex align-items-center">
+                                    <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="user-plus"></span></span><span class="nav-link-text">Prospects</span>
+                                </div>
+                            </a>
+                            <div class="parent-wrapper label-1">
+                                <ul class="nav collapse parent {% if 'prospect' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-prospects">
+                                    <li class="collapsed-nav-item-title d-none">Prospects</li>
+                                    {% if perms.seafood.add_prospect %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'prospect_add' %}active{% endif %}" href="{% url 'portal_admin:prospect_add' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter un prospect</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.seafood.view_prospect %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'prospect_list' %}active{% endif %}" href="{% url 'portal_admin:prospect_list' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Liste des prospects</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
                     </li>
                     {% endif %}
 

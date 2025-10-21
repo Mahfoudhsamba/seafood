@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.admin import AdminSite
 from django.urls import path
 from . import views
-from .models import Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction
+from .models import Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
 
 # Custom Portal Admin Site
 class PortalAdminSite(AdminSite):
@@ -72,6 +72,14 @@ class PortalAdminSite(AdminSite):
             path('purchaseorder/<int:pk>/reject/', views.purchaseorder_reject, name='purchaseorder_reject'),
             path('purchaseorder/<int:pk>/pay/', views.purchaseorder_pay, name='purchaseorder_pay'),
             path('purchaseorder/<int:pk>/cancel/', views.purchaseorder_cancel, name='purchaseorder_cancel'),
+
+            # Prospects
+            path('prospects/', views.prospect_list, name='prospect_list'),
+            path('prospects/add/', views.prospect_add, name='prospect_add'),
+            path('prospects/<int:pk>/', views.prospect_detail, name='prospect_detail'),
+            path('prospects/<int:pk>/edit/', views.prospect_edit, name='prospect_edit'),
+            path('prospects/<int:pk>/delete/', views.prospect_delete, name='prospect_delete'),
+            path('prospects/<int:pk>/status/<str:new_status>/', views.prospect_change_status, name='prospect_change_status'),
         ]
         return custom_urls + urls
 
@@ -243,6 +251,36 @@ class CashboxTransactionAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+class ProspectAdmin(admin.ModelAdmin):
+    list_display = ['full_name', 'company_name', 'email', 'mobile', 'status', 'next_followup', 'created_at']
+    list_filter = ['status', 'acquisition_source', 'contact_source', 'created_at', 'next_followup']
+    search_fields = ['first_name', 'last_name', 'company_name', 'email', 'mobile']
+    readonly_fields = ['created_at', 'updated_at', 'created_by']
+
+    fieldsets = (
+        ('Contact Person', {
+            'fields': ('first_name', 'last_name', 'email', 'mobile', 'position', 'contact_source', 'status')
+        }),
+        ('Enterprise', {
+            'fields': ('company_name', 'policy_maker', 'last_interaction', 'office_number', 'email_contact', 'website', 'address', 'city', 'zip_code', 'country')
+        }),
+        ('Social Media', {
+            'fields': ('linkedin', 'twitter', 'facebook', 'instagram')
+        }),
+        ('Remark', {
+            'fields': ('acquisition_source', 'trouble', 'remark')
+        }),
+        ('Meta data', {
+            'fields': ('next_followup', 'created_at', 'updated_at', 'created_by')
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si c'est une nouvelle instance
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
 # Register models on portal admin site
 portal_admin_site.register(Cashbox, CashboxAdmin)
 portal_admin_site.register(BankAccount, BankAccountAdmin)
@@ -251,3 +289,4 @@ portal_admin_site.register(PurchaseRequestItem, PurchaseRequestItemAdmin)
 portal_admin_site.register(PurchaseOrder, PurchaseOrderAdmin)
 portal_admin_site.register(PurchaseOrderItem, PurchaseOrderItemAdmin)
 portal_admin_site.register(CashboxTransaction, CashboxTransactionAdmin)
+portal_admin_site.register(Prospect, ProspectAdmin)

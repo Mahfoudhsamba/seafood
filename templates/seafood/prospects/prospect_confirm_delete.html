@@ -1,0 +1,48 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}Supprimer Prospect - {{ prospect.full_name }}{% endblock %}
+{% block content %}
+  <div class="pb-5">
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+      <div class="col-auto">
+        <h2 class="mb-0">Confirmation de suppression</h2>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'portal_admin:prospect_detail' prospect.pk %}" class="btn btn-phoenix-secondary">
+          <span class="fas fa-arrow-left me-2"></span>Retour
+        </a>
+      </div>
+    </div>
+    
+    <div class="row">
+      <h3 class="mb-3">
+        <span class="fas fa-exclamation-triangle fa-2x text-danger"></span> Êtes-vous sûr de vouloir supprimer ce prospect ?
+      </h3>
+      <div class="alert  text-start mb-4">
+        <h5 class="alert-heading"><span class="fas fa-info-circle me-2"></span>Informations du prospect</h5>
+        <hr>
+        <p class="mb-2"><strong>Nom complet:</strong> {{ prospect.full_name }}</p>
+        <p class="mb-2"><strong>Entreprise:</strong> {{ prospect.company_name }}</p>
+        <p class="mb-2"><strong>Email:</strong> {{ prospect.email }}</p>
+        <p class="mb-2"><strong>Téléphone:</strong> {{ prospect.mobile }}</p>
+        <p class="mb-0"><strong>Statut:</strong> {{ prospect.get_status_display }}</p>
+      </div>
+
+      <div class="alert alert-danger mb-4">
+        <h6 class="alert-heading">
+          <span class="fas fa-exclamation-triangle me-2"></span>Attention
+        </h6>
+        <p class="mb-0">Cette action est <strong>irréversible</strong>. Toutes les données associées à ce prospect seront définitivement supprimées.</p>
+      </div>
+
+      <form method="post" class="d-inline">
+        {% csrf_token %}
+        <div class="d-flex gap-2 ">
+          <button type="submit" class="btn btn-danger px-5"><span class="fas fa-trash me-2"></span>Oui, supprimer</button>
+          <a href="{% url 'portal_admin:prospect_detail' prospect.pk %}" class="btn btn-secondary px-5"><span class="fas fa-times me-2"></span>Annuler</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Liste des Prospects{% endblock %}
+
+{% block content %}
+
+  <div class="pb-5">
+    <div class="row g-4">
+      <div class="col-12 col-xxl-12">
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            <h2 class="mb-2">LISTE DES PROSPECTS</h2>
+            <h5 class="text-body-tertiary fw-semibold">Gestion et suivi des prospects</h5>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="{% url 'portal_admin:prospect_add' %}" class="btn btn-primary">
+              <span class="fas fa-plus me-2"></span>Ajouter un prospect
+            </a>
+          </div>
+        </div>
+        <div class="row align-items-center g-4">
+          <!-- Filtres -->
+          <div class="col-12">
+            <form method="get" class="row g-3">
+              <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Rechercher..." value="{{ request.GET.search }}">
+              </div>
+              <div class="col-md-3">
+                <select name="status" class="form-select">
+                  <option value="">Tous les statuts</option>
+                  {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary">Filtrer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="mb-2">
+    <div id="orderTable" data-list='{"valueNames":["nom","entreprise","contact","statut","prochaine_relance","actions"],"page":10,"pagination":true}'>
+      <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
+        <div class="table-responsive scrollbar mx-n1 px-1">
+          <table class="table table-sm fs-9 mb-0">
+            <thead>
+              <tr>
+                <th class="white-space-nowrap fs-9 align-middle ps-0" style="width:26px;">
+                  <div class="form-check mb-0 fs-8">
+                    <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='{"body":"order-table-body"}' />
+                  </div>
+                </th>
+                <th class="sort white-space-nowrap align-middle pe-0" scope="col" data-sort="nom">NOM & PRÉNOM</th>
+                <th class="sort align-middle" scope="col" data-sort="entreprise">ENTREPRISE</th>
+                <th class="sort align-middle" scope="col" data-sort="contact">CONTACT</th>
+                <th class="sort align-middle" scope="col" data-sort="statut">STATUT</th>
+                <th class="sort align-middle" scope="col" data-sort="prochaine_relance">PROCHAINE RELANCE</th>
+                <th class="sort align-middle text-start" scope="col" data-sort="actions">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody class="list" id="order-table-body">
+                {% for prospect in prospects %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
+                        <td class="nom align-middle white-space-nowrap py-0">
+                          <a class="fw-semibold" href="{% url 'portal_admin:prospect_detail' prospect.pk %}">{{ prospect.full_name }}</a>
+                          <p class="mb-0 text-body-tertiary fs-10">{{ prospect.position }}</p>
+                        </td>
+                        <td class="entreprise align-middle white-space-nowrap">
+                          <div>
+                            <a class="fs-8 fw-bold" href="{% url 'portal_admin:prospect_detail' prospect.pk %}">{{ prospect.company_name }}</a>
+                            <div class="d-flex align-items-center">
+                              <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">
+                                <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
+                                  <span class="badge-label">{{ prospect.get_acquisition_source_display }}</span>
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="contact align-middle fw-semibold text-body-highlight">
+                          {% if prospect.email %}
+                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-square-envelope me-1"></i>{{ prospect.email }}</p>
+                          {% endif %}
+                          {% if prospect.mobile %}
+                            <p class="mb-0 text-body-highlight fw-semibold fs-9"><i class="fa fa-phone me-1"></i>{{ prospect.mobile }}</p>
+                          {% endif %}
+                        </td>
+                        <td class="statut align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
+                            <span class="badge badge-phoenix fs-10 badge-phoenix-{% if prospect.status == 'new' %}info{% elif prospect.status == 'contacted' %}primary{% elif prospect.status == 'qualified' %}warning{% elif prospect.status == 'relaunched' %}secondary{% elif prospect.status == 'converted' %}success{% else %}danger{% endif %}">
+                                <span class="badge-label">{{ prospect.get_status_display }}</span>
+                            </span>
+                        </td>
+                        <td class="prochaine_relance align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
+                          {% if prospect.next_followup %}
+                            {{ prospect.next_followup|date:"d/m/Y" }}
+                          {% else %}
+                            <span class="text-muted">-</span>
+                          {% endif %}
+                        </td>
+                        <td class="actions align-middle white-space-nowrap text-body-tertiary text-end">
+                          <div class="btn-reveal-trigger position-static">
+                            <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                              <span class="fas fa-ellipsis-h fs-10"></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end py-2">
+                              <a class="dropdown-item" href="{% url 'portal_admin:prospect_detail' prospect.pk %}">Voir détails</a>
+                              <a class="dropdown-item" href="{% url 'portal_admin:prospect_edit' prospect.pk %}">Modifier</a>
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item text-danger" href="{% url 'portal_admin:prospect_delete' prospect.pk %}">Supprimer</a>
+                            </div>
+                          </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">Aucun prospect trouvé</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

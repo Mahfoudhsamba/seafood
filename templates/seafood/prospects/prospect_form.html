@@ -1,0 +1,227 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}{% if prospect %}Modifier{% else %}Ajouter{% endif %} un Prospect - Seafood Portal{% endblock %}
+{% block content %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+  <form method="post" class="mb-9">
+    {% csrf_token %}
+    <div class="row g-3 flex-between-end mb-5">
+      <div class="col-auto">
+        <h4 class="mb-2">{% if prospect %}MISE À JOUR DU PROSPECT #{{prospect.pk}} {% else %}NOUVEAU PROSPECT{% endif %}</h4>
+        <h5 class="text-body-tertiary fw-semibold">Création d'un nouveau prospect et mise à jour des informations d'un prospect existant.</h5>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'portal_admin:prospect_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+        <button type="submit" class="btn btn-primary"><span class="fas fa-save me-2"></span>Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-12 col-xl-8">
+        <!-- Contact Person -->
+        <h4 class="mb-3">Contact Person</h4>
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="first_name" class="form-label">Prénom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ prospect.first_name|default:'' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="last_name" class="form-label">Nom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ prospect.last_name|default:'' }}" required>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ prospect.email|default:'' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="mobile" class="form-label">Portable <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" id="mobile" name="mobile" value="{{ prospect.mobile|default:'' }}" required>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="position" class="form-label">Poste <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="position" name="position" value="{{ prospect.position|default:'' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="contact_source" class="form-label">Source du contact <span class="text-danger">*</span></label>
+            <select class="form-select" id="contact_source" name="contact_source" required>
+              {% for value, label in sources %}
+                <option value="{{ value }}" {% if prospect.contact_source == value or not prospect and value == 'website' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="status" class="form-label">État du prospect <span class="text-danger">*</span></label>
+            <select class="form-select" id="status" name="status" required>
+              {% for value, label in statuses %}
+                <option value="{{ value }}" {% if prospect.status == value or not prospect and value == 'new' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- Enterprise -->
+        <h4 class="mb-3">Entreprise</h4>
+        <div class="row mb-2">
+          <div class="col-md-12">
+            <label for="company_name" class="form-label">Nom de l'entreprise <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="company_name" name="company_name" value="{{ prospect.company_name|default:'' }}" required>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="policy_maker" class="form-label">Décideur</label>
+            <input type="text" class="form-control" id="policy_maker" name="policy_maker" value="{{ prospect.policy_maker|default:'' }}">
+          </div>
+          <div class="col-md-6">
+            <label for="last_interaction" class="form-label">Dernière interaction</label>
+            <input type="date" class="form-control" id="last_interaction" name="last_interaction" value="{{ prospect.last_interaction|date:'Y-m-d'|default:'' }}">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="office_number" class="form-label">Numéro de bureau</label>
+            <input type="tel" class="form-control" id="office_number" name="office_number" value="{{ prospect.office_number|default:'' }}">
+          </div>
+          <div class="col-md-6">
+            <label for="email_contact" class="form-label">Email de contact (entreprise)</label>
+            <input type="email" class="form-control" id="email_contact" name="email_contact" value="{{ prospect.email_contact|default:'' }}">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="website" class="form-label">Site web</label>
+            <input type="url" class="form-control" id="website" name="website" value="{{ prospect.website|default:'' }}">
+          </div>
+          <div class="col-md-6">
+            <label for="city" class="form-label">Ville</label>
+            <input type="text" class="form-control" id="city" name="city" value="{{ prospect.city|default:'' }}">
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="zip_code" class="form-label">Code postal</label>
+            <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ prospect.zip_code|default:'' }}">
+          </div>
+          <div class="col-md-6">
+            <label for="country" class="form-label">Pays</label>
+            <input type="text" class="form-control" id="country" name="country" value="{{ prospect.country|default:'Mauritanie' }}">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="address" class="form-label">Adresse</label>
+          <textarea class="form-control" id="address" name="address" rows="2">{{ prospect.address|default:'' }}</textarea>
+        </div>
+
+        <hr>
+
+        <!-- Social Media -->
+        <h4 class="mb-3">Réseaux Sociaux</h4>
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="linkedin" class="form-label">LinkedIn</label>
+            <input type="url" class="form-control" id="linkedin" name="linkedin" value="{{ prospect.linkedin|default:'' }}" placeholder="https://linkedin.com/in/...">
+          </div>
+          <div class="col-md-6">
+            <label for="twitter" class="form-label">X (Twitter)</label>
+            <input type="url" class="form-control" id="twitter" name="twitter" value="{{ prospect.twitter|default:'' }}" placeholder="https://twitter.com/...">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="facebook" class="form-label">Facebook</label>
+            <input type="url" class="form-control" id="facebook" name="facebook" value="{{ prospect.facebook|default:'' }}" placeholder="https://facebook.com/...">
+          </div>
+          <div class="col-md-6">
+            <label for="instagram" class="form-label">Instagram</label>
+            <input type="url" class="form-control" id="instagram" name="instagram" value="{{ prospect.instagram|default:'' }}" placeholder="https://instagram.com/...">
+          </div>
+        </div>
+
+        <hr>
+
+        <!-- Remarks -->
+        <h4 class="mb-3">Remarques</h4>
+        <div class="mb-2">
+          <label for="acquisition_source" class="form-label">Source d'acquisition <span class="text-danger">*</span></label>
+          <select class="form-select" id="acquisition_source" name="acquisition_source" required>
+            {% for value, label in sources %}
+              <option value="{{ value }}" {% if prospect.acquisition_source == value or not prospect and value == 'website' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-2">
+          <label for="trouble" class="form-label">Problématique</label>
+          <textarea class="form-control" id="trouble" name="trouble" rows="3" placeholder="Problème ou besoin identifié du prospect...">{{ prospect.trouble|default:'' }}</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="remark" class="form-label">Remarque</label>
+          <textarea class="form-control" id="remark" name="remark" rows="3" placeholder="Notes supplémentaires sur le prospect...">{{ prospect.remark|default:'' }}</textarea>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="row g-2">
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Suivi</h4>
+                <div class="row">
+                  <div class="col-12 mb-1">
+                    <label for="next_followup" class="form-label">Prochaine relance programmée</label>
+                    <input type="date" class="form-control" id="next_followup" name="next_followup" value="{{ prospect.next_followup|date:'Y-m-d'|default:'' }}">
+                    <small class="text-muted">Date à laquelle vous devez recontacter ce prospect</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if prospect %}
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Métadonnées</h4>
+                <div class="row">
+                  <div class="col-12 mb-1">
+                    <p class="mb-1"><strong>Créé le:</strong> {{ prospect.created_at|date:"d/m/Y à H:i" }}</p>
+                    <p class="mb-1"><strong>Dernière modification:</strong> {{ prospect.updated_at|date:"d/m/Y à H:i" }}</p>
+                    {% if prospect.created_by %}
+                    <p class="mb-0"><strong>Créé par:</strong> {{ prospect.created_by.get_full_name|default:prospect.created_by.username }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

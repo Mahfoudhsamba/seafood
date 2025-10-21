@@ -1478,3 +1478,151 @@ def delete_purchase_order_file_on_delete(sender, instance, **kwargs):
     """Supprime le fichier lors de la suppression du bon de commande"""
     if instance.file and os.path.isfile(instance.file.path):
         os.remove(instance.file.path)
+
+
+class Prospect(models.Model):
+    """
+    Modèle pour la gestion des prospects
+    """
+    # États du prospect
+    STATUS_CHOICES = [
+        ('new', 'Nouveau'),
+        ('contacted', 'Contacté'),
+        ('qualified', 'Qualifié'),
+        ('relaunched', 'Relancé'),
+        ('converted', 'Converti'),
+        ('lost', 'Perdu'),
+    ]
+
+    # Sources d'acquisition
+    SOURCE_CHOICES = [
+        ('website', 'Site web'),
+        ('social_media', 'Réseau social'),
+        ('trade_show', 'Salon'),
+        ('referral', 'Référence'),
+        ('cold_call', 'Appel à froid'),
+        ('email', 'Email'),
+        ('other', 'Autre'),
+    ]
+
+    # Contact Person
+    first_name = models.CharField(max_length=100, verbose_name='Prénom')
+    last_name = models.CharField(max_length=100, verbose_name='Nom')
+    email = models.EmailField(verbose_name='Email')
+    mobile = models.CharField(
+        max_length=17,
+        validators=[RegexValidator(
+            regex=r'^\+?1?\d{9,15}$',
+            message="Le numéro de portable doit être au format: '+999999999'. Jusqu'à 15 chiffres autorisés."
+        )],
+        verbose_name='Portable'
+    )
+    position = models.CharField(max_length=100, verbose_name='Poste')
+    contact_source = models.CharField(
+        max_length=50,
+        choices=SOURCE_CHOICES,
+        default='website',
+        verbose_name='Source du contact'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='new',
+        verbose_name='État du prospect'
+    )
+
+    # Enterprise
+    company_name = models.CharField(max_length=200, verbose_name='Nom de l\'entreprise')
+    policy_maker = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Décideur',
+        help_text='Nom du décideur dans l\'entreprise'
+    )
+    last_interaction = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Dernière interaction'
+    )
+    office_number = models.CharField(
+        max_length=17,
+        blank=True,
+        validators=[RegexValidator(
+            regex=r'^\+?1?\d{9,15}$',
+            message="Le numéro doit être au format: '+999999999'. Jusqu'à 15 chiffres autorisés."
+        )],
+        verbose_name='Numéro de bureau'
+    )
+    email_contact = models.EmailField(
+        blank=True,
+        verbose_name='Email de contact',
+        help_text='Email général de l\'entreprise'
+    )
+    website = models.URLField(blank=True, null=True, verbose_name='Site web')
+    zip_code = models.CharField(max_length=20, blank=True, verbose_name='Code postal')
+    city = models.CharField(max_length=100, blank=True, verbose_name='Ville')
+    country = models.CharField(max_length=100, default='Mauritanie', verbose_name='Pays')
+    address = models.TextField(blank=True, verbose_name='Adresse')
+
+    # Social Media
+    linkedin = models.URLField(blank=True, null=True, verbose_name='LinkedIn')
+    twitter = models.URLField(blank=True, null=True, verbose_name='X (Twitter)')
+    facebook = models.URLField(blank=True, null=True, verbose_name='Facebook')
+    instagram = models.URLField(blank=True, null=True, verbose_name='Instagram')
+
+    # Remark
+    acquisition_source = models.CharField(
+        max_length=50,
+        choices=SOURCE_CHOICES,
+        default='website',
+        verbose_name='Source d\'acquisition'
+    )
+    trouble = models.TextField(
+        blank=True,
+        verbose_name='Problématique',
+        help_text='Problème ou besoin identifié du prospect'
+    )
+    remark = models.TextField(
+        blank=True,
+        verbose_name='Remarque',
+        help_text='Notes supplémentaires sur le prospect'
+    )
+
+    # Meta data
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date d\'ajout du prospect'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Dernière modification'
+    )
+    next_followup = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Prochaine relance programmée'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        verbose_name = 'Prospect'
+        verbose_name_plural = 'Prospects'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['email']),
+            models.Index(fields=['next_followup']),
+        ]
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} - {self.company_name}"
+
+    @property
+    def full_name(self):
+        """Retourne le nom complet du contact"""
+        return f"{self.first_name} {self.last_name}"

@@ -1,0 +1,326 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Détails Prospect - {{ prospect.full_name }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Détails du Prospect</h2>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        {% if perms.seafood.change_prospect %}
+        <a href="{% url 'portal_admin:prospect_edit' prospect.pk %}" class="btn btn-primary">
+          <span class="fas fa-edit me-2"></span>Modifier
+        </a>
+        {% endif %}
+        {% if perms.seafood.delete_prospect %}
+        <a href="{% url 'portal_admin:prospect_delete' prospect.pk %}" class="btn btn-phoenix-danger">
+          <span class="fas fa-trash me-2"></span>Supprimer
+        </a>
+        {% endif %}
+        <a href="{% url 'portal_admin:prospect_list' %}" class="btn btn-secondary">
+          <span class="fas fa-arrow-left me-2"></span>Retour à la liste
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Informations principales -->
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <span class="fas fa-user-tie fa-4x text-muted"></span>
+          </div>
+
+          <h4 class="mb-2">{{ prospect.full_name }}</h4>
+          <p class="text-muted mb-1">{{ prospect.position }}</p>
+          <p class="text-muted mb-2">{{ prospect.company_name }}</p>
+
+          <div class="mb-3">
+            {% if prospect.status == 'new' %}
+              <span class="badge bg-info fs-9">{{ prospect.get_status_display }}</span>
+            {% elif prospect.status == 'contacted' %}
+              <span class="badge bg-primary fs-9">{{ prospect.get_status_display }}</span>
+            {% elif prospect.status == 'qualified' %}
+              <span class="badge bg-warning fs-9">{{ prospect.get_status_display }}</span>
+            {% elif prospect.status == 'relaunched' %}
+              <span class="badge bg-secondary fs-9">{{ prospect.get_status_display }}</span>
+            {% elif prospect.status == 'converted' %}
+              <span class="badge bg-success fs-9">{{ prospect.get_status_display }}</span>
+            {% else %}
+              <span class="badge bg-danger fs-9">{{ prospect.get_status_display }}</span>
+            {% endif %}
+          </div>
+
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Créé le:</span>
+              <strong>{{ prospect.created_at|date:"d/m/Y" }}</strong>
+            </div>
+            {% if prospect.next_followup %}
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Prochaine relance:</span>
+              <strong>{{ prospect.next_followup|date:"d/m/Y" }}</strong>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Actions de changement de statut -->
+          {% if perms.seafood.change_prospect %}
+          <div class="border-top pt-3 mt-3">
+            <h6 class="mb-2">Changer le statut</h6>
+            <div class="btn-group-vertical w-100" role="group">
+              <a href="{% url 'portal_admin:prospect_change_status' prospect.pk 'contacted' %}" class="btn btn-sm btn-outline-primary">Contacté</a>
+              <a href="{% url 'portal_admin:prospect_change_status' prospect.pk 'qualified' %}" class="btn btn-sm btn-outline-warning">Qualifié</a>
+              <a href="{% url 'portal_admin:prospect_change_status' prospect.pk 'relaunched' %}" class="btn btn-sm btn-outline-secondary">Relancé</a>
+              <a href="{% url 'portal_admin:prospect_change_status' prospect.pk 'converted' %}" class="btn btn-sm btn-outline-success">Converti</a>
+              <a href="{% url 'portal_admin:prospect_change_status' prospect.pk 'lost' %}" class="btn btn-sm btn-outline-danger">Perdu</a>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Détails -->
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-user me-2"></span>Contact Person</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Prénom</label>
+              <p class="mb-0"><strong>{{ prospect.first_name }}</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Nom</label>
+              <p class="mb-0"><strong>{{ prospect.last_name }}</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Email</label>
+              <p class="mb-0">
+                <a href="mailto:{{ prospect.email }}">
+                  <span class="fas fa-envelope me-2"></span>{{ prospect.email }}
+                </a>
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Portable</label>
+              <p class="mb-0">
+                <a href="tel:{{ prospect.mobile }}">
+                  <span class="fas fa-mobile-alt me-2"></span>{{ prospect.mobile }}
+                </a>
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Poste</label>
+              <p class="mb-0">{{ prospect.position }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Source du contact</label>
+              <p class="mb-0">{{ prospect.get_contact_source_display }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-building me-2"></span>Enterprise</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Nom de l'entreprise</label>
+              <p class="mb-0"><strong>{{ prospect.company_name }}</strong></p>
+            </div>
+            {% if prospect.policy_maker %}
+            <div class="col-md-6">
+              <label class="text-muted small">Décideur</label>
+              <p class="mb-0">{{ prospect.policy_maker }}</p>
+            </div>
+            {% endif %}
+            {% if prospect.last_interaction %}
+            <div class="col-md-6">
+              <label class="text-muted small">Dernière interaction</label>
+              <p class="mb-0">{{ prospect.last_interaction|date:"d/m/Y" }}</p>
+            </div>
+            {% endif %}
+            {% if prospect.office_number %}
+            <div class="col-md-6">
+              <label class="text-muted small">Numéro de bureau</label>
+              <p class="mb-0">
+                <a href="tel:{{ prospect.office_number }}">
+                  <span class="fas fa-phone me-2"></span>{{ prospect.office_number }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if prospect.email_contact %}
+            <div class="col-md-6">
+              <label class="text-muted small">Email de contact</label>
+              <p class="mb-0">
+                <a href="mailto:{{ prospect.email_contact }}">
+                  <span class="fas fa-envelope me-2"></span>{{ prospect.email_contact }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if prospect.website %}
+            <div class="col-md-6">
+              <label class="text-muted small">Site web</label>
+              <p class="mb-0">
+                <a href="{{ prospect.website }}" target="_blank">
+                  <span class="fas fa-globe me-2"></span>{{ prospect.website }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-map-marker-alt me-2"></span>Adresse</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            {% if prospect.address %}
+            <div class="col-12">
+              <label class="text-muted small">Adresse</label>
+              <p class="mb-0">{{ prospect.address }}</p>
+            </div>
+            {% endif %}
+            {% if prospect.city %}
+            <div class="col-md-4">
+              <label class="text-muted small">Ville</label>
+              <p class="mb-0">{{ prospect.city }}</p>
+            </div>
+            {% endif %}
+            {% if prospect.zip_code %}
+            <div class="col-md-4">
+              <label class="text-muted small">Code postal</label>
+              <p class="mb-0">{{ prospect.zip_code }}</p>
+            </div>
+            {% endif %}
+            <div class="col-md-4">
+              <label class="text-muted small">Pays</label>
+              <p class="mb-0">{{ prospect.country }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if prospect.linkedin or prospect.twitter or prospect.facebook or prospect.instagram %}
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-share-alt me-2"></span>Réseaux Sociaux</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            {% if prospect.linkedin %}
+            <div class="col-md-6">
+              <label class="text-muted small">LinkedIn</label>
+              <p class="mb-0">
+                <a href="{{ prospect.linkedin }}" target="_blank">
+                  <span class="fab fa-linkedin me-2"></span>{{ prospect.linkedin }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if prospect.twitter %}
+            <div class="col-md-6">
+              <label class="text-muted small">X (Twitter)</label>
+              <p class="mb-0">
+                <a href="{{ prospect.twitter }}" target="_blank">
+                  <span class="fab fa-twitter me-2"></span>{{ prospect.twitter }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if prospect.facebook %}
+            <div class="col-md-6">
+              <label class="text-muted small">Facebook</label>
+              <p class="mb-0">
+                <a href="{{ prospect.facebook }}" target="_blank">
+                  <span class="fab fa-facebook me-2"></span>{{ prospect.facebook }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+            {% if prospect.instagram %}
+            <div class="col-md-6">
+              <label class="text-muted small">Instagram</label>
+              <p class="mb-0">
+                <a href="{{ prospect.instagram }}" target="_blank">
+                  <span class="fab fa-instagram me-2"></span>{{ prospect.instagram }}
+                </a>
+              </p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-sticky-note me-2"></span>Remarques</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="text-muted small">Source d'acquisition</label>
+              <p class="mb-0">{{ prospect.get_acquisition_source_display }}</p>
+            </div>
+            {% if prospect.trouble %}
+            <div class="col-12">
+              <label class="text-muted small">Problématique</label>
+              <p class="mb-0">{{ prospect.trouble }}</p>
+            </div>
+            {% endif %}
+            {% if prospect.remark %}
+            <div class="col-12">
+              <label class="text-muted small">Remarque</label>
+              <p class="mb-0">{{ prospect.remark }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Métadonnées</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="text-muted small">Date d'ajout</label>
+              <p class="mb-0">{{ prospect.created_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small">Dernière modification</label>
+              <p class="mb-0">{{ prospect.updated_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+            {% if prospect.created_by %}
+            <div class="col-md-4">
+              <label class="text-muted small">Créé par</label>
+              <p class="mb-0">{{ prospect.created_by.get_full_name|default:prospect.created_by.username }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
