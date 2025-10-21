@@ -10,9 +10,7 @@
       <h2 class="mb-0">{% if supplier %}Modifier{% else %}Ajouter{% endif %} un Fournisseur</h2>
     </div>
     <div class="col-auto">
-      <a href="{% url 'portal_admin:supplier_list' %}" class="btn btn-secondary">
-        <span class="fas fa-arrow-left me-2"></span>Retour à la liste
-      </a>
+      <a href="{% url 'portal_admin:supplier_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
     </div>
   </div>
 
@@ -25,141 +23,96 @@
     {% endfor %}
   {% endif %}
 
-  <div class="card">
-    <div class="card-body ">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-    
-        <div class="row g-3">
-          <!-- Informations de base -->
-          <div class="col-12">
-            <h5 class="border-bottom pb-2 mb-3">Informations de base</h5>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row g-3">
+      <div class="col-12"><h5 class="border-bottom pb-2 mb-3">INFORMATIONS DE BASE</h5></div>
+      <div class="col-md-8">
+        <label for="name" class="form-label">Nom du fournisseur <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ supplier.name|default:'' }}" required>
+      </div>
+      <div class="col-md-4">
+        <label for="category" class="form-label">Catégorie (Secteur d'activité) <span class="text-danger">*</span></label>
+        <select class="form-select" id="category" name="category" required>
+          <option value="" selected disabled>-- Choisir une catégorie --</option>
+          {% for value, label in categories %}
+            <option value="{{ value }}" {% if supplier.category == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label for="payment_terms" class="form-label">Termes de paiement (jours) <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" id="payment_terms" name="payment_terms" value="{{ supplier.payment_terms|default:30 }}" min="0" required>
+      </div>
+      <div class="col-md-6">
+        <label for="status" class="form-label">Statut</label>
+        <select class="form-select" id="status" name="status">
+          {% for value, label in statuses %}
+            <option value="{{ value }}" {% if supplier.status == value or not supplier and value == 'active' %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-12 mt-4"><h5 class="border-bottom pb-2 mb-3">COORDONNÉES</h5></div>
+      <div class="col-md-6">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ supplier.email|default:'' }}">
+      </div>
+      <div class="col-md-6">
+        <label for="website" class="form-label">Site web</label>
+        <input type="url" class="form-control" id="website" name="website" value="{{ supplier.website|default:'' }}" placeholder="https://example.com">
+      </div>
+      <div class="col-md-6">
+        <label for="contact_phone" class="form-label">Téléphone de contact</label>
+        <input type="tel" class="form-control" id="contact_phone" name="contact_phone" value="{{ supplier.contact_phone|default:'' }}" placeholder="+222 12 34 56 78">
+      </div>
+      <div class="col-md-6">
+        <label for="mobile" class="form-label">Téléphone mobile</label>
+        <input type="tel" class="form-control" id="mobile" name="mobile" value="{{ supplier.mobile|default:'' }}" placeholder="+222 12 34 56 78">
+      </div>
+
+      <div class="col-12 mt-4"><h5 class="border-bottom pb-2 mb-3">ADRESSE</h5></div>
+      <div class="col-12">
+        <label for="address" class="form-label">Adresse</label>
+        <textarea class="form-control" id="address" name="address" rows="2">{{ supplier.address|default:'' }}</textarea>
+      </div>
+      <div class="col-md-6">
+        <label for="city" class="form-label">Ville</label>
+        <input type="text" class="form-control" id="city" name="city" value="{{ supplier.city|default:'' }}">
+      </div>
+      <div class="col-md-6">
+        <label for="country" class="form-label">Pays</label>
+        <input type="text" class="form-control" id="country" name="country" value="{{ supplier.country|default:'Mauritanie' }}">
+      </div>
+
+      <div class="col-12 mt-4"><h5 class="border-bottom pb-2 mb-3">INFORMATIONS LÉGALES</h5></div>
+      <div class="col-md-6">
+        <label for="tax_id" class="form-label">Numéro d'identification fiscale</label>
+        <input type="text" class="form-control" id="tax_id" name="tax_id" value="{{ supplier.tax_id|default:'' }}">
+      </div>
+      <div class="col-md-6">
+        <label for="trade_register" class="form-label">Numéro de registre de commerce</label>
+        <input type="text" class="form-control" id="trade_register" name="trade_register" value="{{ supplier.trade_register|default:'' }}">
+      </div>
+
+      <div class="col-12 mt-4"><h5 class="border-bottom pb-2 mb-3">LOGO</h5></div>
+      <div class="col-md-4">
+        {% if supplier.logo %}
+          <div class="mt-2 mb-1">
+            <img src="{{ supplier.logo.url }}" alt="Logo actuel" class="img-fluid" style="max-height: 100px;">
           </div>
-    
-          {% if supplier %}
-          <div class="col-md-4">
-            <label for="accounting_code" class="form-label">Compte Comptable</label>
-            <input type="text" class="form-control" id="accounting_code" value="{{ supplier.accounting_code }}" disabled>
-            <small class="text-muted">Généré automatiquement</small>
-          </div>
-          {% endif %}
-    
-          <div class="col-md-{% if supplier %}4{% else %}6{% endif %}">
-            <label for="name" class="form-label">Nom du fournisseur <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="name" name="name" value="{{ supplier.name|default:'' }}" required>
-          </div>
-    
-          <div class="col-md-4">
-            <label for="category" class="form-label">Catégorie (Secteur d'activité) <span class="text-danger">*</span></label>
-            <select class="form-select" id="category" name="category" required>
-              <option value="">-- Choisir une catégorie --</option>
-              {% for value, label in categories %}
-                <option value="{{ value }}" {% if supplier.category == value %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-    
-          <div class="col-md-6">
-            <label for="payment_terms" class="form-label">Termes de paiement (jours) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="payment_terms" name="payment_terms" value="{{ supplier.payment_terms|default:30 }}" min="0" required>
-            <small class="text-muted">Nombre de jours pour le paiement</small>
-          </div>
-    
-          <div class="col-md-6">
-            <label for="status" class="form-label">Statut</label>
-            <select class="form-select" id="status" name="status">
-              {% for value, label in statuses %}
-                <option value="{{ value }}" {% if supplier.status == value or not supplier and value == 'active' %}selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-          </div>
-    
-          <!-- Coordonnées -->
-          <div class="col-12 mt-4">
-            <h5 class="border-bottom pb-2 mb-3">Coordonnées</h5>
-          </div>
-    
-          <div class="col-md-6">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ supplier.email|default:'' }}">
-          </div>
-    
-          <div class="col-md-6">
-            <label for="website" class="form-label">Site web</label>
-            <input type="url" class="form-control" id="website" name="website" value="{{ supplier.website|default:'' }}" placeholder="https://example.com">
-          </div>
-    
-          <div class="col-md-6">
-            <label for="contact_phone" class="form-label">Téléphone de contact</label>
-            <input type="tel" class="form-control" id="contact_phone" name="contact_phone" value="{{ supplier.contact_phone|default:'' }}" placeholder="+222 12 34 56 78">
-          </div>
-    
-          <div class="col-md-6">
-            <label for="mobile" class="form-label">Téléphone mobile</label>
-            <input type="tel" class="form-control" id="mobile" name="mobile" value="{{ supplier.mobile|default:'' }}" placeholder="+222 12 34 56 78">
-          </div>
-    
-          <!-- Adresse -->
-          <div class="col-12 mt-4">
-            <h5 class="border-bottom pb-2 mb-3">Adresse</h5>
-          </div>
-    
-          <div class="col-12">
-            <label for="address" class="form-label">Adresse</label>
-            <textarea class="form-control" id="address" name="address" rows="2">{{ supplier.address|default:'' }}</textarea>
-          </div>
-    
-          <div class="col-md-6">
-            <label for="city" class="form-label">Ville</label>
-            <input type="text" class="form-control" id="city" name="city" value="{{ supplier.city|default:'' }}">
-          </div>
-    
-          <div class="col-md-6">
-            <label for="country" class="form-label">Pays</label>
-            <input type="text" class="form-control" id="country" name="country" value="{{ supplier.country|default:'Mauritanie' }}">
-          </div>
-    
-          <!-- Informations légales -->
-          <div class="col-12 mt-4">
-            <h5 class="border-bottom pb-2 mb-3">Informations légales</h5>
-          </div>
-    
-          <div class="col-md-6">
-            <label for="tax_id" class="form-label">Numéro d'identification fiscale</label>
-            <input type="text" class="form-control" id="tax_id" name="tax_id" value="{{ supplier.tax_id|default:'' }}">
-          </div>
-    
-          <div class="col-md-6">
-            <label for="trade_register" class="form-label">Numéro de registre de commerce</label>
-            <input type="text" class="form-control" id="trade_register" name="trade_register" value="{{ supplier.trade_register|default:'' }}">
-          </div>
-    
-          <!-- Logo -->
-          <div class="col-12 mt-4">
-            <h5 class="border-bottom pb-2 mb-3">Logo</h5>
-          </div>
-    
-          <div class="col-md-6">
-            {% if supplier.logo %}
-              <div class="mt-2 mb-1">
-                <img src="{{ supplier.logo.url }}" alt="Logo actuel" class="img-fluid" style="max-height: 100px;">
-              </div>
-            {% endif %}
-            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-          </div>
-    
-          <div class="col-12 mt-4">
-            <hr class="my-2">
-            <button type="submit" class="btn btn-primary">
-              <span class="fas fa-save me-2"></span>Enregistrer
-            </button>
-            <a href="{% url 'portal_admin:supplier_list' %}" class="btn btn-secondary">
-              Annuler
-            </a>
-          </div>
-        </div>
-      </form>
+        {% endif %}
+        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+      </div>
+      <div class="col-12 mt-4">
+        <button type="submit" class="btn btn-primary"><span class="fas fa-save me-2"></span>Enregistrer</button>
+        <a href="{% url 'portal_admin:supplier_list' %}" class="btn btn-secondary">Annuler</a>
+      </div>
+
     </div>
-  </div>
+  </form>
+
 </div>
 {% endblock %}
