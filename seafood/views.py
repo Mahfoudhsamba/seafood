@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
+from operations.models import ArrivalNote, FishCategory
 
 # Create your views here.
 
@@ -1550,5 +1551,136 @@ def prospect_change_status(request, pk, new_status):
     prospect.save()
     messages.success(request, status_messages.get(new_status, 'Statut modifié avec succès!'))
     return redirect('portal_admin:prospect_detail', pk=pk)
+
+
+# ============ ARRIVAL NOTE VIEWS (Notes d'Arrivée) ============
+
+@staff_member_required
+@permission_required('operations.view_arrivalnote', raise_exception=True)
+def arrivalnote_list(request):
+    """Liste des notes d'arrivée"""
+    arrival_notes = ArrivalNote.objects.all().select_related('client', 'fish_category', 'created_by').order_by('-created_at')
+
+    # Filtrage par statut
+    status_filter = request.GET.get('status')
+    if status_filter:
+        arrival_notes = arrival_notes.filter(status=status_filter)
+
+    # Filtrage par service
+    service_filter = request.GET.get('service')
+    if service_filter:
+        arrival_notes = arrival_notes.filter(service_type=service_filter)
+
+    # Recherche
+    search = request.GET.get('search')
+    if search:
+        from django.db.models import Q
+        arrival_notes = arrival_notes.filter(
+            Q(lot_id__icontains=search) |
+            Q(client__name__icontains=search) |
+            Q(client__accounting_code__icontains=search)
+        )
+
+    return render(request, 'seafood/reception/arrivalnote_list.html', {
+        'arrival_notes': arrival_notes,
+        'statuses': ArrivalNote.STATUS_CHOICES,
+        'services': ArrivalNote.SERVICE_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_arrivalnote', raise_exception=True)
+def arrivalnote_detail(request, pk):
+    """Détails d'une note d'arrivée"""
+    arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'fish_category', 'created_by'), pk=pk)
+    return render(request, 'seafood/reception/arrivalnote_detail.html', {'arrival_note': arrival_note})
+
+
+@staff_member_required
+@permission_required('operations.add_arrivalnote', raise_exception=True)
+def arrivalnote_add(request):
+    """Formulaire d'ajout de note d'arrivée"""
+    if request.method == 'POST':
+        try:
+            from datetime import date
+
+            arrival_note = ArrivalNote(
+                client_id=request.POST.get('client'),
+                reception_date=request.POST.get('reception_date') or date.today(),
+                weight=request.POST.get('weight'),
+                service_type=request.POST.get('service_type'),
+                fish_category_id=request.POST.get('fish_category'),
+                observations=request.POST.get('observations', ''),
+                created_by=request.user
+            )
+            arrival_note.save()
+            messages.success(request, f'Note d\'arrivée créée avec succès! LOT: {arrival_note.lot_id}')
+            return redirect('portal_admin:arrivalnote_detail', pk=arrival_note.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
+
+    clients = Client.objects.filter(status='active').order_by('name')
+    fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
+
+    return render(request, 'seafood/reception/arrivalnote_form.html', {
+        'clients': clients,
+        'fish_categories': fish_categories,
+        'services': ArrivalNote.SERVICE_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_arrivalnote', raise_exception=True)
+def arrivalnote_edit(request, pk):
+    """Formulaire de modification de note d'arrivée"""
+    arrival_note = get_object_or_404(ArrivalNote, pk=pk)
+
+    # Ne permettre la modification que si le statut est 'received'
+    if arrival_note.status != 'received':
+        messages.error(request, 'Seules les notes d\'arrivée en statut "Reçu" peuvent être modifiées!')
+        return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            arrival_note.client_id = request.POST.get('client')
+            arrival_note.reception_date = request.POST.get('reception_date')
+            arrival_note.weight = request.POST.get('weight')
+            arrival_note.service_type = request.POST.get('service_type')
+            arrival_note.fish_category_id = request.POST.get('fish_category')
+            arrival_note.observations = request.POST.get('observations', '')
+            arrival_note.save()
+
+            messages.success(request, 'Note d\'arrivée modifiée avec succès!')
+            return redirect('portal_admin:arrivalnote_detail', pk=pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    clients = Client.objects.filter(status='active').order_by('name')
+    fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
+
+    return render(request, 'seafood/reception/arrivalnote_form.html', {
+        'arrival_note': arrival_note,
+        'clients': clients,
+        'fish_categories': fish_categories,
+        'services': ArrivalNote.SERVICE_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_arrivalnote', raise_exception=True)
+def arrivalnote_delete(request, pk):
+    """Suppression d'une note d'arrivée"""
+    arrival_note = get_object_or_404(ArrivalNote, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            lot_id = arrival_note.lot_id
+            arrival_note.delete()
+            messages.success(request, f'Note d\'arrivée LOT {lot_id} supprimée avec succès!')
+            return redirect('portal_admin:arrivalnote_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/reception/arrivalnote_confirm_delete.html', {'arrival_note': arrival_note})
 
 

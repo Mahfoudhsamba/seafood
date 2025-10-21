@@ -80,6 +80,13 @@ class PortalAdminSite(AdminSite):
             path('prospects/<int:pk>/edit/', views.prospect_edit, name='prospect_edit'),
             path('prospects/<int:pk>/delete/', views.prospect_delete, name='prospect_delete'),
             path('prospects/<int:pk>/status/<str:new_status>/', views.prospect_change_status, name='prospect_change_status'),
+
+            # Reception (Notes d'Arrivée)
+            path('reception/', views.arrivalnote_list, name='arrivalnote_list'),
+            path('reception/add/', views.arrivalnote_add, name='arrivalnote_add'),
+            path('reception/<int:pk>/', views.arrivalnote_detail, name='arrivalnote_detail'),
+            path('reception/<int:pk>/edit/', views.arrivalnote_edit, name='arrivalnote_edit'),
+            path('reception/<int:pk>/delete/', views.arrivalnote_delete, name='arrivalnote_delete'),
         ]
         return custom_urls + urls
 

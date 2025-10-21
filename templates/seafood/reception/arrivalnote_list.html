@@ -1,0 +1,140 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Notes d'Arrivée{% endblock %}
+
+{% block content %}
+
+  <div class="pb-5">
+    <div class="row g-4">
+      <div class="col-12 col-xxl-12">
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            <h2 class="mb-2">NOTES D'ARRIVÉE</h2>
+            <h5 class="text-body-tertiary fw-semibold">Réception et suivi des lots de poissons</h5>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="{% url 'portal_admin:arrivalnote_add' %}" class="btn btn-primary">
+              <span class="fas fa-plus me-2"></span>Nouvelle réception
+            </a>
+          </div>
+        </div>
+        <div class="row align-items-center g-4">
+          <!-- Filtres -->
+          <div class="col-12">
+            <form method="get" class="row g-3">
+              <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Rechercher LOT, client..." value="{{ request.GET.search }}">
+              </div>
+              <div class="col-md-3">
+                <select name="status" class="form-select">
+                  <option value="">Tous les statuts</option>
+                  {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-3">
+                <select name="service" class="form-select">
+                  <option value="">Tous les services</option>
+                  {% for value, label in services %}
+                    <option value="{{ value }}" {% if request.GET.service == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary">Filtrer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="mb-2">
+    <div id="orderTable" data-list='{"valueNames":["lot","client","date","poids","service","statut","actions"],"page":10,"pagination":true}'>
+      <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
+        <div class="table-responsive scrollbar mx-n1 px-1">
+          <table class="table table-sm fs-9 mb-0">
+            <thead>
+              <tr>
+                <th class="white-space-nowrap fs-9 align-middle ps-0" style="width:26px;">
+                  <div class="form-check mb-0 fs-8">
+                    <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='{"body":"order-table-body"}' />
+                  </div>
+                </th>
+                <th class="sort white-space-nowrap align-middle pe-0" scope="col" data-sort="lot">LOT ID</th>
+                <th class="sort align-middle" scope="col" data-sort="client">CLIENT</th>
+                <th class="sort align-middle" scope="col" data-sort="date">DATE RÉCEPTION</th>
+                <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
+                <th class="sort align-middle" scope="col" data-sort="service">SERVICE</th>
+                <th class="sort align-middle" scope="col" data-sort="statut">STATUT</th>
+                <th class="sort align-middle text-start" scope="col" data-sort="actions">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody class="list" id="order-table-body">
+                {% for note in arrival_notes %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
+                        <td class="lot align-middle white-space-nowrap py-0">
+                          <a class="fw-bold fs-7" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">#{{ note.lot_id }}</a>
+                        </td>
+                        <td class="client align-middle white-space-nowrap">
+                          <a class="fs-8 fw-semibold" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">{{ note.client.name }}</a>
+                          <p class="mb-0 text-body-tertiary fs-10">{{ note.fish_category.name }}</p>
+                        </td>
+                        <td class="date align-middle white-space-nowrap">
+                          {{ note.reception_date|date:"d/m/Y" }}
+                        </td>
+                        <td class="poids align-middle white-space-nowrap fw-semibold">
+                          {{ note.weight }} kg
+                        </td>
+                        <td class="service align-middle white-space-nowrap">
+                          <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
+                            <span class="badge-label">{{ note.get_service_type_display }}</span>
+                          </span>
+                        </td>
+                        <td class="statut align-middle white-space-nowrap text-start fw-bold">
+                            <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'received' %}info{% elif note.status == 'in_classification' %}warning{% elif note.status == 'classified' %}primary{% elif note.status == 'rejected' %}danger{% elif note.status == 'in_treatment' %}secondary{% else %}success{% endif %}">
+                                <span class="badge-label">{{ note.get_status_display }}</span>
+                            </span>
+                        </td>
+                        <td class="actions align-middle white-space-nowrap text-body-tertiary text-end">
+                          <div class="btn-reveal-trigger position-static">
+                            <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                              <span class="fas fa-ellipsis-h fs-10"></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end py-2">
+                              <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">Voir détails</a>
+                              {% if note.status == 'received' %}
+                              <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_edit' note.pk %}">Modifier</a>
+                              {% endif %}
+                              <div class="dropdown-divider"></div>
+                              <a class="dropdown-item text-danger" href="{% url 'portal_admin:arrivalnote_delete' note.pk %}">Supprimer</a>
+                            </div>
+                          </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">Aucune note d'arrivée trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
