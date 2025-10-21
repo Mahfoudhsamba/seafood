@@ -12,21 +12,24 @@
     <div class="col-auto">
       <div class="d-flex gap-2">
         {% if perms.seafood.change_prospect %}
-        <a href="{% url 'portal_admin:prospect_edit' prospect.pk %}" class="btn btn-primary">
-          <span class="fas fa-edit me-2"></span>Modifier
-        </a>
+          <a href="{% url 'portal_admin:prospect_edit' prospect.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
         {% endif %}
         {% if perms.seafood.delete_prospect %}
-        <a href="{% url 'portal_admin:prospect_delete' prospect.pk %}" class="btn btn-phoenix-danger">
-          <span class="fas fa-trash me-2"></span>Supprimer
-        </a>
+        <a href="{% url 'portal_admin:prospect_delete' prospect.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
         {% endif %}
-        <a href="{% url 'portal_admin:prospect_list' %}" class="btn btn-secondary">
-          <span class="fas fa-arrow-left me-2"></span>Retour à la liste
-        </a>
+        <a href="{% url 'portal_admin:prospect_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
       </div>
     </div>
   </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
 
   <div class="row g-3">
     <!-- Informations principales -->
