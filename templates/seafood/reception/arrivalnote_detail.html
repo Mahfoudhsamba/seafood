@@ -74,8 +74,18 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="text-muted small">Client</label>
-              <p class="mb-0"><strong>{{ arrival_note.client.name }}</strong></p>
-              <p class="mb-0 text-muted fs-10">{{ arrival_note.client.accounting_code }}</p>
+              <div class="d-flex align-items-center">
+                {% if arrival_note.client.logo %}
+                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ arrival_note.client.logo.url }}" alt="{{ arrival_note.client.name }}" /></div>
+                {% else %}
+                  <div class="avatar-name rounded-soft me-2"><span>{{ arrival_note.client.name|first }}</span></div>
+                {% endif %}
+                <div>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ arrival_note.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ arrival_note.client.accounting_code }}</small>
+                </div>
+              </div>
+
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Catégorie de poisson</label>

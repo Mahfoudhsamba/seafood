@@ -62,7 +62,7 @@
   {% endif %}
 
   <div class="mb-2">
-    <div id="orderTable" data-list='{"valueNames":["lot","client","date","poids","service","statut","actions"],"page":10,"pagination":true}'>
+    <div id="orderTable" data-list='{"valueNames":["lot","client","categorie","date","poids","service","statut","actions"],"page":10,"pagination":true}'>
       <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
         <div class="table-responsive scrollbar mx-n1 px-1">
           <table class="table table-sm fs-9 mb-0">
@@ -75,6 +75,7 @@
                 </th>
                 <th class="sort white-space-nowrap align-middle pe-0" scope="col" data-sort="lot">LOT ID</th>
                 <th class="sort align-middle" scope="col" data-sort="client">CLIENT</th>
+                <th class="sort align-middle" scope="col" data-sort="categorie">CATEGORIE</th>
                 <th class="sort align-middle" scope="col" data-sort="date">DATE RÉCEPTION</th>
                 <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
                 <th class="sort align-middle" scope="col" data-sort="service">SERVICE</th>
@@ -83,53 +84,73 @@
               </tr>
             </thead>
             <tbody class="list" id="order-table-body">
-                {% for note in arrival_notes %}
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
-                        <td class="lot align-middle white-space-nowrap py-0">
-                          <a class="fw-bold fs-7" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">#{{ note.lot_id }}</a>
-                        </td>
-                        <td class="client align-middle white-space-nowrap">
-                          <a class="fs-8 fw-semibold" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">{{ note.client.name }}</a>
-                          <p class="mb-0 text-body-tertiary fs-10">{{ note.fish_category.name }}</p>
-                        </td>
-                        <td class="date align-middle white-space-nowrap">
-                          {{ note.reception_date|date:"d/m/Y" }}
-                        </td>
-                        <td class="poids align-middle white-space-nowrap fw-semibold">
-                          {{ note.weight }} kg
-                        </td>
-                        <td class="service align-middle white-space-nowrap">
-                          <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
-                            <span class="badge-label">{{ note.get_service_type_display }}</span>
-                          </span>
-                        </td>
-                        <td class="statut align-middle white-space-nowrap text-start fw-bold">
-                            <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'received' %}info{% elif note.status == 'in_classification' %}warning{% elif note.status == 'classified' %}primary{% elif note.status == 'rejected' %}danger{% elif note.status == 'in_treatment' %}secondary{% else %}success{% endif %}">
-                                <span class="badge-label">{{ note.get_status_display }}</span>
-                            </span>
-                        </td>
-                        <td class="actions align-middle white-space-nowrap text-body-tertiary text-end">
-                          <div class="btn-reveal-trigger position-static">
-                            <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-                              <span class="fas fa-ellipsis-h fs-10"></span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end py-2">
-                              <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">Voir détails</a>
-                              {% if note.status == 'received' %}
-                              <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_edit' note.pk %}">Modifier</a>
-                              {% endif %}
-                              <div class="dropdown-divider"></div>
-                              <a class="dropdown-item text-danger" href="{% url 'portal_admin:arrivalnote_delete' note.pk %}">Supprimer</a>
-                            </div>
-                          </div>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center py-4">Aucune note d'arrivée trouvée</td>
-                    </tr>
-                {% endfor %}
+              {% for note in arrival_notes %}
+                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                  <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
+                  <td class="lot align-middle white-space-nowrap py-0">
+                    <a class="fw-bold fs-7" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">#{{ note.lot_id }}</a>
+                  </td>
+                  <td class="client align-middle white-space-nowrap">
+                    <div class="d-flex align-items-center">
+                      {% if note.client.logo %}
+                      <div class="avatar avatar-m me-1"><img class="rounded-soft" src="{{ note.client.logo.url }}" alt="{{ note.client.name }}" /></div>
+                      {% else %}
+                      <div class="avatar-name rounded-soft"><span>{{ note.client.name|first }}</span></div>
+                      {% endif %}
+                      <div>
+                        <a href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">
+                          <h6 class="mb-0 fs-8 fw-bold">{{ note.client.name|upper }}</h6>
+                        </a>
+                        <small class="text-muted">#{{ note.client.accounting_code }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="categorie align-middle white-space-nowrap">
+                    <div class="d-flex align-items-center">
+                      <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">
+                        <span class="badge badge-phoenix fs-9 badge-phoenix-secondary">
+                          <span class="badge-label">{{ note.fish_category.name }}</span>
+                        </span>
+                      </p>
+                    </div>
+                  </td>
+                  <td class="date align-middle white-space-nowrap">
+                    {{ note.reception_date|date:"d/m/Y" }}
+                  </td>
+                  <td class="poids align-middle white-space-nowrap fw-semibold">
+                    {{ note.weight }} kg
+                  </td>
+                  <td class="service align-middle white-space-nowrap">
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
+                      <span class="badge-label">{{ note.get_service_type_display }}</span>
+                    </span>
+                  </td>
+                  <td class="statut align-middle white-space-nowrap text-start fw-bold">
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'received' %}info{% elif note.status == 'in_classification' %}warning{% elif note.status == 'classified' %}primary{% elif note.status == 'rejected' %}danger{% elif note.status == 'in_treatment' %}secondary{% else %}success{% endif %}">
+                      <span class="badge-label">{{ note.get_status_display }}</span>
+                    </span>
+                  </td>
+                  <td class="actions align-middle white-space-nowrap text-body-tertiary">
+                    <div class="btn-reveal-trigger position-static">
+                      <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
+                        <span class="fas fa-ellipsis-h fs-10"></span>
+                      </button>
+                      <div class="dropdown-menu dropdown-menu-end py-2">
+                        <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">Voir détails</a>
+                        {% if note.status == 'received' %}
+                        <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_edit' note.pk %}">Modifier</a>
+                        {% endif %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger" href="{% url 'portal_admin:arrivalnote_delete' note.pk %}">Supprimer</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center py-4">Aucune note d'arrivée trouvée</td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
