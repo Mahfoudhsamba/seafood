@@ -37,8 +37,8 @@
               <div class="col-md-3">
                 <select name="service" class="form-select">
                   <option value="">Tous les services</option>
-                  {% for value, label in services %}
-                    <option value="{{ value }}" {% if request.GET.service == value %}selected{% endif %}>{{ label }}</option>
+                  {% for service in services %}
+                    <option value="{{ service.pk }}" {% if request.GET.service == service.pk|stringformat:"s" %}selected{% endif %}>{{ service.code }} - {{ service.name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -122,7 +122,7 @@
                   </td>
                   <td class="service align-middle white-space-nowrap">
                     <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
-                      <span class="badge-label">{{ note.get_service_type_display }}</span>
+                      <span class="badge-label">{{ note.service_type.code }} - {{ note.service_type.name }}</span>
                     </span>
                   </td>
                   <td class="statut align-middle white-space-nowrap text-start fw-bold">

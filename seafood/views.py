@@ -1569,7 +1569,7 @@ def arrivalnote_list(request):
     # Filtrage par service
     service_filter = request.GET.get('service')
     if service_filter:
-        arrival_notes = arrival_notes.filter(service_type=service_filter)
+        arrival_notes = arrival_notes.filter(service_type_id=service_filter)
 
     # Recherche
     search = request.GET.get('search')
@@ -1584,7 +1584,7 @@ def arrivalnote_list(request):
     return render(request, 'seafood/reception/arrivalnote_list.html', {
         'arrival_notes': arrival_notes,
         'statuses': ArrivalNote.STATUS_CHOICES,
-        'services': ArrivalNote.SERVICE_CHOICES
+        'services': Service.objects.filter(status='active').order_by('code')
     })
 
 
@@ -1608,7 +1608,7 @@ def arrivalnote_add(request):
                 client_id=request.POST.get('client'),
                 reception_date=request.POST.get('reception_date') or date.today(),
                 weight=request.POST.get('weight'),
-                service_type=request.POST.get('service_type'),
+                service_type_id=request.POST.get('service_type'),
                 fish_category_id=request.POST.get('fish_category'),
                 observations=request.POST.get('observations', ''),
                 created_by=request.user
@@ -1621,11 +1621,12 @@ def arrivalnote_add(request):
 
     clients = Client.objects.filter(status='active').order_by('name')
     fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
+    services = Service.objects.filter(status='active').order_by('code')
 
     return render(request, 'seafood/reception/arrivalnote_form.html', {
         'clients': clients,
         'fish_categories': fish_categories,
-        'services': ArrivalNote.SERVICE_CHOICES
+        'services': services
     })
 
 
@@ -1645,7 +1646,7 @@ def arrivalnote_edit(request, pk):
             arrival_note.client_id = request.POST.get('client')
             arrival_note.reception_date = request.POST.get('reception_date')
             arrival_note.weight = request.POST.get('weight')
-            arrival_note.service_type = request.POST.get('service_type')
+            arrival_note.service_type_id = request.POST.get('service_type')
             arrival_note.fish_category_id = request.POST.get('fish_category')
             arrival_note.observations = request.POST.get('observations', '')
             arrival_note.save()
@@ -1657,12 +1658,13 @@ def arrivalnote_edit(request, pk):
 
     clients = Client.objects.filter(status='active').order_by('name')
     fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
+    services = Service.objects.filter(status='active').order_by('code')
 
     return render(request, 'seafood/reception/arrivalnote_form.html', {
         'arrival_note': arrival_note,
         'clients': clients,
         'fish_categories': fish_categories,
-        'services': ArrivalNote.SERVICE_CHOICES
+        'services': services
     })
 
 

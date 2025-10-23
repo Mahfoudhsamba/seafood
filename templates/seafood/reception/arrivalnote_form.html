@@ -78,8 +78,10 @@
             <label for="service_type" class="form-label">Type de service <span class="text-danger">*</span></label>
             <select class="form-select" id="service_type" name="service_type" required>
               <option value="">-- Sélectionner un service --</option>
-              {% for value, label in services %}
-                <option value="{{ value }}" {% if arrival_note.service_type == value %}selected{% endif %}>{{ label }}</option>
+              {% for service in services %}
+                <option value="{{ service.pk }}" {% if arrival_note.service_type_id == service.pk %}selected{% endif %}>
+                  {{ service.code }} - {{ service.name }}
+                </option>
               {% endfor %}
             </select>
           </div>

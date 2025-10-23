@@ -195,13 +195,6 @@ class ArrivalNote(models.Model):
     """
     Modèle pour la Note d'Arrivée (réception des lots de poissons)
     """
-    SERVICE_CHOICES = [
-        ('transfer', 'Transfert (stockage)'),
-        ('transfer_packaging', 'Transfert & Emballage'),
-        ('treatment', 'Traitement'),
-        ('complete_treatment', 'Traitement complet'),
-    ]
-
     STATUS_CHOICES = [
         ('received', 'Reçu'),
         ('in_classification', 'En classification'),
@@ -240,10 +233,12 @@ class ArrivalNote(models.Model):
     )
 
     # Service demandé
-    service_type = models.CharField(
-        max_length=50,
-        choices=SERVICE_CHOICES,
-        verbose_name='Type de service'
+    service_type = models.ForeignKey(
+        Service,
+        on_delete=models.PROTECT,
+        related_name='arrival_notes',
+        verbose_name='Type de service',
+        help_text='Service à effectuer sur ce lot'
     )
 
     # Catégorie de poissons
@@ -336,12 +331,17 @@ class ArrivalNote(models.Model):
     @property
     def is_transfer_only(self):
         """Vérifie si c'est un transfert simple (pas de traitement)"""
-        return self.service_type == 'transfer'
+        # Vérifier par catégorie du service
+        return self.service_type and self.service_type.category == 'transfer'
 
     @property
     def needs_classification(self):
         """Vérifie si le lot nécessite une classification"""
-        return self.service_type in ['treatment', 'complete_treatment'] and self.status == 'received'
+        # Services nécessitant une classification
+        if self.service_type:
+            needs_class_categories = ['fresh_processing', 'filleting', 'portioning']
+            return self.service_type.category in needs_class_categories and self.status == 'received'
+        return False
 
     @property
     def can_be_classified(self):
