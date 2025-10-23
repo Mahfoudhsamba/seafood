@@ -20,7 +20,6 @@
           </div>
         </div>
         <div class="row align-items-center g-4">
-          <!-- Filtres -->
           <div class="col-12">
             <form method="get" class="row g-3">
               <div class="col-md-3">
@@ -43,7 +42,8 @@
                 </select>
               </div>
               <div class="col-md-2">
-                <button type="submit" class="btn btn-secondary">Filtrer</button>
+                <button type="submit" class="btn btn-secondary"><i class="fa fa-filter me-1"></i>Filtrer</button>
+                <a href="{% url 'portal_admin:arrivalnote_list' %}" class="btn btn-primary"><i class="fa-solid fa-arrow-rotate-left me-1"></i>Reinitialiser</a>
               </div>
             </form>
           </div>
@@ -73,34 +73,35 @@
                     <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='{"body":"order-table-body"}' />
                   </div>
                 </th>
-                <th class="sort white-space-nowrap align-middle pe-0" scope="col" data-sort="lot">LOT ID</th>
+                <th class="sort white-space-nowrap align-middle pe-0" scope="col" data-sort="lot">№ LOT</th>
+                <th class="sort align-middle" scope="col" data-sort="statut">STATUT</th>
                 <th class="sort align-middle" scope="col" data-sort="client">CLIENT</th>
                 <th class="sort align-middle" scope="col" data-sort="categorie">CATEGORIE</th>
                 <th class="sort align-middle" scope="col" data-sort="date">DATE RÉCEPTION</th>
-                <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
                 <th class="sort align-middle" scope="col" data-sort="service">SERVICE</th>
-                <th class="sort align-middle" scope="col" data-sort="statut">STATUT</th>
-                <th class="sort align-middle text-start" scope="col" data-sort="actions">ACTIONS</th>
+                <th class="sort align-middle text-end" scope="col" data-sort="poids">POIDS (KG)</th>
+                <th class="sort align-middle text-end" scope="col" data-sort="actions">ACTIONS</th>
               </tr>
             </thead>
             <tbody class="list" id="order-table-body">
               {% for note in arrival_notes %}
                 <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                   <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
-                  <td class="lot align-middle white-space-nowrap py-0">
-                    <a class="fw-bold fs-7" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">#{{ note.lot_id }}</a>
+                  <td class="lot align-middle white-space-nowrap py-0"><a class="fw-bold fs-8" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">#{{ note.lot_id }}</a></td>
+                  <td class="statut align-middle white-space-nowrap text-start fw-bold">
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'draft' %}secondary{% elif note.status == 'accepted' %}info{% elif note.status == 'in_progress' %}warning{% elif note.status == 'completed' %}success{% elif note.status == 'suspended' %}dark{% elif note.status == 'cancelled' %}danger{% endif %}">
+                      <span class="badge-label">{{ note.get_status_display }}</span>
+                    </span>
                   </td>
                   <td class="client align-middle white-space-nowrap">
                     <div class="d-flex align-items-center">
                       {% if note.client.logo %}
-                      <div class="avatar avatar-m me-1"><img class="rounded-soft" src="{{ note.client.logo.url }}" alt="{{ note.client.name }}" /></div>
+                        <div class="avatar avatar-m me-1"><img class="rounded-soft" src="{{ note.client.logo.url }}" alt="{{ note.client.name }}" /></div>
                       {% else %}
-                      <div class="avatar-name rounded-soft"><span>{{ note.client.name|first }}</span></div>
+                        <div class="avatar-name rounded-soft"><span>{{ note.client.name|first }}</span></div>
                       {% endif %}
                       <div>
-                        <a href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">
-                          <h6 class="mb-0 fs-8 fw-bold">{{ note.client.name|upper }}</h6>
-                        </a>
+                        <a href="{% url 'portal_admin:arrivalnote_detail' note.pk %}"><h6 class="mb-0 fs-8 fw-bold">{{ note.client.name|upper }}</h6></a>
                         <small class="text-muted">#{{ note.client.accounting_code }}</small>
                       </div>
                     </div>
@@ -114,42 +115,23 @@
                       </p>
                     </div>
                   </td>
-                  <td class="date align-middle white-space-nowrap">
-                    {{ note.reception_date|date:"d/m/Y" }}
-                  </td>
-                  <td class="poids align-middle white-space-nowrap fw-semibold">
-                    {{ note.weight }} kg
-                  </td>
-                  <td class="service align-middle white-space-nowrap">
-                    <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
+                  <td class="date align-middle white-space-nowrap">{{ note.reception_date|date:"d/m/Y" }}</td>
+                  <td class="service align-middle white-space-nowrap fw-bold">
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
                       <span class="badge-label">{{ note.service_type.code }} - {{ note.service_type.name }}</span>
                     </span>
                   </td>
-                  <td class="statut align-middle white-space-nowrap text-start fw-bold">
-                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'received' %}info{% elif note.status == 'in_classification' %}warning{% elif note.status == 'classified' %}primary{% elif note.status == 'rejected' %}danger{% elif note.status == 'in_treatment' %}secondary{% else %}success{% endif %}">
-                      <span class="badge-label">{{ note.get_status_display }}</span>
-                    </span>
-                  </td>
-                  <td class="actions align-middle white-space-nowrap text-body-tertiary">
-                    <div class="btn-reveal-trigger position-static">
-                      <button class="btn btn-sm dropdown-toggle dropdown-caret-none transition-none btn-reveal fs-10" type="button" data-bs-toggle="dropdown" data-boundary="window" aria-haspopup="true" aria-expanded="false" data-bs-reference="parent">
-                        <span class="fas fa-ellipsis-h fs-10"></span>
-                      </button>
-                      <div class="dropdown-menu dropdown-menu-end py-2">
-                        <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">Voir détails</a>
-                        {% if note.status == 'received' %}
-                        <a class="dropdown-item" href="{% url 'portal_admin:arrivalnote_edit' note.pk %}">Modifier</a>
-                        {% endif %}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-danger" href="{% url 'portal_admin:arrivalnote_delete' note.pk %}">Supprimer</a>
-                      </div>
-                    </div>
+                  <td class="poids align-middle white-space-nowrap fw-semibold text-end">{{ note.weight }} KG</td>
+                  <td class="actions align-middle white-space-nowrap text-body-tertiary text-end">
+                    <a href="{% url 'portal_admin:arrivalnote_detail' note.pk %}" title="Détails"><span class="text-body fs-5" data-feather="eye"></span></a>
+                    {% if note.status == 'draft' %}
+                      <a href="{% url 'portal_admin:arrivalnote_edit' note.pk %}" title="Modifier"><span class="text-body fs-5" data-feather="edit"></span></span></a>
+                    {% endif %}
+                    <a href="{% url 'portal_admin:arrivalnote_delete' note.pk %}" title="Supprimer"><span class="text-body fs-5" data-feather="trash-2"></span></span></a>
                   </td>
                 </tr>
               {% empty %}
-                <tr>
-                  <td colspan="8" class="text-center py-4">Aucune note d'arrivée trouvée</td>
-                </tr>
+                <tr><td colspan="8" class="text-center py-4">Aucune note d'arrivée trouvée</td></tr>
               {% endfor %}
             </tbody>
           </table>

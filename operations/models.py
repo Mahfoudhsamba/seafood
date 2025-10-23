@@ -196,12 +196,12 @@ class ArrivalNote(models.Model):
     Modèle pour la Note d'Arrivée (réception des lots de poissons)
     """
     STATUS_CHOICES = [
-        ('received', 'Reçu'),
-        ('in_classification', 'En classification'),
-        ('classified', 'Classifié'),
-        ('rejected', 'Rejeté'),
-        ('in_treatment', 'En traitement'),
+        ('draft', 'Brouillon'),
+        ('accepted', 'Accepté'),
+        ('in_progress', 'En traitement'),
         ('completed', 'Terminé'),
+        ('suspended', 'Suspendu'),
+        ('cancelled', 'Annulé'),
     ]
 
     # ID du LOT - Identifiant unique auto-généré sur 6+ chiffres
@@ -253,7 +253,7 @@ class ArrivalNote(models.Model):
     status = models.CharField(
         max_length=50,
         choices=STATUS_CHOICES,
-        default='received',
+        default='draft',
         verbose_name='Statut'
     )
 
@@ -335,15 +335,11 @@ class ArrivalNote(models.Model):
         return self.service_type and self.service_type.category == 'transfer'
 
     @property
-    def needs_classification(self):
-        """Vérifie si le lot nécessite une classification"""
-        # Services nécessitant une classification
-        if self.service_type:
-            needs_class_categories = ['fresh_processing', 'filleting', 'portioning']
-            return self.service_type.category in needs_class_categories and self.status == 'received'
-        return False
+    def can_be_edited(self):
+        """Vérifie si le lot peut être modifié"""
+        return self.status == 'draft'
 
     @property
-    def can_be_classified(self):
-        """Vérifie si le lot peut être classifié"""
-        return self.status in ['received', 'in_classification']
+    def is_locked(self):
+        """Vérifie si le lot est verrouillé (accepté et en circulation)"""
+        return self.status in ['accepted', 'in_progress', 'completed']

@@ -87,6 +87,7 @@ class PortalAdminSite(AdminSite):
             path('reception/<int:pk>/', views.arrivalnote_detail, name='arrivalnote_detail'),
             path('reception/<int:pk>/edit/', views.arrivalnote_edit, name='arrivalnote_edit'),
             path('reception/<int:pk>/delete/', views.arrivalnote_delete, name='arrivalnote_delete'),
+            path('reception/<int:pk>/change-status/', views.arrivalnote_change_status, name='arrivalnote_change_status'),
 
             # Services
             path('services/', views.service_list, name='service_list'),

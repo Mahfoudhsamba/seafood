@@ -1593,7 +1593,10 @@ def arrivalnote_list(request):
 def arrivalnote_detail(request, pk):
     """Détails d'une note d'arrivée"""
     arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'fish_category', 'created_by'), pk=pk)
-    return render(request, 'seafood/reception/arrivalnote_detail.html', {'arrival_note': arrival_note})
+    return render(request, 'seafood/reception/arrivalnote_detail.html', {
+        'arrival_note': arrival_note,
+        'status_choices': ArrivalNote.STATUS_CHOICES
+    })
 
 
 @staff_member_required
@@ -1636,9 +1639,9 @@ def arrivalnote_edit(request, pk):
     """Formulaire de modification de note d'arrivée"""
     arrival_note = get_object_or_404(ArrivalNote, pk=pk)
 
-    # Ne permettre la modification que si le statut est 'received'
-    if arrival_note.status != 'received':
-        messages.error(request, 'Seules les notes d\'arrivée en statut "Reçu" peuvent être modifiées!')
+    # Ne permettre la modification que si le statut est 'draft'
+    if arrival_note.status != 'draft':
+        messages.error(request, 'Seules les notes d\'arrivée en statut "Brouillon" peuvent être modifiées!')
         return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
     if request.method == 'POST':
@@ -1684,6 +1687,48 @@ def arrivalnote_delete(request, pk):
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'seafood/reception/arrivalnote_confirm_delete.html', {'arrival_note': arrival_note})
+
+
+@staff_member_required
+@permission_required('operations.change_arrivalnote', raise_exception=True)
+def arrivalnote_change_status(request, pk):
+    """Changer le statut d'une note d'arrivée"""
+    arrival_note = get_object_or_404(ArrivalNote, pk=pk)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+
+        # Vérifier que le nouveau statut est valide
+        valid_statuses = [choice[0] for choice in ArrivalNote.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Statut invalide!')
+            return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
+        # Vérifier les règles de changement de statut
+        if arrival_note.status == 'accepted' and new_status != arrival_note.status:
+            # Une fois accepté, on peut seulement passer à 'in_progress', 'suspended' ou 'cancelled'
+            if new_status not in ['in_progress', 'suspended', 'cancelled']:
+                messages.error(request, 'Changement de statut non autorisé. Un lot accepté ne peut passer qu\'en traitement, suspendu ou annulé.')
+                return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
+        if arrival_note.status == 'in_progress' and new_status not in ['completed', 'suspended', 'cancelled', 'in_progress']:
+            messages.error(request, 'Un lot en traitement ne peut passer qu\'à terminé, suspendu ou annulé.')
+            return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
+        if arrival_note.status == 'completed':
+            messages.error(request, 'Un lot terminé ne peut plus changer de statut.')
+            return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
+        # Appliquer le changement
+        old_status = arrival_note.get_status_display()
+        arrival_note.status = new_status
+        arrival_note.save()
+
+        new_status_display = arrival_note.get_status_display()
+        messages.success(request, f'Statut changé de "{old_status}" à "{new_status_display}"')
+        return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
+    return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
 
 # ======================

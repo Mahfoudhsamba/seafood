@@ -31,9 +31,8 @@
 
         {% if arrival_note %}
           <div class="mb-3">
-            <label class="form-label">ID du LOT</label>
+            <label class="form-label">№ LOT</label>
             <input type="text" class="form-control" value="{{ arrival_note.lot_id }}" disabled>
-            <small class="text-muted">L'ID du LOT est généré automatiquement et ne peut pas être modifié</small>
           </div>
         {% endif %}
 
@@ -101,7 +100,7 @@
                 <h4 class="card-title mb-4">Informations</h4>
                 <div class="alert bg-body-highlight">
                   <h6 class="alert-heading"><span class="fas fa-info-circle me-2"></span>À propos</h6>
-                  <p class="mb-0 fs-10">L'ID du LOT sera généré automatiquement au format: <strong>000001, 000002, etc.</strong></p>
+                  <p class="mb-0 fs-10">№ du LOT sera généré automatiquement au format: <strong>000001, 000002, etc.</strong></p>
                   <hr>
                   <p class="mb-0 fs-10">Le statut initial sera <strong>"Reçu"</strong>. Il évoluera selon le processus de traitement.</p>
                 </div>
