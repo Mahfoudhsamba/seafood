@@ -97,7 +97,7 @@
                 <td class="Code align-middle white-space-nowrap fw-bold">
                   <a href="{% url 'portal_admin:service_detail' service.pk %}">{{ service.code }}</a>
                   {% if service.is_system_reserved %}
-                    <span class="badge badge-phoenix fs-10 badge-phoenix-danger ms-1">Système</span>
+                    <i class="fa fa-lock text-warning fs-9"></i>
                   {% endif %}
                 </td>
                 <td class="Nom align-middle fw-semibold text-body-highlight">{{ service.name }}</td>
