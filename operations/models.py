@@ -1,9 +1,175 @@
 from django.db import models
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MinLengthValidator, MaxLengthValidator
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 # Create your models here.
+
+
+class Service(models.Model):
+    """
+    Modèle pour les services offerts par l'entreprise
+    """
+    STATUS_CHOICES = [
+        ('active', 'Actif'),
+        ('suspended', 'Suspendu'),
+    ]
+
+    CATEGORY_CHOICES = [
+        ('transfer', 'Transfert'),
+        ('pelagic_freezing', 'Congélation pélagique'),
+        ('cephalopod_freezing', 'Congélation de céphalopodes'),
+        ('fresh_processing', 'Traitement et transformation des produits frais'),
+        ('filleting', 'Filetage, découpe et emballage'),
+        ('portioning', 'Préparation de portions calibrées'),
+    ]
+
+    # Code unique sur 4 chiffres (1000-9999)
+    code = models.CharField(
+        max_length=4,
+        unique=True,
+        validators=[
+            MinLengthValidator(4),
+            MaxLengthValidator(4),
+        ],
+        verbose_name='Code du service',
+        help_text='Code unique sur 4 chiffres (1000-9999). Codes 1000-1010 réservés au système.'
+    )
+
+    # Nom du service
+    name = models.CharField(
+        max_length=200,
+        verbose_name='Nom du service'
+    )
+
+    # État du service
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='État'
+    )
+
+    # Description
+    description = models.TextField(
+        blank=True,
+        verbose_name='Description du service'
+    )
+
+    # Montant du service (peut être 0)
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        default=Decimal('0.00'),
+        verbose_name='Montant',
+        help_text='Montant du service (peut être 0)'
+    )
+
+    # Catégorie
+    category = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        verbose_name='Catégorie'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_services',
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        verbose_name = 'Service'
+        verbose_name_plural = 'Services'
+        ordering = ['code']
+        indexes = [
+            models.Index(fields=['code']),
+            models.Index(fields=['status']),
+            models.Index(fields=['category']),
+        ]
+
+    def __str__(self):
+        return f"{self.code} - {self.name}"
+
+    def clean(self):
+        """Validation personnalisée"""
+        super().clean()
+
+        # Vérifier que le code est composé uniquement de chiffres
+        if not self.code.isdigit():
+            raise ValidationError({'code': 'Le code doit être composé uniquement de chiffres.'})
+
+        code_int = int(self.code)
+
+        # Vérifier que le code est entre 1000 et 9999
+        if code_int < 1000 or code_int > 9999:
+            raise ValidationError({'code': 'Le code doit être entre 1000 et 9999.'})
+
+        # Note: Les codes 1001-1010 sont réservés mais l'utilisateur peut les utiliser
+        # pour définir ses propres services système. Pas de restriction ici.
+
+    def save(self, *args, **kwargs):
+        # Si le code est "auto", générer un code automatiquement
+        if self.code == "auto" or not self.code:
+            self.code = self.generate_code()
+
+        # Valider avant de sauvegarder
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_code():
+        """Génère un code unique commençant par 1011"""
+        # Chercher le dernier service avec un code >= 1011
+        last_service = Service.objects.filter(
+            code__gte='1011'
+        ).order_by('-code').first()
+
+        if last_service:
+            try:
+                last_code = int(last_service.code)
+                new_code = last_code + 1
+            except ValueError:
+                new_code = 1011
+        else:
+            new_code = 1011
+
+        # Vérifier que le code n'existe pas déjà (au cas où)
+        while Service.objects.filter(code=str(new_code)).exists():
+            new_code += 1
+
+        # Vérifier qu'on ne dépasse pas 9999
+        if new_code > 9999:
+            raise ValidationError('Tous les codes disponibles ont été utilisés.')
+
+        return str(new_code)
+
+    @property
+    def is_active(self):
+        """Vérifie si le service est actif"""
+        return self.status == 'active'
+
+    @property
+    def is_system_reserved(self):
+        """Vérifie si c'est un code réservé au système"""
+        try:
+            code_int = int(self.code)
+            return 1000 <= code_int <= 1010
+        except ValueError:
+            return False
 
 
 class FishCategory(models.Model):

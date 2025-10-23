@@ -113,6 +113,36 @@
                         <p class="navbar-vertical-label">Production</p>
                         <hr class="navbar-vertical-line" />
 
+                        <!-- Services -->
+                        {% if perms.operations.view_service or perms.operations.add_service %}
+                        <div class="nav-item-wrapper">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-services" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'service' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-services">
+                                <div class="d-flex align-items-center">
+                                    <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="list"></span></span><span class="nav-link-text">Services</span>
+                                </div>
+                            </a>
+                            <div class="parent-wrapper label-1">
+                                <ul class="nav collapse parent {% if 'service' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-services">
+                                    <li class="collapsed-nav-item-title d-none">Services</li>
+                                    {% if perms.operations.add_service %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'service_add' %}active{% endif %}" href="{% url 'portal_admin:service_add' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Ajouter un service</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.operations.view_service %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'service_list' %}active{% endif %}" href="{% url 'portal_admin:service_list' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Liste des services</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <!-- Réception -->
                         {% if perms.operations.view_arrivalnote or perms.operations.add_arrivalnote %}
                         <div class="nav-item-wrapper">

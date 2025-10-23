@@ -1,7 +1,33 @@
 from django.contrib import admin
-from .models import FishCategory, ArrivalNote
+from .models import Service, FishCategory, ArrivalNote
 
 # Register your models here.
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ['code', 'name', 'category', 'amount', 'status', 'created_at']
+    list_filter = ['status', 'category', 'created_at']
+    search_fields = ['code', 'name', 'description']
+    readonly_fields = ['created_at', 'updated_at', 'created_by']
+
+    fieldsets = (
+        ('Identification', {
+            'fields': ('code', 'name')
+        }),
+        ('Détails du service', {
+            'fields': ('category', 'description', 'amount', 'status')
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si c'est une nouvelle instance
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(FishCategory)

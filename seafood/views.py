@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import ArrivalNote, FishCategory
+from operations.models import ArrivalNote, FishCategory, Service
 
 # Create your views here.
 
@@ -1682,5 +1682,143 @@ def arrivalnote_delete(request, pk):
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'seafood/reception/arrivalnote_confirm_delete.html', {'arrival_note': arrival_note})
+
+
+# ======================
+# SERVICE VIEWS
+# ======================
+
+@staff_member_required
+@permission_required('operations.view_service', raise_exception=True)
+def service_list(request):
+    """Liste des services"""
+    services = Service.objects.all().select_related('created_by').order_by('code')
+
+    # Filtrage par statut
+    status_filter = request.GET.get('status')
+    if status_filter:
+        services = services.filter(status=status_filter)
+
+    # Filtrage par catégorie
+    category_filter = request.GET.get('category')
+    if category_filter:
+        services = services.filter(category=category_filter)
+
+    # Recherche
+    search = request.GET.get('search')
+    if search:
+        from django.db.models import Q
+        services = services.filter(
+            Q(code__icontains=search) |
+            Q(name__icontains=search) |
+            Q(description__icontains=search)
+        )
+
+    return render(request, 'seafood/services/service_list.html', {
+        'services': services,
+        'statuses': Service.STATUS_CHOICES,
+        'categories': Service.CATEGORY_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_service', raise_exception=True)
+def service_detail(request, pk):
+    """Détails d'un service"""
+    service = get_object_or_404(Service, pk=pk)
+    return render(request, 'seafood/services/service_detail.html', {'service': service})
+
+
+@staff_member_required
+@permission_required('operations.add_service', raise_exception=True)
+def service_add(request):
+    """Formulaire d'ajout de service"""
+    if request.method == 'POST':
+        try:
+            # Récupérer le code
+            code = request.POST.get('code', '').strip()
+
+            # Si l'utilisateur choisit "auto", laisser le système générer
+            if code == 'auto' or not code:
+                code = 'auto'
+
+            service = Service(
+                code=code,
+                name=request.POST.get('name'),
+                category=request.POST.get('category'),
+                description=request.POST.get('description', ''),
+                amount=request.POST.get('amount', 0),
+                status=request.POST.get('status', 'active'),
+                created_by=request.user
+            )
+            service.save()
+            messages.success(request, f'Service {service.code} - {service.name} créé avec succès!')
+            return redirect('portal_admin:service_detail', pk=service.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création du service: {str(e)}')
+
+    # Récupérer uniquement les codes réservés (1000-1010) disponibles
+    reserved_codes = []
+    for code in range(1000, 1011):
+        code_str = str(code)
+        is_used = Service.objects.filter(code=code_str).exists()
+        # N'ajouter que les codes disponibles (non utilisés)
+        if not is_used:
+            reserved_codes.append(code_str)
+
+    return render(request, 'seafood/services/service_form.html', {
+        'categories': Service.CATEGORY_CHOICES,
+        'statuses': Service.STATUS_CHOICES,
+        'reserved_codes': reserved_codes,
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_service', raise_exception=True)
+def service_edit(request, pk):
+    """Formulaire de modification de service"""
+    service = get_object_or_404(Service, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            service.name = request.POST.get('name')
+            service.category = request.POST.get('category')
+            service.description = request.POST.get('description', '')
+            service.amount = request.POST.get('amount', 0)
+            service.status = request.POST.get('status', 'active')
+
+            # Ne pas permettre la modification du code pour éviter les conflits
+            # Le code reste fixe après création
+
+            service.save()
+            messages.success(request, f'Service {service.code} - {service.name} modifié avec succès!')
+            return redirect('portal_admin:service_detail', pk=service.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification du service: {str(e)}')
+
+    return render(request, 'seafood/services/service_form.html', {
+        'service': service,
+        'categories': Service.CATEGORY_CHOICES,
+        'statuses': Service.STATUS_CHOICES,
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_service', raise_exception=True)
+def service_delete(request, pk):
+    """Suppression d'un service"""
+    service = get_object_or_404(Service, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            code = service.code
+            name = service.name
+            service.delete()
+            messages.success(request, f'Service {code} - {name} supprimé avec succès!')
+            return redirect('portal_admin:service_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'seafood/services/service_confirm_delete.html', {'service': service})
 
 

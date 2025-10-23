@@ -1,0 +1,150 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}{% if service %}Modifier{% else %}Nouveau{% endif %} Service{% endblock %}
+{% block content %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+  <form method="post" class="mb-9">
+    {% csrf_token %}
+    <div class="row g-3 flex-between-end mb-5">
+      <div class="col-auto">
+        <h4 class="mb-2">{% if service %}MODIFICATION SERVICE - {{service.code}} {% else %}NOUVEAU SERVICE{% endif %}</h4>
+        <h5 class="text-body-tertiary fw-semibold">Configuration d'un service offert</h5>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'portal_admin:service_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+        <button type="submit" class="btn btn-primary"><span class="fas fa-save me-2"></span>Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-12 col-xl-8">
+        <h4 class="mb-3">Informations du service</h4>
+
+        {% if not service %}
+        <div class="mb-3">
+          <label for="code_choice" class="form-label">Choix du code <span class="text-danger">*</span></label>
+          <select class="form-select" id="code" name="code" required>
+            <option value="">-- Sélectionner --</option>
+            {% if reserved_codes %}
+              {% for code in reserved_codes %}
+                <option value="{{ code }}">{{ code }}</option>
+              {% endfor %}
+            {% endif %}
+            <option value="auto">Autre code</option>
+          </select>
+         
+        </div>
+        {% else %}
+        <div class="mb-3">
+          <label class="form-label">Code du service</label>
+          <input type="text" class="form-control" value="{{ service.code }}" disabled>
+          <small class="text-muted">Le code ne peut pas être modifié après la création</small>
+        </div>
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="name" class="form-label">Nom du service <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ service.name|default:'' }}" required>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="category" class="form-label">Catégorie <span class="text-danger">*</span></label>
+            <select class="form-select" id="category" name="category" required>
+              <option value="">-- Sélectionner une catégorie --</option>
+              {% for value, label in categories %}
+                <option value="{{ value }}" {% if service.category == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="amount" class="form-label">Montant (MRU/KG) <span class="text-danger">*</span></label>
+            <input type="number" step="0.01" min="0" class="form-control" id="amount" name="amount" value="{{ service.amount|default:'0.00' }}" required>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="status" class="form-label">État <span class="text-danger">*</span></label>
+          <select class="form-select" id="status" name="status" required>
+            {% for value, label in statuses %}
+              <option value="{{ value }}" {% if service.status == value %}selected{% elif value == 'active' and not service %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <hr>
+
+        <div class="mb-3">
+          <h4 class="mb-3">Description</h4>
+          <textarea class="form-control" id="description" name="description" rows="5" placeholder="Description du service...">{{ service.description|default:'' }}</textarea>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="row g-2">
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Informations</h4>
+                <div class="alert bg-body-highlight">
+                  <h6 class="alert-heading"><span class="fas fa-info-circle me-2"></span>À propos des codes</h6>
+                  <p class="mb-0 fs-10">Les codes sont sur <strong>4 chiffres</strong> (1000-9999).</p>
+                  <hr>
+                  <p class="mb-2 fs-10">Les codes <strong>1000 à 1010</strong> sont réservés au système :</p>
+                  <ul class="mb-2 fs-10">
+                    <li>11 codes disponibles pour vos services prioritaires</li>
+                    <li>Choisissez parmi les codes disponibles (1000-1010)</li>
+                    <li>Les codes déjà utilisés sont désactivés</li>
+                  </ul>
+                  <hr>
+                  <p class="mb-0 fs-10">Sélectionnez <strong>"Autre code"</strong> pour générer automatiquement un code à partir de 1011.</p>
+                </div>
+
+                <div class="alert bg-body-highlight mt-3">
+                  <h6 class="alert-heading"><span class="fas fa-exclamation-triangle me-2"></span>Catégories</h6>
+                  <ul class="mb-0 fs-10">
+                    <li>Transfert</li>
+                    <li>Congélation pélagique</li>
+                    <li>Congélation de céphalopodes</li>
+                    <li>Traitement et transformation des produits frais</li>
+                    <li>Filetage, découpe et emballage</li>
+                    <li>Préparation de portions calibrées</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if service %}
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Métadonnées</h4>
+                <div class="row">
+                  <div class="col-12 mb-1">
+                    {% if service.is_system_reserved %}
+                    <p class="mb-2"><span class="badge badge-phoenix badge-phoenix-info">Code Système Réservé</span></p>
+                    {% endif %}
+                    <p class="mb-1"><strong>Créé le:</strong> {{ service.created_at|date:"d/m/Y à H:i" }}</p>
+                    <p class="mb-1"><strong>Modifié le:</strong> {{ service.updated_at|date:"d/m/Y à H:i" }}</p>
+                    {% if service.created_by %}
+                    <p class="mb-0"><strong>Créé par:</strong> {{ service.created_by.get_full_name|default:service.created_by.username }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

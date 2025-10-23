@@ -1,0 +1,140 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}Liste des Services{% endblock %}
+{% block content %}
+
+  <div class="pb-5">
+    <div class="row g-4">
+      <div class="col-12 col-xxl-12">
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            <h2 class="mb-2">SERVICES</h2>
+            <h5 class="text-body-tertiary fw-semibold">Gestion des services offerts</h5>
+          </div>
+          <div class="col-auto ms-auto">
+            <a href="{% url 'portal_admin:service_add' %}" class="btn btn-primary">
+              <i class="fas fa-plus-circle me-1"></i> Nouveau service
+            </a>
+          </div>
+        </div>
+        <div class="row align-items-center g-4">
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-info-danger" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-danger" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-list text-danger " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">{{ services|length }}</h4>
+                <p class="text-body-secondary fs-9 mb-0">Total services</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-success-light" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-success" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-check text-success " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">Actifs</h4>
+                <p class="text-body-secondary fs-9 mb-0">Services actifs</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-auto">
+            <div class="d-flex align-items-center">
+              <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
+                <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-warning-light" data-fa-transform="down-4 rotate--10 left-4"></span>
+                <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-warning" data-fa-transform="up-4 right-3 grow-2"></span>
+                <span class="fa-stack-1x fa-solid fa-pause text-warning " data-fa-transform="shrink-2 up-8 right-6"></span>
+              </span>
+              <div class="ms-3">
+                <h4 class="mb-0">Suspendus</h4>
+                <p class="text-body-secondary fs-9 mb-0">Services suspendus</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div id="servicesTable" data-list='{"valueNames":["Code", "Nom", "Categorie", "Montant", "Statut", "Actions"],"page":10,"pagination":true}'>
+    <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
+      <div class="table-responsive scrollbar mx-n1 px-1">
+        <table class="table table-sm fs-9 mb-0">
+          <thead>
+            <tr>
+              <th class="white-space-nowrap fs-9 align-middle">
+                <div class="form-check mb-0 fs-8">
+                  <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='' />
+                </div>
+              </th>
+              <th class="sort white-space-nowrap align-middle" scope="col" data-sort="Code">CODE</th>
+              <th class="sort align-middle" scope="col" data-sort="Nom">NOM</th>
+              <th class="sort align-middle" scope="col" data-sort="Categorie">CATÉGORIE</th>
+              <th class="sort align-middle" scope="col" data-sort="Montant" >MONTANT</th>
+              <th class="sort align-middle" scope="col" data-sort="Statut">STATUT</th>
+              <th class="sort align-middle" scope="col" data-sort="Actions">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody class="list" id="order-table-body">
+            {% for service in services %}
+              <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                <td class="fs-9 align-middle py-2"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row='' /></div></td>
+                <td class="Code align-middle white-space-nowrap fw-bold">
+                  <a href="{% url 'portal_admin:service_detail' service.pk %}">{{ service.code }}</a>
+                  {% if service.is_system_reserved %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-info ms-1">Système</span>
+                  {% endif %}
+                </td>
+                <td class="Nom align-middle fw-semibold text-body-highlight">{{ service.name }}</td>
+                <td class="Categorie align-middle white-space-nowrap">
+                  <span class="badge badge-phoenix fs-10 badge-phoenix-primary">
+                    {{ service.get_category_display }}
+                  </span>
+                </td>
+                <td class="Montant align-middle white-space-nowrap fw-bold">{{ service.amount }} MRU</td>
+                <td class="Statut align-middle white-space-nowrap fw-bold text-body-tertiary">
+                  {% if service.status == 'active' %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-success">
+                      <span class="badge-label">{{ service.get_status_display }}</span>
+                      <span class="ms-1" data-feather="check" style="height:12.8px;width:12.8px;"></span>
+                    </span>
+                  {% else %}
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
+                      <span class="badge-label">{{ service.get_status_display }}</span>
+                      <span class="ms-1" data-feather="pause" style="height:12.8px;width:12.8px;"></span>
+                    </span>
+                  {% endif %}
+                </td>
+                <td class="Actions align-middle white-space-nowrap fs-9 ">
+                  <a href="{% url 'portal_admin:service_detail' service.pk %}"><span class="text-body fs-5" data-feather="eye"></span></a>
+                  <a href="{% url 'portal_admin:service_edit' service.pk %}"><span class="text-body fs-5" data-feather="edit"></span></a>
+                  <a href="{% url 'portal_admin:service_delete' service.pk %}"><span class="text-body fs-5" data-feather="trash-2"></span></a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center">Aucun service trouvé</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
