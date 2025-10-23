@@ -28,6 +28,16 @@
     </div>
   </div>
 
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
   <div class="row g-3">
     <!-- Informations principales -->
     <div class="col-lg-4">
@@ -96,13 +106,36 @@
             </div>
             <div class="col-md-6">
               <label class="text-muted small">État</label>
-              <p class="mb-0">
+              <div class="d-flex align-items-center gap-2">
                 {% if service.status == 'active' %}
                   <span class="badge bg-success">{{ service.get_status_display }}</span>
                 {% else %}
                   <span class="badge bg-warning">{{ service.get_status_display }}</span>
                 {% endif %}
-              </p>
+
+                {% if perms.operations.change_service %}
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fas fa-exchange-alt me-1"></span>Changer
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for status_code, status_label in status_choices %}
+                      {% if status_code != service.status %}
+                        <li>
+                          <form method="post" action="{% url 'portal_admin:service_change_status' service.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ status_code }}">
+                            <button type="submit" class="dropdown-item">
+                              <span class="badge bg-{% if status_code == 'active' %}success{% else %}warning{% endif %} me-2">{{ status_label }}</span>
+                            </button>
+                          </form>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Type de code</label>

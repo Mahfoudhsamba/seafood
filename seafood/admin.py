@@ -95,6 +95,7 @@ class PortalAdminSite(AdminSite):
             path('services/<int:pk>/', views.service_detail, name='service_detail'),
             path('services/<int:pk>/edit/', views.service_edit, name='service_edit'),
             path('services/<int:pk>/delete/', views.service_delete, name='service_delete'),
+            path('services/<int:pk>/change-status/', views.service_change_status, name='service_change_status'),
         ]
         return custom_urls + urls
 

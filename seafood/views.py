@@ -1773,7 +1773,10 @@ def service_list(request):
 def service_detail(request, pk):
     """Détails d'un service"""
     service = get_object_or_404(Service, pk=pk)
-    return render(request, 'seafood/services/service_detail.html', {'service': service})
+    return render(request, 'seafood/services/service_detail.html', {
+        'service': service,
+        'status_choices': Service.STATUS_CHOICES
+    })
 
 
 @staff_member_required
@@ -1867,5 +1870,32 @@ def service_delete(request, pk):
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'seafood/services/service_confirm_delete.html', {'service': service})
+
+
+@staff_member_required
+@permission_required('operations.change_service', raise_exception=True)
+def service_change_status(request, pk):
+    """Changer le statut d'un service"""
+    service = get_object_or_404(Service, pk=pk)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+
+        # Vérifier que le nouveau statut est valide
+        valid_statuses = [choice[0] for choice in Service.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Statut invalide!')
+            return redirect('portal_admin:service_detail', pk=pk)
+
+        # Appliquer le changement
+        old_status = service.get_status_display()
+        service.status = new_status
+        service.save()
+
+        new_status_display = service.get_status_display()
+        messages.success(request, f'Statut du service changé de "{old_status}" à "{new_status_display}"')
+        return redirect('portal_admin:service_detail', pk=pk)
+
+    return redirect('portal_admin:service_detail', pk=pk)
 
 
