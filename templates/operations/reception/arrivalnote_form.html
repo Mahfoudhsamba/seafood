@@ -1,0 +1,134 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}{% if arrival_note %}Modifier{% else %}Nouvelle{% endif %} Note d'Arrivée{% endblock %}
+{% block content %}
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" class="mb-9">
+    {% csrf_token %}
+    <div class="row g-3 flex-between-end mb-5">
+      <div class="col-auto">
+        <h4 class="mb-2">{% if arrival_note %}MODIFICATION NOTE D'ARRIVÉE - LOT {{arrival_note.lot_id}} {% else %}NOUVELLE NOTE D'ARRIVÉE{% endif %}</h4>
+        <h5 class="text-body-tertiary fw-semibold">Enregistrement de la réception d'un lot de poisson</h5>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'portal_admin:arrivalnote_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+        <button type="submit" class="btn btn-primary"><span class="fas fa-save me-2"></span>Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-12 col-xl-8">
+        <h4 class="mb-3">Informations de réception</h4>
+
+        {% if arrival_note %}
+          <div class="mb-3">
+            <label class="form-label">№ LOT</label>
+            <input type="text" class="form-control" value="{{ arrival_note.lot_id }}" disabled>
+          </div>
+        {% endif %}
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="client" class="form-label">Client <span class="text-danger">*</span></label>
+            <select class="form-select" id="client" name="client" required>
+              <option value="">-- Sélectionner un client --</option>
+              {% for client in clients %}
+                <option value="{{ client.pk }}" {% if arrival_note.client_id == client.pk %}selected{% endif %}>
+                  {{ client.name }} ({{ client.accounting_code }})
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="reception_date" class="form-label">Date de réception <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="reception_date" name="reception_date" value="{% if arrival_note %}{{ arrival_note.reception_date|date:'Y-m-d' }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}" required>
+          </div>
+        </div>
+
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label for="weight" class="form-label">Poids (kg) <span class="text-danger">*</span></label>
+            <input type="number" step="0.01" min="0.01" class="form-control" id="weight" name="weight" value="{{ arrival_note.weight|default:'' }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="fish_category" class="form-label">Catégorie de poisson <span class="text-danger">*</span></label>
+            <select class="form-select" id="fish_category" name="fish_category" required>
+              <option value="">-- Sélectionner une catégorie --</option>
+              {% for category in fish_categories %}
+                <option value="{{ category.pk }}" {% if arrival_note.fish_category_id == category.pk %}selected{% endif %}>
+                  {{ category.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <label for="service_type" class="form-label">Type de service <span class="text-danger">*</span></label>
+            <select class="form-select" id="service_type" name="service_type" required>
+              <option value="">-- Sélectionner un service --</option>
+              {% for service in services %}
+                <option value="{{ service.pk }}" {% if arrival_note.service_type_id == service.pk %}selected{% endif %}>
+                  {{ service.code }} - {{ service.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <hr>
+        <div class="mb-3">
+          <h4 class="mb-3">Observations</h4>
+          <textarea class="form-control" id="observations" name="observations" rows="4" placeholder="Notes ou remarques sur la réception...">{{ arrival_note.observations|default:'' }}</textarea>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="row g-2">
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Informations</h4>
+                <div class="alert bg-body-highlight">
+                  <h6 class="alert-heading"><span class="fas fa-info-circle me-2"></span>À propos</h6>
+                  <p class="mb-0 fs-10">№ du LOT sera généré automatiquement au format: <strong>000001, 000002, etc.</strong></p>
+                  <hr>
+                  <p class="mb-0 fs-10">Le statut initial sera <strong>"Reçu"</strong>. Il évoluera selon le processus de traitement.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if arrival_note %}
+            <div class="col-12 col-xl-12">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title mb-4">Métadonnées</h4>
+                  <div class="row">
+                    <div class="col-12 mb-1">
+                      <p class="mb-1"><strong>Statut:</strong> <span class="badge bg-info">{{ arrival_note.get_status_display }}</span></p>
+                      <p class="mb-1"><strong>Créé le:</strong> {{ arrival_note.created_at|date:"d/m/Y à H:i" }}</p>
+                      <p class="mb-1"><strong>Modifié le:</strong> {{ arrival_note.updated_at|date:"d/m/Y à H:i" }}</p>
+                      {% if arrival_note.created_by %}
+                      <p class="mb-0"><strong>Créé par:</strong> {{ arrival_note.created_by.get_full_name|default:arrival_note.created_by.username }}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Note d'Arrivée - LOT #{{ arrival_note.lot_id }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Note d'Arrivée - LOT {{ arrival_note.lot_id }}</h2>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        {% if perms.operations.change_arrivalnote and arrival_note.status == 'draft' %}
+          <a href="{% url 'portal_admin:arrivalnote_edit' arrival_note.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+        {% endif %}
+        {% if perms.operations.delete_arrivalnote %}
+        <a href="{% url 'portal_admin:arrivalnote_delete' arrival_note.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+        {% endif %}
+        <a href="{% url 'portal_admin:arrivalnote_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <span class="fas fa-fish fa-4x text-muted"></span>
+          </div>
+
+          <h3 class="mb-2">LOT #{{ arrival_note.lot_id }}</h3>
+          <p class="text-muted mb-1">{{ arrival_note.client.name }}</p>
+          <p class="text-muted mb-2">{{ arrival_note.fish_category.name }}</p>
+
+          <div class="mb-3">
+            <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ arrival_note.get_status_display }}
+            </span>
+          </div>
+
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Poids:</span>
+              <strong>{{ arrival_note.weight }} kg</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Date de réception:</span>
+              <strong>{{ arrival_note.reception_date|date:"d/m/Y" }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Client</label>
+              <div class="d-flex align-items-center">
+                {% if arrival_note.client.logo %}
+                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ arrival_note.client.logo.url }}" alt="{{ arrival_note.client.name }}" /></div>
+                {% else %}
+                  <div class="avatar-name rounded-soft me-2"><span>{{ arrival_note.client.name|first }}</span></div>
+                {% endif %}
+                <div>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ arrival_note.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ arrival_note.client.accounting_code }}</small>
+                </div>
+              </div>
+
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Catégorie de poisson</label>
+              <p class="mb-0"><strong>{{ arrival_note.fish_category.name }}</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date de réception</label>
+              <p class="mb-0">{{ arrival_note.reception_date|date:"d/m/Y" }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Poids</label>
+              <p class="mb-0"><strong>{{ arrival_note.weight }} kg</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Type de service</label>
+              <p class="mb-0">{{ arrival_note.service_type.code }} - {{ arrival_note.service_type.name }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Statut</label>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %}">
+                  {{ arrival_note.get_status_display }}
+                </span>
+                {% if perms.operations.change_arrivalnote and arrival_note.status != 'completed' %}
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fas fa-exchange-alt me-1"></span>Changer
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for status_code, status_label in status_choices %}
+                      {% if status_code != arrival_note.status %}
+                        <li>
+                          <form method="post" action="{% url 'portal_admin:arrivalnote_change_status' arrival_note.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ status_code }}">
+                            <button type="submit" class="dropdown-item">
+                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'accepted' %}info{% elif status_code == 'in_progress' %}warning{% elif status_code == 'completed' %}success{% elif status_code == 'suspended' %}dark{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                            </button>
+                          </form>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if arrival_note.observations %}
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="mb-0"><span class="fas fa-sticky-note me-2"></span>Observations</h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ arrival_note.observations }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if arrival_note.rejection_reason %}
+        <div class="card mb-3 border-danger">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><span class="fas fa-exclamation-triangle me-2"></span>Motif de rejet</h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ arrival_note.rejection_reason }}</p>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-clock me-2"></span>Métadonnées</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="text-muted small">Date de création</label>
+              <p class="mb-0">{{ arrival_note.created_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small">Dernière modification</label>
+              <p class="mb-0">{{ arrival_note.updated_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+            {% if arrival_note.created_by %}
+            <div class="col-md-4">
+              <label class="text-muted small">Créé par</label>
+              <p class="mb-0">{{ arrival_note.created_by.get_full_name|default:arrival_note.created_by.username }}</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

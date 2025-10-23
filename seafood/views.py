@@ -1581,7 +1581,7 @@ def arrivalnote_list(request):
             Q(client__accounting_code__icontains=search)
         )
 
-    return render(request, 'seafood/reception/arrivalnote_list.html', {
+    return render(request, 'operations/reception/arrivalnote_list.html', {
         'arrival_notes': arrival_notes,
         'statuses': ArrivalNote.STATUS_CHOICES,
         'services': Service.objects.filter(status='active').order_by('code')
@@ -1593,7 +1593,7 @@ def arrivalnote_list(request):
 def arrivalnote_detail(request, pk):
     """Détails d'une note d'arrivée"""
     arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'fish_category', 'created_by'), pk=pk)
-    return render(request, 'seafood/reception/arrivalnote_detail.html', {
+    return render(request, 'operations/reception/arrivalnote_detail.html', {
         'arrival_note': arrival_note,
         'status_choices': ArrivalNote.STATUS_CHOICES
     })
@@ -1626,7 +1626,7 @@ def arrivalnote_add(request):
     fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
     services = Service.objects.filter(status='active').order_by('code')
 
-    return render(request, 'seafood/reception/arrivalnote_form.html', {
+    return render(request, 'operations/reception/arrivalnote_form.html', {
         'clients': clients,
         'fish_categories': fish_categories,
         'services': services
@@ -1663,7 +1663,7 @@ def arrivalnote_edit(request, pk):
     fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
     services = Service.objects.filter(status='active').order_by('code')
 
-    return render(request, 'seafood/reception/arrivalnote_form.html', {
+    return render(request, 'operations/reception/arrivalnote_form.html', {
         'arrival_note': arrival_note,
         'clients': clients,
         'fish_categories': fish_categories,
@@ -1686,7 +1686,7 @@ def arrivalnote_delete(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
-    return render(request, 'seafood/reception/arrivalnote_confirm_delete.html', {'arrival_note': arrival_note})
+    return render(request, 'operations/reception/arrivalnote_confirm_delete.html', {'arrival_note': arrival_note})
 
 
 @staff_member_required
@@ -1761,7 +1761,7 @@ def service_list(request):
             Q(description__icontains=search)
         )
 
-    return render(request, 'seafood/services/service_list.html', {
+    return render(request, 'operations/services/service_list.html', {
         'services': services,
         'statuses': Service.STATUS_CHOICES,
         'categories': Service.CATEGORY_CHOICES
@@ -1773,7 +1773,7 @@ def service_list(request):
 def service_detail(request, pk):
     """Détails d'un service"""
     service = get_object_or_404(Service, pk=pk)
-    return render(request, 'seafood/services/service_detail.html', {
+    return render(request, 'operations/services/service_detail.html', {
         'service': service,
         'status_choices': Service.STATUS_CHOICES
     })
@@ -1816,7 +1816,7 @@ def service_add(request):
         if not is_used:
             reserved_codes.append(code_str)
 
-    return render(request, 'seafood/services/service_form.html', {
+    return render(request, 'operations/services/service_form.html', {
         'categories': Service.CATEGORY_CHOICES,
         'statuses': Service.STATUS_CHOICES,
         'reserved_codes': reserved_codes,
@@ -1846,7 +1846,7 @@ def service_edit(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification du service: {str(e)}')
 
-    return render(request, 'seafood/services/service_form.html', {
+    return render(request, 'operations/services/service_form.html', {
         'service': service,
         'categories': Service.CATEGORY_CHOICES,
         'statuses': Service.STATUS_CHOICES,
@@ -1869,7 +1869,7 @@ def service_delete(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
-    return render(request, 'seafood/services/service_confirm_delete.html', {'service': service})
+    return render(request, 'operations/services/service_confirm_delete.html', {'service': service})
 
 
 @staff_member_required
