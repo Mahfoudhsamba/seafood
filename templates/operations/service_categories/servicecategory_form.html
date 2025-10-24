@@ -1,0 +1,106 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+{% block title %}{% if category %}Modifier{% else %}Nouvelle{% endif %} Catégorie{% endblock %}
+{% block content %}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" class="mb-9" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row g-3 flex-between-end mb-5">
+      <div class="col-auto">
+        <h4 class="mb-2">{% if category %}MODIFICATION CATÉGORIE - {{category.name}} {% else %}NOUVELLE CATÉGORIE{% endif %}</h4>
+        <h5 class="text-body-tertiary fw-semibold">Configuration d'une catégorie de service</h5>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'portal_admin:servicecategory_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+        <button type="submit" class="btn btn-primary"><span class="fas fa-save me-2"></span>Enregistrer</button>
+      </div>
+    </div>
+
+    <div class="row g-5">
+      <div class="col-12 col-xl-8">
+        <h4 class="mb-3">Informations de la catégorie</h4>
+
+        <div class="mb-3">
+          <label for="name" class="form-label">Nom de la catégorie <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="name" name="name" value="{{ category.name|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="avatar" class="form-label">Avatar/Image</label>
+          {% if category.avatar %}
+          <div class="mb-2">
+            <img src="{{ category.avatar.url }}" alt="{{ category.name }}" class="img-thumbnail" style="max-width: 150px;">
+          </div>
+          {% endif %}
+          <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*">
+          <small class="text-muted">Formats acceptés : JPG, PNG, GIF (max 2MB)</small>
+        </div>
+
+        <div class="mb-3">
+          <label for="status" class="form-label">État <span class="text-danger">*</span></label>
+          <select class="form-select" id="status" name="status" required>
+            {% for value, label in statuses %}
+              <option value="{{ value }}" {% if category.status == value %}selected{% elif value == 'active' and not category %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <hr>
+
+        <div class="mb-3">
+          <h4 class="mb-3">Description</h4>
+          <textarea class="form-control" id="description" name="description" rows="5" placeholder="Description de la catégorie...">{{ category.description|default:'' }}</textarea>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="row g-2">
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Informations</h4>
+                <div class="alert bg-body-highlight">
+                  <h6 class="alert-heading"><span class="fas fa-info-circle text-info me-2"></span>À propos des catégories</h6>
+                  <hr>
+                  <p class="mb-2 fs-10">Les catégories permettent de regrouper les services par type d'activité.</p>
+                  <ul class="mb-2 fs-10">
+                    <li>Chaque service doit être associé à une catégorie</li>
+                    <li>Une catégorie peut contenir plusieurs services</li>
+                    <li>L'avatar est optionnel mais recommandé</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% if category %}
+          <div class="col-12 col-xl-12">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title mb-4">Métadonnées</h4>
+                <div class="row">
+                  <div class="col-12 mb-1">
+                    <p class="mb-1"><strong>Créée le:</strong> {{ category.created_at|date:"d/m/Y à H:i" }}</p>
+                    <p class="mb-1"><strong>Modifiée le:</strong> {{ category.updated_at|date:"d/m/Y à H:i" }}</p>
+                    {% if category.created_by %}
+                    <p class="mb-0"><strong>Créée par:</strong> {{ category.created_by.get_full_name|default:category.created_by.username }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

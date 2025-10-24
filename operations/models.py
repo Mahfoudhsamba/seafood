@@ -7,6 +7,75 @@ from decimal import Decimal
 # Create your models here.
 
 
+class ServiceCategory(models.Model):
+    """
+    Modèle pour les catégories de services
+    """
+    STATUS_CHOICES = [
+        ('active', 'Actif'),
+        ('suspended', 'Suspendu'),
+    ]
+
+    # Avatar/Image
+    avatar = models.ImageField(
+        upload_to='service_categories/',
+        blank=True,
+        null=True,
+        verbose_name='Avatar'
+    )
+
+    # Nom de la catégorie
+    name = models.CharField(
+        max_length=200,
+        unique=True,
+        verbose_name='Nom de la catégorie'
+    )
+
+    # Description
+    description = models.TextField(
+        blank=True,
+        verbose_name='Description'
+    )
+
+    # Statut
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='État'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_service_categories',
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        verbose_name = 'Catégorie de service'
+        verbose_name_plural = 'Catégories de services'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_active(self):
+        """Vérifie si la catégorie est active"""
+        return self.status == 'active'
+
+
 class Service(models.Model):
     """
     Modèle pour les services offerts par l'entreprise
@@ -14,15 +83,6 @@ class Service(models.Model):
     STATUS_CHOICES = [
         ('active', 'Actif'),
         ('suspended', 'Suspendu'),
-    ]
-
-    CATEGORY_CHOICES = [
-        ('transfer', 'Transfert'),
-        ('pelagic_freezing', 'Congélation pélagique'),
-        ('cephalopod_freezing', 'Congélation de céphalopodes'),
-        ('fresh_processing', 'Traitement et transformation des produits frais'),
-        ('filleting', 'Filetage, découpe et emballage'),
-        ('portioning', 'Préparation de portions calibrées'),
     ]
 
     # Code unique sur 4 chiffres (1000-9999)
@@ -68,8 +128,10 @@ class Service(models.Model):
     )
 
     # Catégorie
-    category = models.CharField(
-        max_length=200,
+    category = models.ForeignKey(
+        ServiceCategory,
+        on_delete=models.PROTECT,
+        related_name='services',
         verbose_name='Catégorie'
     )
 
@@ -169,15 +231,6 @@ class Service(models.Model):
             return 1000 <= code_int <= 1010
         except ValueError:
             return False
-
-    def get_category_display(self):
-        """Retourne le label de la catégorie (prédéfinie ou personnalisée)"""
-        # Chercher dans les catégories prédéfinies
-        for value, label in self.CATEGORY_CHOICES:
-            if value == self.category:
-                return label
-        # Si pas trouvée, retourner la catégorie personnalisée
-        return self.category
 
 
 class FishCategory(models.Model):

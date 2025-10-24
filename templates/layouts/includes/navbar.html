@@ -143,6 +143,36 @@
                         </div>
                         {% endif %}
 
+                        <!-- Catégories de Services -->
+                        {% if perms.operations.view_servicecategory or perms.operations.add_servicecategory %}
+                        <div class="nav-item-wrapper">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-service-categories" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'service-categor' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-service-categories">
+                                <div class="d-flex align-items-center">
+                                    <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="grid"></span></span><span class="nav-link-text">Catégories</span>
+                                </div>
+                            </a>
+                            <div class="parent-wrapper label-1">
+                                <ul class="nav collapse parent {% if 'service-categor' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-service-categories">
+                                    <li class="collapsed-nav-item-title d-none">Catégories</li>
+                                    {% if perms.operations.add_servicecategory %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'servicecategory_add' %}active{% endif %}" href="{% url 'portal_admin:servicecategory_add' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Nouvelle catégorie</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.operations.view_servicecategory %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'servicecategory_list' %}active{% endif %}" href="{% url 'portal_admin:servicecategory_list' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Liste des catégories</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <!-- Réception -->
                         {% if perms.operations.view_arrivalnote or perms.operations.add_arrivalnote %}
                         <div class="nav-item-wrapper">

@@ -96,6 +96,14 @@ class PortalAdminSite(AdminSite):
             path('services/<int:pk>/edit/', views.service_edit, name='service_edit'),
             path('services/<int:pk>/delete/', views.service_delete, name='service_delete'),
             path('services/<int:pk>/change-status/', views.service_change_status, name='service_change_status'),
+
+            # Catégories de services
+            path('service-categories/', views.servicecategory_list, name='servicecategory_list'),
+            path('service-categories/add/', views.servicecategory_add, name='servicecategory_add'),
+            path('service-categories/<int:pk>/', views.servicecategory_detail, name='servicecategory_detail'),
+            path('service-categories/<int:pk>/edit/', views.servicecategory_edit, name='servicecategory_edit'),
+            path('service-categories/<int:pk>/delete/', views.servicecategory_delete, name='servicecategory_delete'),
+            path('service-categories/<int:pk>/change-status/', views.servicecategory_change_status, name='servicecategory_change_status'),
         ]
         return custom_urls + urls
 

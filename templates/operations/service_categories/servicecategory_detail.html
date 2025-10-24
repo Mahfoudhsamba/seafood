@@ -1,27 +1,27 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Détails Service - {{ service.code }} - Seafood Portal{% endblock %}
+{% block title %}Détails Catégorie - {{ category.name }} - Seafood Portal{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Détails du Service</h2>
+      <h2 class="mb-0">Détails de la Catégorie</h2>
     </div>
     <div class="col-auto">
       <div class="d-flex gap-2">
-        {% if perms.operations.change_service %}
-        <a href="{% url 'portal_admin:service_edit' service.pk %}" class="btn btn-primary">
+        {% if perms.operations.change_servicecategory %}
+        <a href="{% url 'portal_admin:servicecategory_edit' category.pk %}" class="btn btn-primary">
           <span class="fas fa-edit me-2"></span>Modifier
         </a>
         {% endif %}
-        {% if perms.operations.delete_service %}
-        <a href="{% url 'portal_admin:service_delete' service.pk %}" class="btn btn-phoenix-danger">
+        {% if perms.operations.delete_servicecategory %}
+        <a href="{% url 'portal_admin:servicecategory_delete' category.pk %}" class="btn btn-phoenix-danger">
           <span class="fas fa-trash me-2"></span>Supprimer
         </a>
         {% endif %}
-        <a href="{% url 'portal_admin:service_list' %}" class="btn btn-secondary">
+        <a href="{% url 'portal_admin:servicecategory_list' %}" class="btn btn-secondary">
           <span class="fas fa-arrow-left me-2"></span>Retour à la liste
         </a>
       </div>
@@ -43,37 +43,34 @@
     <div class="col-lg-4">
       <div class="card h-100">
         <div class="card-body text-center">
-          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <span class="fas fa-list fa-4x text-white"></span>
+          <div class="mb-3 mx-auto" style="max-width: 200px;">
+            {% if category.avatar %}
+            <img src="{{ category.avatar.url }}" alt="{{ category.name }}" class="img-fluid rounded" style="max-height: 200px;">
+            {% else %}
+            <div style="width: 150px; height: 150px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+              <span class="fas fa-grid fa-4x text-white"></span>
+            </div>
+            {% endif %}
           </div>
 
-          <h4 class="mb-2">{{ service.name }}</h4>
-          <p class="text-muted mb-2">{{ service.category.name }}</p>
+          <h4 class="mb-2">{{ category.name }}</h4>
 
           <div class="mb-3">
-            {% if service.status == 'active' %}
-              <span class="badge bg-success fs-9">{{ service.get_status_display }}</span>
+            {% if category.status == 'active' %}
+              <span class="badge bg-success fs-9">{{ category.get_status_display }}</span>
             {% else %}
-              <span class="badge bg-warning fs-9">{{ service.get_status_display }}</span>
-            {% endif %}
-
-            {% if service.is_system_reserved %}
-              <span class="badge bg-info fs-9 ms-1">Code Système</span>
+              <span class="badge bg-warning fs-9">{{ category.get_status_display }}</span>
             {% endif %}
           </div>
 
           <div class="border-top pt-3">
             <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Code:</span>
-              <strong>{{ service.code }}</strong>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Montant:</span>
-              <strong>{{ service.amount }} MRU</strong>
+              <span class="text-muted">Services:</span>
+              <strong>{{ category.services.count }}</strong>
             </div>
             <div class="d-flex justify-content-between">
-              <span class="text-muted">Créé le:</span>
-              <strong>{{ service.created_at|date:"d/m/Y" }}</strong>
+              <span class="text-muted">Créée le:</span>
+              <strong>{{ category.created_at|date:"d/m/Y" }}</strong>
             </div>
           </div>
         </div>
@@ -89,40 +86,28 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="text-muted small">Code du service</label>
-              <p class="mb-0"><strong>{{ service.code }}</strong></p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Nom du service</label>
-              <p class="mb-0"><strong>{{ service.name }}</strong></p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Catégorie</label>
-              <p class="mb-0">{{ service.category.name }}</p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Montant</label>
-              <p class="mb-0"><strong>{{ service.amount }} MRU</strong></p>
+              <label class="text-muted small">Nom de la catégorie</label>
+              <p class="mb-0"><strong>{{ category.name }}</strong></p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">État</label>
               <div class="d-flex align-items-center gap-2">
-                {% if service.status == 'active' %}
-                  <span class="badge bg-success">{{ service.get_status_display }}</span>
+                {% if category.status == 'active' %}
+                  <span class="badge bg-success">{{ category.get_status_display }}</span>
                 {% else %}
-                  <span class="badge bg-warning">{{ service.get_status_display }}</span>
+                  <span class="badge bg-warning">{{ category.get_status_display }}</span>
                 {% endif %}
 
-                {% if perms.operations.change_service %}
+                {% if perms.operations.change_servicecategory %}
                 <div class="dropdown">
                   <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="fas fa-exchange-alt me-1"></span>Changer
                   </button>
                   <ul class="dropdown-menu">
                     {% for status_code, status_label in status_choices %}
-                      {% if status_code != service.status %}
+                      {% if status_code != category.status %}
                         <li>
-                          <form method="post" action="{% url 'portal_admin:service_change_status' service.pk %}" class="d-inline">
+                          <form method="post" action="{% url 'portal_admin:servicecategory_change_status' category.pk %}" class="d-inline">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="{{ status_code }}">
                             <button type="submit" class="dropdown-item">
@@ -137,16 +122,6 @@
                 {% endif %}
               </div>
             </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Type de code</label>
-              <p class="mb-0">
-                {% if service.is_system_reserved %}
-                  <span class="badge bg-info">Code Système Réservé</span>
-                {% else %}
-                  <span class="badge bg-secondary">Code Personnalisé</span>
-                {% endif %}
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -156,10 +131,41 @@
           <h5 class="mb-0"><span class="fas fa-align-left me-2"></span>Description</h5>
         </div>
         <div class="card-body">
-          {% if service.description %}
-            <p class="mb-0">{{ service.description|linebreaks }}</p>
+          {% if category.description %}
+            <p class="mb-0">{{ category.description|linebreaks }}</p>
           {% else %}
             <p class="text-muted mb-0 fst-italic">Aucune description fournie</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-list me-2"></span>Services de cette catégorie ({{ category.services.count }})</h5>
+        </div>
+        <div class="card-body">
+          {% if category.services.all %}
+          <div class="list-group">
+            {% for service in category.services.all %}
+            <a href="{% url 'portal_admin:service_detail' service.pk %}" class="list-group-item list-group-item-action">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>{{ service.code }}</strong> - {{ service.name }}
+                </div>
+                <div>
+                  <span class="badge bg-secondary">{{ service.amount }} MRU</span>
+                  {% if service.status == 'active' %}
+                  <span class="badge bg-success">Actif</span>
+                  {% else %}
+                  <span class="badge bg-warning">Suspendu</span>
+                  {% endif %}
+                </div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted mb-0">Aucun service dans cette catégorie</p>
           {% endif %}
         </div>
       </div>
@@ -172,16 +178,16 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="text-muted small">Date de création</label>
-              <p class="mb-0">{{ service.created_at|date:"d/m/Y à H:i" }}</p>
+              <p class="mb-0">{{ category.created_at|date:"d/m/Y à H:i" }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Dernière modification</label>
-              <p class="mb-0">{{ service.updated_at|date:"d/m/Y à H:i" }}</p>
+              <p class="mb-0">{{ category.updated_at|date:"d/m/Y à H:i" }}</p>
             </div>
-            {% if service.created_by %}
+            {% if category.created_by %}
             <div class="col-md-6">
-              <label class="text-muted small">Créé par</label>
-              <p class="mb-0">{{ service.created_by.get_full_name|default:service.created_by.username }}</p>
+              <label class="text-muted small">Créée par</label>
+              <p class="mb-0">{{ category.created_by.get_full_name|default:category.created_by.username }}</p>
             </div>
             {% endif %}
           </div>

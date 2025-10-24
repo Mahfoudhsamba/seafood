@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import ArrivalNote, FishCategory, Service
+from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory
 
 # Create your views here.
 
@@ -1739,7 +1739,7 @@ def arrivalnote_change_status(request, pk):
 @permission_required('operations.view_service', raise_exception=True)
 def service_list(request):
     """Liste des services"""
-    services = Service.objects.all().select_related('created_by').order_by('code')
+    services = Service.objects.all().select_related('created_by', 'category').order_by('code')
 
     # Filtrage par statut
     status_filter = request.GET.get('status')
@@ -1749,7 +1749,7 @@ def service_list(request):
     # Filtrage par catégorie
     category_filter = request.GET.get('category')
     if category_filter:
-        services = services.filter(category=category_filter)
+        services = services.filter(category_id=category_filter)
 
     # Recherche
     search = request.GET.get('search')
@@ -1764,7 +1764,7 @@ def service_list(request):
     return render(request, 'operations/services/service_list.html', {
         'services': services,
         'statuses': Service.STATUS_CHOICES,
-        'categories': Service.CATEGORY_CHOICES
+        'categories': ServiceCategory.objects.filter(status='active').order_by('name')
     })
 
 
@@ -1792,32 +1792,10 @@ def service_add(request):
             if code == 'auto' or not code:
                 code = 'auto'
 
-            # Récupérer la catégorie
-            category = request.POST.get('category', '').strip()
-
-            # Si la catégorie est "autre", utiliser la catégorie personnalisée
-            if category == 'autre':
-                category = request.POST.get('custom_category', '').strip()
-                if not category:
-                    messages.error(request, 'Veuillez saisir une catégorie personnalisée!')
-                    # Récupérer uniquement les codes réservés (1000-1010) disponibles
-                    reserved_codes = []
-                    for code_num in range(1000, 1011):
-                        code_str = str(code_num)
-                        is_used = Service.objects.filter(code=code_str).exists()
-                        if not is_used:
-                            reserved_codes.append(code_str)
-
-                    return render(request, 'operations/services/service_form.html', {
-                        'categories': Service.CATEGORY_CHOICES,
-                        'statuses': Service.STATUS_CHOICES,
-                        'reserved_codes': reserved_codes,
-                    })
-
             service = Service(
                 code=code,
                 name=request.POST.get('name'),
-                category=category,
+                category_id=request.POST.get('category'),
                 description=request.POST.get('description', ''),
                 amount=request.POST.get('amount', 0),
                 status=request.POST.get('status', 'active'),
@@ -1838,11 +1816,13 @@ def service_add(request):
         if not is_used:
             reserved_codes.append(code_str)
 
+    # Récupérer les catégories actives
+    categories = ServiceCategory.objects.filter(status='active').order_by('name')
+
     return render(request, 'operations/services/service_form.html', {
-        'categories': Service.CATEGORY_CHOICES,
+        'categories': categories,
         'statuses': Service.STATUS_CHOICES,
         'reserved_codes': reserved_codes,
-        'is_custom_category': False,
     })
 
 
@@ -1855,22 +1835,7 @@ def service_edit(request, pk):
     if request.method == 'POST':
         try:
             service.name = request.POST.get('name')
-
-            # Récupérer la catégorie
-            category = request.POST.get('category', '').strip()
-
-            # Si la catégorie est "autre", utiliser la catégorie personnalisée
-            if category == 'autre':
-                category = request.POST.get('custom_category', '').strip()
-                if not category:
-                    messages.error(request, 'Veuillez saisir une catégorie personnalisée!')
-                    return render(request, 'operations/services/service_form.html', {
-                        'service': service,
-                        'categories': Service.CATEGORY_CHOICES,
-                        'statuses': Service.STATUS_CHOICES,
-                    })
-
-            service.category = category
+            service.category_id = request.POST.get('category')
             service.description = request.POST.get('description', '')
             service.amount = request.POST.get('amount', 0)
             service.status = request.POST.get('status', 'active')
@@ -1884,15 +1849,13 @@ def service_edit(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification du service: {str(e)}')
 
-    # Vérifier si la catégorie actuelle est une catégorie personnalisée
-    predefined_category_values = [choice[0] for choice in Service.CATEGORY_CHOICES]
-    is_custom_category = service.category not in predefined_category_values
+    # Récupérer les catégories actives
+    categories = ServiceCategory.objects.filter(status='active').order_by('name')
 
     return render(request, 'operations/services/service_form.html', {
         'service': service,
-        'categories': Service.CATEGORY_CHOICES,
+        'categories': categories,
         'statuses': Service.STATUS_CHOICES,
-        'is_custom_category': is_custom_category,
     })
 
 
@@ -1940,5 +1903,175 @@ def service_change_status(request, pk):
         return redirect('portal_admin:service_detail', pk=pk)
 
     return redirect('portal_admin:service_detail', pk=pk)
+
+
+# ======================
+# SERVICE CATEGORY VIEWS
+# ======================
+
+@staff_member_required
+@permission_required('operations.view_servicecategory', raise_exception=True)
+def servicecategory_list(request):
+    """Liste des catégories de services"""
+    categories = ServiceCategory.objects.all().select_related('created_by').order_by('name')
+
+    # Filtrage par statut
+    status_filter = request.GET.get('status')
+    if status_filter:
+        categories = categories.filter(status=status_filter)
+
+    # Recherche
+    search = request.GET.get('search')
+    if search:
+        from django.db.models import Q
+        categories = categories.filter(
+            Q(name__icontains=search) |
+            Q(description__icontains=search)
+        )
+
+    return render(request, 'operations/service_categories/servicecategory_list.html', {
+        'categories': categories,
+        'statuses': ServiceCategory.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_servicecategory', raise_exception=True)
+def servicecategory_detail(request, pk):
+    """Détails d'une catégorie de service"""
+    category = get_object_or_404(ServiceCategory, pk=pk)
+    return render(request, 'operations/service_categories/servicecategory_detail.html', {
+        'category': category,
+        'status_choices': ServiceCategory.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.add_servicecategory', raise_exception=True)
+def servicecategory_add(request):
+    """Formulaire d'ajout de catégorie de service"""
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            uploaded_avatar = request.FILES.get('avatar') if 'avatar' in request.FILES else None
+
+            category = ServiceCategory(
+                name=request.POST.get('name'),
+                description=request.POST.get('description', ''),
+                status=request.POST.get('status', 'active'),
+                created_by=request.user
+            )
+
+            if uploaded_avatar:
+                file_content = uploaded_avatar.read()
+                ext = uploaded_avatar.name.split('.')[-1].lower()
+                category.avatar.save(f'temp_{uploaded_avatar.name}', ContentFile(file_content), save=False)
+
+            category.save()
+
+            # Renommer l'avatar avec l'ID
+            if uploaded_avatar:
+                old_path = category.avatar.path
+                new_filename = f'service_category_{category.pk}.{ext}'
+
+                if os.path.isfile(old_path):
+                    os.remove(old_path)
+
+                category.avatar.save(new_filename, ContentFile(file_content), save=True)
+
+            messages.success(request, f'Catégorie "{category.name}" créée avec succès!')
+            return redirect('portal_admin:servicecategory_detail', pk=category.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création: {str(e)}')
+
+    return render(request, 'operations/service_categories/servicecategory_form.html', {
+        'statuses': ServiceCategory.STATUS_CHOICES,
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_servicecategory', raise_exception=True)
+def servicecategory_edit(request, pk):
+    """Formulaire de modification de catégorie de service"""
+    category = get_object_or_404(ServiceCategory, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            import os
+            from django.core.files.base import ContentFile
+
+            category.name = request.POST.get('name')
+            category.description = request.POST.get('description', '')
+            category.status = request.POST.get('status', 'active')
+
+            if 'avatar' in request.FILES:
+                uploaded_avatar = request.FILES.get('avatar')
+                file_content = uploaded_avatar.read()
+                ext = uploaded_avatar.name.split('.')[-1].lower()
+                new_filename = f'service_category_{category.pk}.{ext}'
+
+                # Supprimer l'ancien avatar s'il existe
+                if category.avatar and os.path.isfile(category.avatar.path):
+                    os.remove(category.avatar.path)
+
+                category.avatar.save(new_filename, ContentFile(file_content), save=False)
+
+            category.save()
+            messages.success(request, f'Catégorie "{category.name}" modifiée avec succès!')
+            return redirect('portal_admin:servicecategory_detail', pk=category.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'operations/service_categories/servicecategory_form.html', {
+        'category': category,
+        'statuses': ServiceCategory.STATUS_CHOICES,
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_servicecategory', raise_exception=True)
+def servicecategory_delete(request, pk):
+    """Suppression d'une catégorie de service"""
+    category = get_object_or_404(ServiceCategory, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            name = category.name
+            category.delete()
+            messages.success(request, f'Catégorie "{name}" supprimée avec succès!')
+            return redirect('portal_admin:servicecategory_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'operations/service_categories/servicecategory_confirm_delete.html', {'category': category})
+
+
+@staff_member_required
+@permission_required('operations.change_servicecategory', raise_exception=True)
+def servicecategory_change_status(request, pk):
+    """Changer le statut d'une catégorie de service"""
+    category = get_object_or_404(ServiceCategory, pk=pk)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+
+        # Vérifier que le nouveau statut est valide
+        valid_statuses = [choice[0] for choice in ServiceCategory.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Statut invalide!')
+            return redirect('portal_admin:servicecategory_detail', pk=pk)
+
+        # Appliquer le changement
+        old_status = category.get_status_display()
+        category.status = new_status
+        category.save()
+
+        new_status_display = category.get_status_display()
+        messages.success(request, f'Statut de la catégorie changé de "{old_status}" à "{new_status_display}"')
+        return redirect('portal_admin:servicecategory_detail', pk=pk)
+
+    return redirect('portal_admin:servicecategory_detail', pk=pk)
 
 
