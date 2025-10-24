@@ -1792,10 +1792,32 @@ def service_add(request):
             if code == 'auto' or not code:
                 code = 'auto'
 
+            # Récupérer la catégorie
+            category = request.POST.get('category', '').strip()
+
+            # Si la catégorie est "autre", utiliser la catégorie personnalisée
+            if category == 'autre':
+                category = request.POST.get('custom_category', '').strip()
+                if not category:
+                    messages.error(request, 'Veuillez saisir une catégorie personnalisée!')
+                    # Récupérer uniquement les codes réservés (1000-1010) disponibles
+                    reserved_codes = []
+                    for code_num in range(1000, 1011):
+                        code_str = str(code_num)
+                        is_used = Service.objects.filter(code=code_str).exists()
+                        if not is_used:
+                            reserved_codes.append(code_str)
+
+                    return render(request, 'operations/services/service_form.html', {
+                        'categories': Service.CATEGORY_CHOICES,
+                        'statuses': Service.STATUS_CHOICES,
+                        'reserved_codes': reserved_codes,
+                    })
+
             service = Service(
                 code=code,
                 name=request.POST.get('name'),
-                category=request.POST.get('category'),
+                category=category,
                 description=request.POST.get('description', ''),
                 amount=request.POST.get('amount', 0),
                 status=request.POST.get('status', 'active'),
@@ -1820,6 +1842,7 @@ def service_add(request):
         'categories': Service.CATEGORY_CHOICES,
         'statuses': Service.STATUS_CHOICES,
         'reserved_codes': reserved_codes,
+        'is_custom_category': False,
     })
 
 
@@ -1832,7 +1855,22 @@ def service_edit(request, pk):
     if request.method == 'POST':
         try:
             service.name = request.POST.get('name')
-            service.category = request.POST.get('category')
+
+            # Récupérer la catégorie
+            category = request.POST.get('category', '').strip()
+
+            # Si la catégorie est "autre", utiliser la catégorie personnalisée
+            if category == 'autre':
+                category = request.POST.get('custom_category', '').strip()
+                if not category:
+                    messages.error(request, 'Veuillez saisir une catégorie personnalisée!')
+                    return render(request, 'operations/services/service_form.html', {
+                        'service': service,
+                        'categories': Service.CATEGORY_CHOICES,
+                        'statuses': Service.STATUS_CHOICES,
+                    })
+
+            service.category = category
             service.description = request.POST.get('description', '')
             service.amount = request.POST.get('amount', 0)
             service.status = request.POST.get('status', 'active')
@@ -1846,10 +1884,15 @@ def service_edit(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification du service: {str(e)}')
 
+    # Vérifier si la catégorie actuelle est une catégorie personnalisée
+    predefined_category_values = [choice[0] for choice in Service.CATEGORY_CHOICES]
+    is_custom_category = service.category not in predefined_category_values
+
     return render(request, 'operations/services/service_form.html', {
         'service': service,
         'categories': Service.CATEGORY_CHOICES,
         'statuses': Service.STATUS_CHOICES,
+        'is_custom_category': is_custom_category,
     })
 
 

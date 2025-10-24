@@ -69,8 +69,7 @@ class Service(models.Model):
 
     # Catégorie
     category = models.CharField(
-        max_length=50,
-        choices=CATEGORY_CHOICES,
+        max_length=200,
         verbose_name='Catégorie'
     )
 
@@ -170,6 +169,15 @@ class Service(models.Model):
             return 1000 <= code_int <= 1010
         except ValueError:
             return False
+
+    def get_category_display(self):
+        """Retourne le label de la catégorie (prédéfinie ou personnalisée)"""
+        # Chercher dans les catégories prédéfinies
+        for value, label in self.CATEGORY_CHOICES:
+            if value == self.category:
+                return label
+        # Si pas trouvée, retourner la catégorie personnalisée
+        return self.category
 
 
 class FishCategory(models.Model):
