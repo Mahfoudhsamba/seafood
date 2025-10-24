@@ -68,9 +68,8 @@
 
         <div class="row mb-2" id="custom_category_container" style="display: none;">
           <div class="col-md-12">
-            <label for="custom_category" class="form-label">Catégorie personnalisée <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="custom_category" name="custom_category" placeholder="Entrez votre catégorie personnalisée" value="{% if is_custom_category %}{{ service.category }}{% endif %}">
-            <small class="text-muted">Saisissez le nom de votre catégorie personnalisée</small>
+            <label for="custom_category" class="form-label">Autre Catégorie<span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="custom_category" name="custom_category" placeholder="Saisissez une catégorie" value="{% if is_custom_category %}{{ service.category }}{% endif %}">
           </div>
         </div>
 
