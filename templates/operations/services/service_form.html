@@ -10,6 +10,8 @@
       </div>
     {% endfor %}
   {% endif %}
+
+
   <form method="post" class="mb-9">
     {% csrf_token %}
     <div class="row g-3 flex-between-end mb-5">
@@ -28,25 +30,24 @@
         <h4 class="mb-3">Informations du service</h4>
 
         {% if not service %}
-        <div class="mb-3">
-          <label for="code_choice" class="form-label">Choix du code <span class="text-danger">*</span></label>
-          <select class="form-select" id="code" name="code" required>
-            <option value="">-- Sélectionner --</option>
-            {% if reserved_codes %}
-              {% for code in reserved_codes %}
-                <option value="{{ code }}">{{ code }}</option>
-              {% endfor %}
-            {% endif %}
-            <option value="auto">Autre code</option>
-          </select>
-         
-        </div>
+          <div class="mb-3">
+            <label for="code_choice" class="form-label">Choix du code <span class="text-danger">*</span></label>
+            <select class="form-select" id="code" name="code" required>
+              <option value="">-- Sélectionner --</option>
+              {% if reserved_codes %}
+                {% for code in reserved_codes %}
+                  <option value="{{ code }}">{{ code }}</option>
+                {% endfor %}
+              {% endif %}
+              <option value="auto">Autre code</option>
+            </select>
+          </div>
         {% else %}
-        <div class="mb-3">
-          <label class="form-label">Code du service</label>
-          <input type="text" class="form-control" value="{{ service.code }}" disabled>
-          <small class="text-muted">Le code ne peut pas être modifié après la création</small>
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Code du service</label>
+            <input type="text" class="form-control" value="{{ service.code }}" disabled>
+            <small class="text-muted">Le code ne peut pas être modifié après la création</small>
+          </div>
         {% endif %}
 
         <div class="mb-3">
@@ -94,26 +95,26 @@
               <div class="card-body">
                 <h4 class="card-title mb-4">Informations</h4>
                 <div class="alert bg-body-highlight">
-                  <h6 class="alert-heading"><span class="fas fa-info-circle me-2"></span>À propos des codes</h6>
-                  <p class="mb-0 fs-10">Les codes sont sur <strong>4 chiffres</strong> (1000-9999).</p>
+                  <h6 class="alert-heading"><span class="fas fa-info-circle text-danger me-2"></span>À propos des codes</h6>
                   <hr>
                   <p class="mb-2 fs-10">Les codes <strong>1000 à 1010</strong> sont réservés au système :</p>
                   <ul class="mb-2 fs-10">
+                    <li>1000 et 1001 : Les service de Transfert</li>
+                    <li>1002 et 1010 : Les service de Traitement</li>
                     <li>11 codes disponibles pour vos services prioritaires</li>
                     <li>Choisissez parmi les codes disponibles (1000-1010)</li>
                     <li>Les codes déjà utilisés sont désactivés</li>
                   </ul>
                   <hr>
-                  <p class="mb-0 fs-10">Sélectionnez <strong>"Autre code"</strong> pour générer automatiquement un code à partir de 1011.</p>
+                  <p class="mb-0 fs-10">Sélectionnez <strong>"Autre code"</strong> pour générer automatiquement un code.</p>
                 </div>
 
                 <div class="alert bg-body-highlight mt-3">
                   <h6 class="alert-heading"><span class="fas fa-exclamation-triangle me-2"></span>Catégories</h6>
                   <ul class="mb-0 fs-10">
                     <li>Transfert</li>
-                    <li>Congélation pélagique</li>
-                    <li>Congélation de céphalopodes</li>
-                    <li>Traitement et transformation des produits frais</li>
+                    <li>Congélation</li>
+                    <li>Traitement & Transformation</li>
                     <li>Filetage, découpe et emballage</li>
                     <li>Préparation de portions calibrées</li>
                   </ul>
