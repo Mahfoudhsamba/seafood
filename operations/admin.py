@@ -49,8 +49,8 @@ class FishCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(ArrivalNote)
 class ArrivalNoteAdmin(admin.ModelAdmin):
-    list_display = ['lot_id', 'client', 'reception_date', 'weight', 'fish_category', 'service_type', 'status', 'created_at']
-    list_filter = ['status', 'service_type', 'reception_date', 'created_at', 'fish_category']
+    list_display = ['lot_id', 'client', 'reception_date', 'weight', 'get_service_category', 'service_type', 'status', 'created_at']
+    list_filter = ['status', 'service_type', 'reception_date', 'created_at', 'service_type__category']
     search_fields = ['lot_id', 'client__name', 'client__accounting_code']
     readonly_fields = ['lot_id', 'created_at', 'updated_at', 'created_by']
     date_hierarchy = 'reception_date'
@@ -60,7 +60,7 @@ class ArrivalNoteAdmin(admin.ModelAdmin):
             'fields': ('lot_id', 'client', 'reception_date')
         }),
         ('Détails du lot', {
-            'fields': ('weight', 'fish_category', 'service_type')
+            'fields': ('weight', 'service_type')
         }),
         ('Statut et observations', {
             'fields': ('status', 'observations', 'rejection_reason')
@@ -69,6 +69,11 @@ class ArrivalNoteAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at', 'created_by')
         }),
     )
+
+    def get_service_category(self, obj):
+        """Retourne la catégorie du service"""
+        return obj.service_type.category.name if obj.service_type and obj.service_type.category else '-'
+    get_service_category.short_description = 'Catégorie'
 
     def save_model(self, request, obj, form, change):
         if not change:  # Si c'est une nouvelle instance

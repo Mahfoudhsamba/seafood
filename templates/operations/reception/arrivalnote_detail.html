@@ -41,7 +41,7 @@
 
           <h3 class="mb-2">LOT #{{ arrival_note.lot_id }}</h3>
           <p class="text-muted mb-1">{{ arrival_note.client.name }}</p>
-          <p class="text-muted mb-2">{{ arrival_note.fish_category.name }}</p>
+          <p class="text-muted mb-2">{{ arrival_note.service_type.category.name|default:'-' }}</p>
 
           <div class="mb-3">
             <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %} fs-9">
@@ -86,8 +86,25 @@
 
             </div>
             <div class="col-md-6">
-              <label class="text-muted small">Catégorie de poisson</label>
-              <p class="mb-0"><strong>{{ arrival_note.fish_category.name }}</strong></p>
+              <label class="text-muted small">Catégorie de service</label>
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar-l me-2">
+                  {% if arrival_note.service_type.category.avatar %}
+                    <img class="rounded-soft" src="{{ arrival_note.service_type.category.avatar.url }}" alt="{{ arrival_note.service_type.category.name }}" >
+                  {% else %}
+                    <div class="avatar-name rounded-soft">
+                      <span>{{ arrival_note.service_type.category.name|first }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="d-flex align-items-center">
+                    <p class="mb-0 text-body-highlight fw-bold fs-8 me-2">
+                      {{ arrival_note.service_type.category.name }}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Date de réception</label>

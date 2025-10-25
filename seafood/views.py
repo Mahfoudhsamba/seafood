@@ -1559,7 +1559,7 @@ def prospect_change_status(request, pk, new_status):
 @permission_required('operations.view_arrivalnote', raise_exception=True)
 def arrivalnote_list(request):
     """Liste des notes d'arrivée"""
-    arrival_notes = ArrivalNote.objects.all().select_related('client', 'fish_category', 'created_by').order_by('-created_at')
+    arrival_notes = ArrivalNote.objects.all().select_related('client', 'service_type__category', 'created_by').order_by('-created_at')
 
     # Filtrage par statut
     status_filter = request.GET.get('status')
@@ -1592,7 +1592,7 @@ def arrivalnote_list(request):
 @permission_required('operations.view_arrivalnote', raise_exception=True)
 def arrivalnote_detail(request, pk):
     """Détails d'une note d'arrivée"""
-    arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'fish_category', 'created_by'), pk=pk)
+    arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'service_type__category', 'created_by'), pk=pk)
     return render(request, 'operations/reception/arrivalnote_detail.html', {
         'arrival_note': arrival_note,
         'status_choices': ArrivalNote.STATUS_CHOICES
@@ -1612,7 +1612,6 @@ def arrivalnote_add(request):
                 reception_date=request.POST.get('reception_date') or date.today(),
                 weight=request.POST.get('weight'),
                 service_type_id=request.POST.get('service_type'),
-                fish_category_id=request.POST.get('fish_category'),
                 observations=request.POST.get('observations', ''),
                 created_by=request.user
             )
@@ -1623,12 +1622,10 @@ def arrivalnote_add(request):
             messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
 
     clients = Client.objects.filter(status='active').order_by('name')
-    fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
     services = Service.objects.filter(status='active').order_by('code')
 
     return render(request, 'operations/reception/arrivalnote_form.html', {
         'clients': clients,
-        'fish_categories': fish_categories,
         'services': services
     })
 
@@ -1650,7 +1647,6 @@ def arrivalnote_edit(request, pk):
             arrival_note.reception_date = request.POST.get('reception_date')
             arrival_note.weight = request.POST.get('weight')
             arrival_note.service_type_id = request.POST.get('service_type')
-            arrival_note.fish_category_id = request.POST.get('fish_category')
             arrival_note.observations = request.POST.get('observations', '')
             arrival_note.save()
 
@@ -1660,13 +1656,11 @@ def arrivalnote_edit(request, pk):
             messages.error(request, f'Erreur lors de la modification: {str(e)}')
 
     clients = Client.objects.filter(status='active').order_by('name')
-    fish_categories = FishCategory.objects.filter(is_active=True).order_by('name')
     services = Service.objects.filter(status='active').order_by('code')
 
     return render(request, 'operations/reception/arrivalnote_form.html', {
         'arrival_note': arrival_note,
         'clients': clients,
-        'fish_categories': fish_categories,
         'services': services
     })
 

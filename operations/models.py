@@ -302,14 +302,6 @@ class ArrivalNote(models.Model):
         help_text='Service à effectuer sur ce lot'
     )
 
-    # Catégorie de poissons
-    fish_category = models.ForeignKey(
-        FishCategory,
-        on_delete=models.PROTECT,
-        related_name='arrival_notes',
-        verbose_name='Catégorie de poisson'
-    )
-
     # Statut du lot
     status = models.CharField(
         max_length=50,

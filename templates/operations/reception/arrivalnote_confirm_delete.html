@@ -27,7 +27,7 @@
       <p class="mb-2"><strong>Client:</strong> {{ arrival_note.client.name }}</p>
       <p class="mb-2"><strong>Date de réception:</strong> {{ arrival_note.reception_date|date:"d/m/Y" }}</p>
       <p class="mb-2"><strong>Poids:</strong> {{ arrival_note.weight }} kg</p>
-      <p class="mb-2"><strong>Catégorie:</strong> {{ arrival_note.fish_category.name }}</p>
+      <p class="mb-2"><strong>Catégorie:</strong> {{ arrival_note.service_type.category.name|default:'-' }}</p>
       <p class="mb-0"><strong>Statut:</strong> {{ arrival_note.get_status_display }}</p>
     </div>
 
