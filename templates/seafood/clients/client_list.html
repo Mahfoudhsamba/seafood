@@ -56,69 +56,69 @@
               </tr>
             </thead>
             <tbody class="list" id="order-table-body">
-                {% for client in clients %}
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                        <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
-                        <td class="compte align-middle white-space-nowrap py-0">
-                          <a class="fw-semibold" href="{% url 'portal_admin:client_detail' client.pk %}">#{{ client.accounting_code }}</a>
-                        </td>
-                        <td class="clients align-middle white-space-nowrap ">
-                          <div class="d-flex align-items-center">
-                            <div class="avatar avatar-xl me-3">
-                              {% if client.logo %}
-                                <img class="rounded-soft" src="{{ client.logo.url }}" alt="{{ client.name }}" >
-                              {% else %}
-                                <div class="avatar-name rounded-soft">
-                                  <span>{{ client.name|first }}</span>
-                                </div>
-                              {% endif %}
-                            </div>
-                            <div>
-                              <a class="fs-8 fw-bold" href="{% url 'portal_admin:client_detail' client.pk %}">{{ client.name }}</a>
-                              <div class="d-flex align-items-center">
-                                <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">
-                                  <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
-                                    <span class="badge-label">{{ client.get_client_type_display }}</span>
-                                    <span class="ms-1" data-feather="activity" style="height:12.8px;width:12.8px;"></span>
-                                  </span>
-                                </p>
-                              </div>
-                            </div>
+              {% for client in clients %}
+                <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                  <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
+                  <td class="compte align-middle white-space-nowrap py-0">
+                    <a class="fw-semibold" href="{% url 'portal_admin:client_detail' client.pk %}">#{{ client.accounting_code }}</a>
+                  </td>
+                  <td class="clients align-middle white-space-nowrap ">
+                    <div class="d-flex align-items-center">
+                      <div class="avatar avatar-xl me-3">
+                        {% if client.logo %}
+                          <img class="rounded-soft" src="{{ client.logo.url }}" alt="{{ client.name }}" >
+                        {% else %}
+                          <div class="avatar-name rounded-soft">
+                            <span>{{ client.name|first }}</span>
                           </div>
-                        </td>
-                        <td class="statut align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
-                            <span class="badge badge-phoenix fs-10 badge-phoenix-{% if client.status == 'active' %}success{% elif client.status == 'inactive' %}danger{% else %}warning{% endif %}">
-                                <span class="badge-label">{{ client.get_status_display }}</span>
-                                <span class="ms-1" data-feather="{% if client.status == 'active' %}check{% elif client.status == 'inactive' %}x{% else %}clock{% endif %}" style="height:12.8px;width:12.8px;"></span>
+                        {% endif %}
+                      </div>
+                      <div>
+                        <a class="fs-8 fw-bold" href="{% url 'portal_admin:client_detail' client.pk %}">{{ client.name }}</a>
+                        <div class="d-flex align-items-center">
+                          <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2">
+                            <span class="badge badge-phoenix fs-10 badge-phoenix-secondary">
+                              <span class="badge-label">{{ client.get_client_type_display }}</span>
+                              <span class="ms-1" data-feather="activity" style="height:12.8px;width:12.8px;"></span>
                             </span>
-                        </td>
-                        <td class="type align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
-                          <span class="badge text-bg-info fs-9">{{ client.get_client_type_display }}</span>
-                        </td>   
-                        <td class="contact align-middle fw-semibold text-body-highlight">
-                          {% if client.email %}
-                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-square-envelope me-1"></i>{{ client.email }}</p>
-                          {% endif %}
-                          <div class="d-flex align-items-center">
-                            {% if client.mobile %}
-                            <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-phone-square me-1"></i>{{ client.mobile }}</p>
-                            {% endif %}
-                          </div>
-                        </td>
-                        <td class="location align-middle fw-semibold text-body-highlight">
-                          {{ client.country|default:"-" }}
-                        </td>
-                        <td class="actions align-middle white-space-nowrap text-body fs-9 text-start">
-                          <a href="{% url 'portal_admin:client_detail' client.pk %}"><span class="text-body fs-5" data-feather="eye"></span></a>
-                          <a href="{% url 'portal_admin:client_edit' client.pk %}"><span class="text-body fs-5" data-feather="edit"></span></a>
-                          <a href="{% url 'portal_admin:client_delete' client.pk %}"><span class="text-body fs-5" data-feather="trash-2"></span></a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                      <td colspan="8" class="text-center">Aucun client trouvé</td>
-                    </tr>
-                {% endfor %}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="statut align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
+                      <span class="badge badge-phoenix fs-10 badge-phoenix-{% if client.status == 'active' %}success{% elif client.status == 'inactive' %}danger{% else %}warning{% endif %}">
+                          <span class="badge-label">{{ client.get_status_display }}</span>
+                          <span class="ms-1" data-feather="{% if client.status == 'active' %}check{% elif client.status == 'inactive' %}x{% else %}clock{% endif %}" style="height:12.8px;width:12.8px;"></span>
+                      </span>
+                  </td>
+                  <td class="type align-middle white-space-nowrap text-start fw-bold text-body-tertiary">
+                    <span class="badge text-bg-info fs-9">{{ client.get_client_type_display }}</span>
+                  </td>   
+                  <td class="contact align-middle fw-semibold text-body-highlight">
+                    {% if client.email %}
+                      <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-square-envelope me-1"></i>{{ client.email }}</p>
+                    {% endif %}
+                    <div class="d-flex align-items-center">
+                      {% if client.mobile %}
+                      <p class="mb-0 text-body-highlight fw-semibold fs-9 me-2"><i class="fa fa-phone-square me-1"></i>{{ client.mobile }}</p>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="location align-middle fw-semibold text-body-highlight">
+                    {{ client.country|default:"-" }}
+                  </td>
+                  <td class="actions align-middle white-space-nowrap text-body fs-9 text-start">
+                    <a href="{% url 'portal_admin:client_detail' client.pk %}"><span class="text-body fs-5" data-feather="eye"></span></a>
+                    <a href="{% url 'portal_admin:client_edit' client.pk %}"><span class="text-body fs-5" data-feather="edit"></span></a>
+                    <a href="{% url 'portal_admin:client_delete' client.pk %}"><span class="text-body fs-5" data-feather="trash-2"></span></a>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center">Aucun client trouvé</td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
