@@ -102,9 +102,24 @@
                 </td>
                 <td class="Nom align-middle fw-bold text-body-highlight fs-9">{{ service.name }}</td>
                 <td class="Categorie align-middle white-space-nowrap">
-                  <span class="badge badge-phoenix fs-10 badge-phoenix-primary">
-                    {{ service.category.name }}
-                  </span>
+                  <div class="d-flex align-items-center">
+                    <div class="avatar avatar-m me-2">
+                      {% if service.category.avatar %}
+                        <img class="rounded-soft" src="{{ service.category.avatar.url }}" alt="{{ service.category.name }}" >
+                      {% else %}
+                        <div class="avatar-name rounded-soft">
+                          <span>{{ service.category.name|first }}</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <div class="d-flex align-items-center">
+                        <p class="mb-0 text-body-highlight fw-bold fs-9 me-2">
+                          {{ service.category.name }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </td>
                 <td class="Montant align-middle white-space-nowrap fw-bold">{{ service.amount }} MRU</td>
                 <td class="Statut align-middle white-space-nowrap fw-bold text-body-tertiary">

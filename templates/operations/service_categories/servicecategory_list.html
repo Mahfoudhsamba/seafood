@@ -23,7 +23,7 @@
               <span class="fa-stack" style="min-height: 46px;min-width: 46px;">
                 <span class="fa-solid fa-square fa-stack-2x dark__text-opacity-50 text-info-danger" data-fa-transform="down-4 rotate--10 left-4"></span>
                 <span class="fa-solid fa-circle fa-stack-2x stack-circle text-stats-circle-danger" data-fa-transform="up-4 right-3 grow-2"></span>
-                <span class="fa-stack-1x fa-solid fa-grid text-danger " data-fa-transform="shrink-2 up-8 right-6"></span>
+                <span class="fa-stack-1x fa fa-filter text-danger " data-fa-transform="shrink-2 up-8 right-6"></span>
               </span>
               <div class="ms-3">
                 <h4 class="mb-0">{{ categories|length }}</h4>
@@ -45,19 +45,13 @@
     {% endfor %}
   {% endif %}
 
-  <div id="categoriesTable" data-list='{"valueNames":["Nom", "Description", "Statut", "Actions"],"page":10,"pagination":true}'>
+  <div id="categoriesTable" data-list='{"valueNames":["Categorie", "Description", "Statut", "Actions"],"page":10,"pagination":true}'>
     <div class="mx-n4 px-4 mx-lg-n6 px-lg-6 bg-body-emphasis border-top border-bottom border-translucent position-relative top-1">
       <div class="table-responsive scrollbar mx-n1 px-1">
         <table class="table table-sm fs-9 mb-0">
           <thead>
             <tr>
-              <th class="white-space-nowrap fs-9 align-middle">
-                <div class="form-check mb-0 fs-8">
-                  <input class="form-check-input" id="checkbox-bulk-order-select" type="checkbox" data-bulk-select='' />
-                </div>
-              </th>
-              <th class="sort white-space-nowrap align-middle" scope="col" data-sort="Avatar">AVATAR</th>
-              <th class="sort align-middle" scope="col" data-sort="Nom">NOM</th>
+              <th class="sort align-middle fs-9" scope="col" data-sort="Categorie">CATEGORIE</th>
               <th class="sort align-middle" scope="col" data-sort="Description">DESCRIPTION</th>
               <th class="sort align-middle" scope="col" data-sort="Statut">STATUT</th>
               <th class="sort align-middle" scope="col" data-sort="Actions">ACTIONS</th>
@@ -66,16 +60,27 @@
           <tbody class="list" id="order-table-body">
             {% for category in categories %}
               <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                <td class="fs-9 align-middle py-2"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row='' /></div></td>
-                <td class="Avatar align-middle">
-                  {% if category.avatar %}
-                    <img src="{{ category.avatar.url }}" alt="{{ category.name }}" width="40" height="40" class="rounded">
-                  {% else %}
-                    <span class="fas fa-image fa-2x text-muted"></span>
-                  {% endif %}
-                </td>
-                <td class="Nom align-middle fw-bold text-body-highlight fs-9">
-                  <a href="{% url 'portal_admin:servicecategory_detail' category.pk %}">{{ category.name }}</a>
+                <td class="Categorie align-middle">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar avatar-xl me-3">
+                      {% if category.avatar %}
+                        <img class="rounded-soft" src="{{ category.avatar.url }}" alt="{{ category.name }}" >
+                      {% else %}
+                        <div class="avatar-name rounded-soft">
+                          <span>{{ category.name|first }}</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <a class="fs-8 fw-bold" href="{% url 'portal_admin:servicecategory_detail' category.pk %}">
+                        <div class="d-flex align-items-center">
+                          <p class="mb-0  fw-bold fs-8 me-2">
+                            {{ category.name }}
+                          </p>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
                 </td>
                 <td class="Description align-middle white-space-nowrap">{{ category.description|truncatewords:10 }}</td>
                 <td class="Statut align-middle white-space-nowrap fw-bold text-body-tertiary">
