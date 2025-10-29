@@ -396,3 +396,180 @@ class ArrivalNote(models.Model):
     def is_locked(self):
         """Vérifie si le lot est verrouillé (accepté et en circulation)"""
         return self.status in ['accepted', 'in_progress', 'completed']
+
+
+class Classification(models.Model):
+    """
+    Modèle pour le rapport de réception des poissons reçus
+    Contient les détails par espèce avec les poids,
+    incluant les poissons rejetés et les poids perdus
+    """
+    STATUS_CHOICES = [
+        ('draft', 'Brouillon'),
+        ('validated', 'Validé'),
+        ('cancelled', 'Annulé'),
+    ]
+
+    # Numéro du lot (Note d'arrivée)
+    arrival_note = models.ForeignKey(
+        ArrivalNote,
+        on_delete=models.PROTECT,
+        related_name='classifications',
+        verbose_name='Lot (Note d\'arrivée)',
+        help_text='Sélectionner un lot dont le type de service est supérieur à 1003'
+    )
+
+    # Date du rapport
+    classification_date = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date du rapport'
+    )
+
+    # Observation générale
+    general_observation = models.TextField(
+        blank=True,
+        verbose_name='Observation générale',
+        help_text='Remarques générales sur le rapport du lot'
+    )
+
+    # Statut
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft',
+        verbose_name='Statut'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_classifications',
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        verbose_name = 'Rapport de réception'
+        verbose_name_plural = 'Rapports de réception'
+        ordering = ['-classification_date']
+        indexes = [
+            models.Index(fields=['arrival_note']),
+            models.Index(fields=['classification_date']),
+            models.Index(fields=['status']),
+        ]
+
+    def __str__(self):
+        return f"Rapport LOT {self.arrival_note.lot_id} - {self.classification_date.strftime('%d/%m/%Y %H:%M')}"
+
+    @property
+    def total_weight(self):
+        """Calcule le poids total de tous les items de classification"""
+        return sum(item.weight for item in self.items.all())
+
+    @property
+    def can_be_edited(self):
+        """Vérifie si le rapport peut être modifié"""
+        return self.status == 'draft'
+
+
+class ClassificationItem(models.Model):
+    """
+    Modèle pour les détails par espèce du rapport de réception
+    Chaque item représente une espèce de poisson avec son poids et commentaires
+    """
+    SPECIES_CHOICES = [
+        ('sardine', 'Sardine'),
+        ('maquereau', 'Maquereau'),
+        ('anchois', 'Anchois'),
+        ('thon', 'Thon'),
+        ('espadon', 'Espadon'),
+        ('dorade', 'Dorade'),
+        ('loup', 'Loup (Bar)'),
+        ('crevette', 'Crevette'),
+        ('calmar', 'Calmar'),
+        ('poulpe', 'Poulpe'),
+        ('rejete', 'Poisson rejeté'),
+        ('perdu', 'Poids perdu'),
+        ('autre', 'Autre espèce'),
+    ]
+
+    # Rapport de réception parent
+    classification = models.ForeignKey(
+        Classification,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name='Rapport de réception'
+    )
+
+    # Espèce de poisson
+    species = models.CharField(
+        max_length=100,
+        choices=SPECIES_CHOICES,
+        verbose_name='Espèce',
+        help_text='Type de poisson ou catégorie'
+    )
+
+    # Nom personnalisé de l'espèce (si "autre" est sélectionné)
+    custom_species_name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name='Nom personnalisé de l\'espèce',
+        help_text='Utilisé si "Autre espèce" est sélectionné'
+    )
+
+    # Poids en kg
+    weight = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name='Poids (kg)',
+        help_text='Poids de cette espèce en kilogrammes'
+    )
+
+    # Commentaire
+    comment = models.TextField(
+        blank=True,
+        verbose_name='Commentaire',
+        help_text='Remarques spécifiques sur cette espèce'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+
+    class Meta:
+        verbose_name = 'Détail par espèce'
+        verbose_name_plural = 'Détails par espèce'
+        ordering = ['classification', 'species']
+        indexes = [
+            models.Index(fields=['classification']),
+            models.Index(fields=['species']),
+        ]
+
+    def __str__(self):
+        species_display = self.get_species_display()
+        if self.species == 'autre' and self.custom_species_name:
+            species_display = self.custom_species_name
+        return f"{species_display} - {self.weight} kg"
+
+    @property
+    def species_name(self):
+        """Retourne le nom de l'espèce (personnalisé ou prédéfini)"""
+        if self.species == 'autre' and self.custom_species_name:
+            return self.custom_species_name
+        return self.get_species_display()

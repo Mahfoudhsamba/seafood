@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory
+from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory, Classification, ClassificationItem
 
 # Create your views here.
 
@@ -2067,5 +2067,210 @@ def servicecategory_change_status(request, pk):
         return redirect('portal_admin:servicecategory_detail', pk=pk)
 
     return redirect('portal_admin:servicecategory_detail', pk=pk)
+
+
+# ============ RAPPORTS DE RÉCEPTION ============
+
+@staff_member_required
+@permission_required('operations.view_classification', raise_exception=True)
+def reception_report_list(request):
+    """Liste des rapports de réception"""
+    classifications = Classification.objects.all().select_related(
+        'arrival_note',
+        'arrival_note__client',
+        'arrival_note__service_type',
+        'created_by'
+    ).prefetch_related('items').order_by('-classification_date')
+
+    return render(request, 'operations/reception_reports/report_list.html', {
+        'classifications': classifications
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_classification', raise_exception=True)
+def reception_report_detail(request, pk):
+    """Détails d'un rapport de réception"""
+    classification = get_object_or_404(
+        Classification.objects.select_related(
+            'arrival_note',
+            'arrival_note__client',
+            'arrival_note__service_type',
+            'created_by'
+        ).prefetch_related('items'),
+        pk=pk
+    )
+
+    return render(request, 'operations/reception_reports/report_detail.html', {
+        'classification': classification,
+        'status_choices': Classification.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.add_classification', raise_exception=True)
+def reception_report_add(request):
+    """Formulaire d'ajout de rapport de réception"""
+    if request.method == 'POST':
+        try:
+            import json
+
+            # Créer le rapport de réception
+            arrival_note_id = request.POST.get('arrival_note')
+            arrival_note = get_object_or_404(ArrivalNote, pk=arrival_note_id)
+
+            classification = Classification.objects.create(
+                arrival_note=arrival_note,
+                general_observation=request.POST.get('general_observation', ''),
+                status='draft',
+                created_by=request.user
+            )
+
+            # Récupérer les items depuis le formulaire
+            items_data = request.POST.get('items_data', '[]')
+            items = json.loads(items_data)
+
+            # Créer les détails par espèce
+            for item in items:
+                if item.get('species') and item.get('weight'):
+                    ClassificationItem.objects.create(
+                        classification=classification,
+                        species=item['species'],
+                        custom_species_name=item.get('custom_species_name', ''),
+                        weight=item['weight'],
+                        comment=item.get('comment', '')
+                    )
+
+            messages.success(request, f'Rapport de réception pour le LOT {arrival_note.lot_id} créé avec succès!')
+            return redirect('portal_admin:reception_report_detail', pk=classification.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création: {str(e)}')
+
+    # Récupérer les lots éligibles (service_type.code > '1003')
+    eligible_lots = ArrivalNote.objects.filter(
+        service_type__code__gt='1003'
+    ).select_related('client', 'service_type').order_by('-reception_date')
+
+    return render(request, 'operations/reception_reports/report_form.html', {
+        'eligible_lots': eligible_lots,
+        'species_choices': ClassificationItem.SPECIES_CHOICES,
+        'status_choices': Classification.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_classification', raise_exception=True)
+def reception_report_edit(request, pk):
+    """Formulaire de modification de rapport de réception"""
+    classification = get_object_or_404(
+        Classification.objects.select_related('arrival_note', 'arrival_note__client').prefetch_related('items'),
+        pk=pk
+    )
+
+    # Vérifier si le rapport peut être modifié
+    if not classification.can_be_edited:
+        messages.error(request, 'Ce rapport ne peut plus être modifié car il est validé ou annulé.')
+        return redirect('portal_admin:reception_report_detail', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            import json
+
+            # Mettre à jour le rapport
+            classification.general_observation = request.POST.get('general_observation', '')
+            classification.status = request.POST.get('status', 'draft')
+            classification.save()
+
+            # Supprimer les anciens items
+            classification.items.all().delete()
+
+            # Récupérer et créer les nouveaux items
+            items_data = request.POST.get('items_data', '[]')
+            items = json.loads(items_data)
+
+            for item in items:
+                if item.get('species') and item.get('weight'):
+                    ClassificationItem.objects.create(
+                        classification=classification,
+                        species=item['species'],
+                        custom_species_name=item.get('custom_species_name', ''),
+                        weight=item['weight'],
+                        comment=item.get('comment', '')
+                    )
+
+            messages.success(request, 'Rapport de réception modifié avec succès!')
+            return redirect('portal_admin:reception_report_detail', pk=classification.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    # Récupérer les lots éligibles
+    eligible_lots = ArrivalNote.objects.filter(
+        service_type__code__gt='1003'
+    ).select_related('client', 'service_type').order_by('-reception_date')
+
+    return render(request, 'operations/reception_reports/report_form.html', {
+        'classification': classification,
+        'eligible_lots': eligible_lots,
+        'species_choices': ClassificationItem.SPECIES_CHOICES,
+        'status_choices': Classification.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_classification', raise_exception=True)
+def reception_report_delete(request, pk):
+    """Suppression d'un rapport de réception"""
+    classification = get_object_or_404(
+        Classification.objects.select_related('arrival_note'),
+        pk=pk
+    )
+
+    if request.method == 'POST':
+        try:
+            lot_id = classification.arrival_note.lot_id
+            classification.delete()
+            messages.success(request, f'Rapport de réception pour le LOT {lot_id} supprimé avec succès!')
+            return redirect('portal_admin:reception_report_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'operations/reception_reports/report_confirm_delete.html', {
+        'classification': classification
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_classification', raise_exception=True)
+def reception_report_change_status(request, pk):
+    """Changer le statut d'un rapport de réception"""
+    classification = get_object_or_404(Classification, pk=pk)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+
+        # Vérifier que le nouveau statut est valide
+        valid_statuses = [choice[0] for choice in Classification.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Statut invalide!')
+            return redirect('portal_admin:reception_report_detail', pk=pk)
+
+        # Vérifier les règles de changement de statut
+        if classification.status == 'validated':
+            # Une fois validé, on ne peut plus changer le statut
+            messages.error(request, 'Un rapport validé ne peut plus être modifié.')
+            return redirect('portal_admin:reception_report_detail', pk=pk)
+
+        # Appliquer le changement
+        old_status = classification.get_status_display()
+        classification.status = new_status
+        classification.save()
+
+        new_status_display = classification.get_status_display()
+        messages.success(request, f'Statut du rapport changé de "{old_status}" à "{new_status_display}"')
+        return redirect('portal_admin:reception_report_detail', pk=pk)
+
+    return redirect('portal_admin:reception_report_detail', pk=pk)
 
 

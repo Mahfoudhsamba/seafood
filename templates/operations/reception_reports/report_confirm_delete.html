@@ -1,0 +1,108 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Supprimer Rapport de Réception{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Supprimer Rapport de Réception</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:reception_report_detail' classification.pk %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour aux détails
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">
+            <span class="fas fa-exclamation-triangle me-2"></span>Confirmation de suppression
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <strong>Attention !</strong> Cette action est irréversible. Toutes les données associées à ce rapport seront définitivement supprimées.
+          </div>
+
+          <div class="mb-4">
+            <h6 class="mb-3">Êtes-vous sûr de vouloir supprimer ce rapport de réception ?</h6>
+
+            <div class="border rounded p-3 bg-light">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <strong>№ LOT:</strong> {{ classification.arrival_note.lot_id }}
+                </div>
+                <div class="col-md-6">
+                  <strong>Client:</strong> {{ classification.arrival_note.client.name }}
+                </div>
+                <div class="col-md-6">
+                  <strong>Date du rapport:</strong> {{ classification.classification_date|date:"d/m/Y H:i" }}
+                </div>
+                <div class="col-md-6">
+                  <strong>Statut:</strong>
+                  <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %}">
+                    {{ classification.get_status_display }}
+                  </span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Nombre d'espèces:</strong> {{ classification.items.count }}
+                </div>
+                <div class="col-md-6">
+                  <strong>Poids total:</strong> {{ classification.total_weight }} kg
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h6>Détails par espèce ({{ classification.items.count }})</h6>
+            <ul class="list-group">
+              {% for item in classification.items.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>
+                    <span class="badge badge-phoenix badge-phoenix-{% if item.species == 'rejete' %}danger{% elif item.species == 'perdu' %}warning{% else %}info{% endif %} me-2">
+                      {{ item.species_name }}
+                    </span>
+                    {% if item.comment %}
+                      <small class="text-muted">- {{ item.comment }}</small>
+                    {% endif %}
+                  </span>
+                  <span class="fw-bold">{{ item.weight }} kg</span>
+                </li>
+              {% empty %}
+                <li class="list-group-item text-center text-muted">Aucun item</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2 justify-content-end">
+              <a href="{% url 'portal_admin:reception_report_detail' classification.pk %}" class="btn btn-secondary">
+                <span class="fas fa-times me-2"></span>Annuler
+              </a>
+              <button type="submit" class="btn btn-danger">
+                <span class="fas fa-trash me-2"></span>Oui, supprimer définitivement
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

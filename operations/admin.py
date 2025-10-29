@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, FishCategory, ArrivalNote
+from .models import Service, FishCategory, ArrivalNote, Classification, ClassificationItem
 
 # Register your models here.
 
@@ -79,3 +79,79 @@ class ArrivalNoteAdmin(admin.ModelAdmin):
         if not change:  # Si c'est une nouvelle instance
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+
+class ClassificationItemInline(admin.TabularInline):
+    """
+    Inline pour gérer les détails par espèce directement depuis le rapport
+    """
+    model = ClassificationItem
+    extra = 1
+    fields = ['species', 'custom_species_name', 'weight', 'comment']
+    verbose_name = 'Détail par espèce'
+    verbose_name_plural = 'Détails par espèce'
+
+
+@admin.register(Classification)
+class ClassificationAdmin(admin.ModelAdmin):
+    list_display = ['arrival_note', 'classification_date', 'status', 'get_total_weight', 'created_by']
+    list_filter = ['status', 'classification_date', 'created_at']
+    search_fields = ['arrival_note__lot_id', 'arrival_note__client__name', 'general_observation']
+    readonly_fields = ['classification_date', 'created_at', 'updated_at', 'created_by']
+    date_hierarchy = 'classification_date'
+    inlines = [ClassificationItemInline]
+
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('arrival_note', 'classification_date', 'status')
+        }),
+        ('Observations', {
+            'fields': ('general_observation',)
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def get_total_weight(self, obj):
+        """Retourne le poids total de tous les items"""
+        return f"{obj.total_weight} kg"
+    get_total_weight.short_description = 'Poids total'
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si c'est une nouvelle instance
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        """Optimise les requêtes en préchargeant les relations"""
+        qs = super().get_queryset(request)
+        return qs.select_related('arrival_note', 'arrival_note__client', 'created_by').prefetch_related('items')
+
+
+@admin.register(ClassificationItem)
+class ClassificationItemAdmin(admin.ModelAdmin):
+    list_display = ['classification', 'get_species_name', 'weight', 'created_at']
+    list_filter = ['species', 'created_at']
+    search_fields = ['classification__arrival_note__lot_id', 'species', 'custom_species_name', 'comment']
+    readonly_fields = ['created_at', 'updated_at']
+
+    fieldsets = (
+        ('Informations', {
+            'fields': ('classification', 'species', 'custom_species_name', 'weight', 'comment')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+    def get_species_name(self, obj):
+        """Retourne le nom de l'espèce (personnalisé ou prédéfini)"""
+        return obj.species_name
+    get_species_name.short_description = 'Espèce'
+
+    def get_queryset(self, request):
+        """Optimise les requêtes en préchargeant les relations"""
+        qs = super().get_queryset(request)
+        return qs.select_related('classification', 'classification__arrival_note')

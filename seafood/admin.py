@@ -104,6 +104,14 @@ class PortalAdminSite(AdminSite):
             path('service-categories/<int:pk>/edit/', views.servicecategory_edit, name='servicecategory_edit'),
             path('service-categories/<int:pk>/delete/', views.servicecategory_delete, name='servicecategory_delete'),
             path('service-categories/<int:pk>/change-status/', views.servicecategory_change_status, name='servicecategory_change_status'),
+
+            # Rapports de réception
+            path('rapports-reception/', views.reception_report_list, name='reception_report_list'),
+            path('rapports-reception/add/', views.reception_report_add, name='reception_report_add'),
+            path('rapports-reception/<int:pk>/', views.reception_report_detail, name='reception_report_detail'),
+            path('rapports-reception/<int:pk>/edit/', views.reception_report_edit, name='reception_report_edit'),
+            path('rapports-reception/<int:pk>/delete/', views.reception_report_delete, name='reception_report_delete'),
+            path('rapports-reception/<int:pk>/change-status/', views.reception_report_change_status, name='reception_report_change_status'),
         ]
         return custom_urls + urls
 

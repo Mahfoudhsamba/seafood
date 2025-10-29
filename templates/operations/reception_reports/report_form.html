@@ -1,0 +1,262 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{% if classification %}Modifier{% else %}Ajouter{% endif %} Rapport de Réception{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">{% if classification %}Modifier{% else %}Nouveau{% endif %} Rapport de Réception</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour à la liste
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" id="classificationForm">
+    {% csrf_token %}
+
+    <div class="row g-3">
+      <div class="col-lg-12">
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations principales</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="arrival_note" class="form-label">Numéro de lot (Note d'arrivée) <span class="text-danger">*</span></label>
+                <select name="arrival_note" id="arrival_note" class="form-select" required {% if classification %}disabled{% endif %}>
+                  <option value="">Sélectionner un lot...</option>
+                  {% for lot in eligible_lots %}
+                    <option value="{{ lot.pk }}"
+                      data-client="{{ lot.client.name }}"
+                      data-weight="{{ lot.weight }}"
+                      data-service="{{ lot.service_type.name }}"
+                      {% if classification and classification.arrival_note.pk == lot.pk %}selected{% endif %}>
+                      LOT #{{ lot.lot_id }} - {{ lot.client.name }} - {{ lot.weight }} kg - {{ lot.service_type.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+                {% if classification %}
+                  <input type="hidden" name="arrival_note" value="{{ classification.arrival_note.pk }}">
+                {% endif %}
+                <div class="form-text">Sélectionner un lot avec service &gt; 1003</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
+                <select name="status" id="status" class="form-select" required>
+                  {% for status_code, status_label in status_choices %}
+                    <option value="{{ status_code }}" {% if classification and classification.status == status_code %}selected{% endif %}>
+                      {{ status_label }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label for="general_observation" class="form-label">Observation générale</label>
+                <textarea name="general_observation" id="general_observation" class="form-control" rows="3" placeholder="Remarques générales sur la classification...">{% if classification %}{{ classification.general_observation }}{% endif %}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><span class="fas fa-list me-2"></span>Détails par espèce</h5>
+            <button type="button" class="btn btn-sm btn-primary" id="addItemBtn">
+              <span class="fas fa-plus me-1"></span>Ajouter une espèce
+            </button>
+          </div>
+          <div class="card-body">
+            <div id="itemsContainer">
+              {% if classification %}
+                {% for item in classification.items.all %}
+                  <div class="item-row border p-3 mb-3 rounded">
+                    <div class="row g-3">
+                      <div class="col-md-3">
+                        <label class="form-label">Espèce <span class="text-danger">*</span></label>
+                        <select class="form-select item-species" required>
+                          <option value="">Sélectionner...</option>
+                          {% for species_code, species_label in species_choices %}
+                            <option value="{{ species_code }}" {% if item.species == species_code %}selected{% endif %}>{{ species_label }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-md-3 custom-species-field" {% if item.species != 'autre' %}style="display:none;"{% endif %}>
+                        <label class="form-label">Nom personnalisé</label>
+                        <input type="text" class="form-control item-custom-name" placeholder="Ex: Rouget" value="{{ item.custom_species_name }}">
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Poids (kg) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" min="0" class="form-control item-weight" placeholder="0.00" required value="{{ item.weight }}">
+                      </div>
+                      <div class="col-md-2">
+                        <label class="form-label">Commentaire</label>
+                        <input type="text" class="form-control item-comment" placeholder="Remarque..." value="{{ item.comment }}">
+                      </div>
+                      <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm remove-item">
+                          <span class="fas fa-trash"></span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <div id="noItems" class="text-center py-4 text-muted" {% if classification and classification.items.all %}style="display:none;"{% endif %}>
+              Aucun item ajouté. Cliquez sur "Ajouter une espèce" pour commencer.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" name="items_data" id="items_data">
+
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary">
+        <span class="fas fa-save me-2"></span>{% if classification %}Mettre à jour{% else %}Créer{% endif %}
+      </button>
+      <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-secondary">Annuler</a>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.getElementById('itemsContainer');
+  const addBtn = document.getElementById('addItemBtn');
+  const noItems = document.getElementById('noItems');
+  const form = document.getElementById('classificationForm');
+
+  // Template pour un nouvel item
+  const itemTemplate = `
+    <div class="item-row border p-3 mb-3 rounded">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Espèce <span class="text-danger">*</span></label>
+          <select class="form-select item-species" required>
+            <option value="">Sélectionner...</option>
+            {% for species_code, species_label in species_choices %}
+              <option value="{{ species_code }}">{{ species_label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3 custom-species-field" style="display:none;">
+          <label class="form-label">Nom personnalisé</label>
+          <input type="text" class="form-control item-custom-name" placeholder="Ex: Rouget">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Poids (kg) <span class="text-danger">*</span></label>
+          <input type="number" step="0.01" min="0" class="form-control item-weight" placeholder="0.00" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Commentaire</label>
+          <input type="text" class="form-control item-comment" placeholder="Remarque...">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="button" class="btn btn-danger btn-sm remove-item">
+            <span class="fas fa-trash"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Ajouter un nouvel item
+  addBtn.addEventListener('click', function() {
+    const div = document.createElement('div');
+    div.innerHTML = itemTemplate;
+    const itemRow = div.firstElementChild;
+    container.appendChild(itemRow);
+    noItems.style.display = 'none';
+
+    // Attacher l'événement pour le nouveau select d'espèce
+    const speciesSelect = itemRow.querySelector('.item-species');
+    speciesSelect.addEventListener('change', function() {
+      handleSpeciesChange(this);
+    });
+
+    // Attacher l'événement de suppression
+    const removeBtn = itemRow.querySelector('.remove-item');
+    removeBtn.addEventListener('click', function() {
+      itemRow.remove();
+      if (container.children.length === 0) {
+        noItems.style.display = 'block';
+      }
+    });
+  });
+
+  // Gérer le changement d'espèce (afficher/masquer le champ personnalisé)
+  function handleSpeciesChange(select) {
+    const row = select.closest('.item-row');
+    const customField = row.querySelector('.custom-species-field');
+    if (select.value === 'autre') {
+      customField.style.display = 'block';
+      customField.querySelector('.item-custom-name').required = true;
+    } else {
+      customField.style.display = 'none';
+      customField.querySelector('.item-custom-name').required = false;
+    }
+  }
+
+  // Attacher les événements aux items existants
+  document.querySelectorAll('.item-species').forEach(select => {
+    select.addEventListener('change', function() {
+      handleSpeciesChange(this);
+    });
+  });
+
+  document.querySelectorAll('.remove-item').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const row = this.closest('.item-row');
+      row.remove();
+      if (container.children.length === 0) {
+        noItems.style.display = 'block';
+      }
+    });
+  });
+
+  // Collecter les données avant soumission
+  form.addEventListener('submit', function(e) {
+    const items = [];
+    const itemRows = container.querySelectorAll('.item-row');
+
+    itemRows.forEach(row => {
+      const species = row.querySelector('.item-species').value;
+      const customName = row.querySelector('.item-custom-name').value;
+      const weight = row.querySelector('.item-weight').value;
+      const comment = row.querySelector('.item-comment').value;
+
+      if (species && weight) {
+        items.push({
+          species: species,
+          custom_species_name: customName,
+          weight: parseFloat(weight),
+          comment: comment
+        });
+      }
+    });
+
+    document.getElementById('items_data').value = JSON.stringify(items);
+  });
+});
+</script>
+
+{% endblock %}

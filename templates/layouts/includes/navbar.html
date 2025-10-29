@@ -116,13 +116,13 @@
                         <!-- Services -->
                         {% if perms.operations.view_service or perms.operations.add_service %}
                         <div class="nav-item-wrapper">
-                            <a class="nav-link dropdown-indicator label-1" href="#nv-services" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'service' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-services">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-services" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'services/' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-services">
                                 <div class="d-flex align-items-center">
                                     <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="list"></span></span><span class="nav-link-text">Services</span>
                                 </div>
                             </a>
                             <div class="parent-wrapper label-1">
-                                <ul class="nav collapse parent {% if 'service' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-services">
+                                <ul class="nav collapse parent {% if 'services/' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-services">
                                     <li class="collapsed-nav-item-title d-none">Services</li>
                                     {% if perms.operations.add_service %}
                                     <li class="nav-item">
@@ -176,13 +176,13 @@
                         <!-- Réception -->
                         {% if perms.operations.view_arrivalnote or perms.operations.add_arrivalnote %}
                         <div class="nav-item-wrapper">
-                            <a class="nav-link dropdown-indicator label-1" href="#nv-reception" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'reception' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-reception">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-reception" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'reception' in request.path or 'rapports-reception' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-reception">
                                 <div class="d-flex align-items-center">
                                     <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="package"></span></span><span class="nav-link-text">Réception</span>
                                 </div>
                             </a>
                             <div class="parent-wrapper label-1">
-                                <ul class="nav collapse parent {% if 'reception' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-reception">
+                                <ul class="nav collapse parent {% if 'reception' in request.path or 'rapports-reception' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-reception">
                                     <li class="collapsed-nav-item-title d-none">Réception</li>
                                     {% if perms.operations.add_arrivalnote %}
                                     <li class="nav-item">
@@ -195,6 +195,20 @@
                                     <li class="nav-item">
                                         <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_list' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_list' %}">
                                             <div class="d-flex align-items-center"><span class="nav-link-text">Liste des réceptions</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.operations.add_classification %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_add' %}active{% endif %}" href="{% url 'portal_admin:reception_report_add' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Nouveau rapport</span></div>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% if perms.operations.view_classification %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_list' %}active{% endif %}" href="{% url 'portal_admin:reception_report_list' %}">
+                                            <div class="d-flex align-items-center"><span class="nav-link-text">Rapports de réception</span></div>
                                         </a>
                                     </li>
                                     {% endif %}

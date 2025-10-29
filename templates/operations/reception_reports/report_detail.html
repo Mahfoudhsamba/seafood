@@ -1,0 +1,210 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Rapport de Réception - LOT #{{ classification.arrival_note.lot_id }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">Rapport de Réception - LOT {{ classification.arrival_note.lot_id }}</h2>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        {% if perms.operations.change_classification and classification.can_be_edited %}
+          <a href="{% url 'portal_admin:reception_report_edit' classification.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+        {% endif %}
+        {% if perms.operations.delete_classification %}
+        <a href="{% url 'portal_admin:reception_report_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+        {% endif %}
+        <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <span class="fas fa-clipboard-list fa-4x text-muted"></span>
+          </div>
+
+          <h3 class="mb-2">LOT #{{ classification.arrival_note.lot_id }}</h3>
+          <p class="text-muted mb-1">{{ classification.arrival_note.client.name }}</p>
+          <p class="text-muted mb-2">{{ classification.arrival_note.service_type.name }}</p>
+
+          <div class="mb-3">
+            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ classification.get_status_display }}
+            </span>
+          </div>
+
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Poids total:</span>
+              <strong>{{ classification.total_weight }} kg</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Nombre d'espèces:</span>
+              <strong>{{ classification.items.count }}</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Date:</span>
+              <strong>{{ classification.classification_date|date:"d/m/Y H:i" }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Client</label>
+              <div class="d-flex align-items-center">
+                {% if classification.arrival_note.client.logo %}
+                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ classification.arrival_note.client.logo.url }}" alt="{{ classification.arrival_note.client.name }}" /></div>
+                {% else %}
+                  <div class="avatar-name rounded-soft me-2"><span>{{ classification.arrival_note.client.name|first }}</span></div>
+                {% endif %}
+                <div>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ classification.arrival_note.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ classification.arrival_note.client.accounting_code }}</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date du rapport</label>
+              <p class="mb-0">{{ classification.classification_date|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Poids du lot</label>
+              <p class="mb-0"><strong>{{ classification.arrival_note.weight }} kg</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Poids classifié</label>
+              <p class="mb-0"><strong>{{ classification.total_weight }} kg</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Type de service</label>
+              <p class="mb-0">{{ classification.arrival_note.service_type.code }} - {{ classification.arrival_note.service_type.name }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Statut</label>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %}">
+                  {{ classification.get_status_display }}
+                </span>
+                {% if perms.operations.change_classification and classification.status != 'validated' %}
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fas fa-exchange-alt me-1"></span>Changer
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for status_code, status_label in status_choices %}
+                      {% if status_code != classification.status %}
+                        <li>
+                          <form method="post" action="{% url 'portal_admin:reception_report_change_status' classification.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ status_code }}">
+                            <button type="submit" class="dropdown-item">
+                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'validated' %}success{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                            </button>
+                          </form>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% if classification.general_observation %}
+            <div class="col-12">
+              <label class="text-muted small">Observation générale</label>
+              <p class="mb-0">{{ classification.general_observation }}</p>
+            </div>
+            {% endif %}
+            <div class="col-md-6">
+              <label class="text-muted small">Créé par</label>
+              <p class="mb-0">{{ classification.created_by.get_full_name|default:classification.created_by.username }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date de création</label>
+              <p class="mb-0">{{ classification.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-list me-2"></span>Détails du rapport</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped">
+              <thead>
+                <tr>
+                  <th>Espèce</th>
+                  <th class="text-end">Poids (kg)</th>
+                  <th class="text-end">Pourcentage</th>
+                  <th>Commentaire</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in classification.items.all %}
+                  <tr>
+                    <td class="fw-bold">
+                      <span class="badge badge-phoenix badge-phoenix-{% if item.species == 'rejete' %}danger{% elif item.species == 'perdu' %}warning{% else %}info{% endif %}">
+                        {{ item.species_name }}
+                      </span>
+                    </td>
+                    <td class="text-end fw-semibold">{{ item.weight }} kg</td>
+                    <td class="text-end">
+                      {% if classification.total_weight > 0 %}
+                        <span class="text-muted">{{ item.weight|floatformat:2 }} / {{ classification.total_weight }} kg</span>
+                        <small class="d-block text-primary">({% widthratio item.weight classification.total_weight 100 %}%)</small>
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ item.comment|default:"-" }}</small></td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-4">Aucun détail disponible</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr class="table-secondary">
+                  <th>TOTAL</th>
+                  <th class="text-end">{{ classification.total_weight }} kg</th>
+                  <th class="text-end">100%</th>
+                  <th></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
