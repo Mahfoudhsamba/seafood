@@ -86,7 +86,7 @@
                         </select>
                       </div>
                       <div class="col-md-3 custom-species-field" {% if item.species != 'autre' %}style="display:none;"{% endif %}>
-                        <label class="form-label">Nom personnalisé</label>
+                        <label class="form-label">Nom d'espèce</label>
                         <input type="text" class="form-control item-custom-name" placeholder="Ex: Rouget" value="{{ item.custom_species_name }}">
                       </div>
                       <div class="col-md-3">
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </select>
         </div>
         <div class="col-md-3 custom-species-field" style="display:none;">
-          <label class="form-label">Nom personnalisé</label>
+          <label class="form-label">Nom d'espèce</label>
           <input type="text" class="form-control item-custom-name" placeholder="Ex: Rouget">
         </div>
         <div class="col-md-3">
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const div = document.createElement('div');
     div.innerHTML = itemTemplate;
     const itemRow = div.firstElementChild;
-    container.appendChild(itemRow);
+    container.prepend(itemRow);
     noItems.style.display = 'none';
 
     // Attacher l'événement pour le nouveau select d'espèce
