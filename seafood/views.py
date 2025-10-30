@@ -2148,8 +2148,10 @@ def reception_report_add(request):
             messages.error(request, f'Erreur lors de la création: {str(e)}')
 
     # Récupérer les lots éligibles (service_type.code > '1003')
+    # Exclure les lots qui ont déjà un rapport de réception
     eligible_lots = ArrivalNote.objects.filter(
-        service_type__code__gt='1003'
+        service_type__code__gt='1003',
+        classifications__isnull=True
     ).select_related('client', 'service_type').order_by('-reception_date')
 
     return render(request, 'operations/reception_reports/report_form.html', {
