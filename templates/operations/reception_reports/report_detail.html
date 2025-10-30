@@ -5,9 +5,10 @@
 
 {% block content %}
 <div class="pb-5">
+  
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Rapport de Réception - LOT {{ classification.arrival_note.lot_id }}</h2>
+      <h2 class="mb-0"><span class="fas fa-clipboard-list fa-1x "></span> RAPPORT DE RÉCEPTION - LOT {{ classification.arrival_note.lot_id }}</h2>
     </div>
     <div class="col-auto">
       <div class="d-flex gap-2">
@@ -15,7 +16,7 @@
           <a href="{% url 'portal_admin:reception_report_edit' classification.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
         {% endif %}
         {% if perms.operations.delete_classification %}
-        <a href="{% url 'portal_admin:reception_report_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+          <a href="{% url 'portal_admin:reception_report_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
         {% endif %}
         <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
       </div>
@@ -31,44 +32,9 @@
     {% endfor %}
   {% endif %}
 
-  <div class="row g-3">
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <span class="fas fa-clipboard-list fa-4x text-muted"></span>
-          </div>
-
-          <h3 class="mb-2">LOT #{{ classification.arrival_note.lot_id }}</h3>
-          <p class="text-muted mb-1">{{ classification.arrival_note.client.name }}</p>
-          <p class="text-muted mb-2">{{ classification.arrival_note.service_type.name }}</p>
-
-          <div class="mb-3">
-            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %} fs-9">
-              {{ classification.get_status_display }}
-            </span>
-          </div>
-
-          <div class="border-top pt-3">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Poids total:</span>
-              <strong>{{ classification.total_weight }} kg</strong>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Nombre d'espèces:</span>
-              <strong>{{ classification.items.count }}</strong>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span class="text-muted">Date:</span>
-              <strong>{{ classification.classification_date|date:"d/m/Y H:i" }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+  <div class="row g-3 mb-4">
     <div class="col-lg-8">
-      <div class="card mb-3">
+      <div class="card 0 h-100 mb-3">
         <div class="card-header">
           <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
         </div>
@@ -151,7 +117,39 @@
           </div>
         </div>
       </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <div class="avatar avatar-5xl mb-2">
+            {% if classification.arrival_note.service_type.category.avatar %}
+              <img class="rounded-soft" src="{{ classification.arrival_note.service_type.category.avatar.url }}" alt="{{ classification.arrival_note.service_type.name }}" >
+            {% else %}
+              <div class="avatar-name rounded-soft">
+                <span>{{ classification.arrival_note.service_type.name |first }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <h3 class="mb-2">LOT #{{ classification.arrival_note.lot_id }}</h3>
+          <p class="text-muted mb-2">{{ classification.arrival_note.service_type.name }}</p>
+          <div class="mb-3">
+            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ classification.get_status_display }}
+            </span>
+          </div>
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-0">
+              <span class="text-muted">Nombre d'espèces:</span>
+              <strong>{{ classification.items.count }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <div class="row g-3 mb-2">
+    <div class="col-lg-12">
       <div class="card">
         <div class="card-header">
           <h5 class="mb-0"><span class="fas fa-list me-2"></span>Détails du rapport</h5>
@@ -206,5 +204,6 @@
       </div>
     </div>
   </div>
+
 </div>
 {% endblock %}

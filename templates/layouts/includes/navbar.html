@@ -186,33 +186,35 @@
                             <div class="parent-wrapper label-1">
                                 <ul class="nav collapse parent {% if 'reception' in request.path or 'rapports-reception' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-reception">
                                     <li class="collapsed-nav-item-title d-none">Réception</li>
-                                    {% if perms.operations.add_arrivalnote %}
-                                    <li class="nav-item">
-                                        <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_add' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_add' %}">
-                                            <div class="d-flex align-items-center"><span class="nav-link-text">Nouvelle réception</span></div>
-                                        </a>
-                                    </li>
-                                    {% endif %}
+
                                     {% if perms.operations.view_arrivalnote %}
-                                    <li class="nav-item">
-                                        <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_list' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_list' %}">
-                                            <div class="d-flex align-items-center"><span class="nav-link-text">Liste des réceptions</span></div>
-                                        </a>
-                                    </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_list' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_list' %}">
+                                                <div class="d-flex align-items-center"><span class="nav-link-text">Liste des réceptions</span></div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if perms.operations.view_classification %}
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_list' %}active{% endif %}" href="{% url 'portal_admin:reception_report_list' %}">
+                                                <div class="d-flex align-items-center"><span class="nav-link-text">Rapports</span></div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    {% if perms.operations.add_arrivalnote %}
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_add' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_add' %}">
+                                                <div class="d-flex align-items-center"><span class="nav-link-text">Nouvelle réception</span></div>
+                                            </a>
+                                        </li>
                                     {% endif %}
                                     {% if perms.operations.add_classification %}
-                                    <li class="nav-item">
-                                        <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_add' %}active{% endif %}" href="{% url 'portal_admin:reception_report_add' %}">
-                                            <div class="d-flex align-items-center"><span class="nav-link-text">Nouveau rapport</span></div>
-                                        </a>
-                                    </li>
-                                    {% endif %}
-                                    {% if perms.operations.view_classification %}
-                                    <li class="nav-item">
-                                        <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_list' %}active{% endif %}" href="{% url 'portal_admin:reception_report_list' %}">
-                                            <div class="d-flex align-items-center"><span class="nav-link-text">Rapports de réception</span></div>
-                                        </a>
-                                    </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_add' %}active{% endif %}" href="{% url 'portal_admin:reception_report_add' %}">
+                                                <div class="d-flex align-items-center"><span class="nav-link-text">Nouveau rapport</span></div>
+                                            </a>
+                                        </li>
                                     {% endif %}
                                 </ul>
                             </div>

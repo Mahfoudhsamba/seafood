@@ -7,7 +7,7 @@
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">{% if classification %}Modifier{% else %}Nouveau{% endif %} Rapport de Réception</h2>
+      <h2 class="mb-0">{% if classification %}MODIFIER{% else %}NOUVEAU{% endif %} RAPPORT DE RÉCEPTION</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary">
@@ -36,8 +36,8 @@
           </div>
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-md-6">
-                <label for="arrival_note" class="form-label">Numéro de lot (Note d'arrivée) <span class="text-danger">*</span></label>
+              <div class="col-md-12">
+                <label for="arrival_note" class="form-label">Numéro de lot <span class="text-danger">*</span></label>
                 <select name="arrival_note" id="arrival_note" class="form-select" required {% if classification %}disabled{% endif %}>
                   <option value="">Sélectionner un lot...</option>
                   {% for lot in eligible_lots %}
@@ -46,7 +46,7 @@
                       data-weight="{{ lot.weight }}"
                       data-service="{{ lot.service_type.name }}"
                       {% if classification and classification.arrival_note.pk == lot.pk %}selected{% endif %}>
-                      LOT #{{ lot.lot_id }} - {{ lot.client.name }} - {{ lot.weight }} kg - {{ lot.service_type.name }}
+                      LOT #{{ lot.lot_id }} - {{ lot.weight }} kg 
                     </option>
                   {% endfor %}
                 </select>
@@ -55,18 +55,6 @@
                 {% endif %}
                 <div class="form-text">Sélectionner un lot avec service &gt; 1003</div>
               </div>
-
-              <div class="col-md-6">
-                <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
-                <select name="status" id="status" class="form-select" required>
-                  {% for status_code, status_label in status_choices %}
-                    <option value="{{ status_code }}" {% if classification and classification.status == status_code %}selected{% endif %}>
-                      {{ status_label }}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-
               <div class="col-12">
                 <label for="general_observation" class="form-label">Observation générale</label>
                 <textarea name="general_observation" id="general_observation" class="form-control" rows="3" placeholder="Remarques générales sur la classification...">{% if classification %}{{ classification.general_observation }}{% endif %}</textarea>

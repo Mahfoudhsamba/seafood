@@ -7,7 +7,7 @@
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Note d'Arrivée - LOT {{ arrival_note.lot_id }}</h2>
+      <h2 class="mb-0">NOTE D'ARRIVÉE - LOT #{{ arrival_note.lot_id }}</h2>
     </div>
     <div class="col-auto">
       <div class="d-flex gap-2">
@@ -32,37 +32,6 @@
   {% endif %}
 
   <div class="row g-3">
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <span class="fas fa-fish fa-4x text-muted"></span>
-          </div>
-
-          <h3 class="mb-2">LOT #{{ arrival_note.lot_id }}</h3>
-          <p class="text-muted mb-1">{{ arrival_note.client.name }}</p>
-          <p class="text-muted mb-2">{{ arrival_note.service_type.category.name|default:'-' }}</p>
-
-          <div class="mb-3">
-            <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %} fs-9">
-              {{ arrival_note.get_status_display }}
-            </span>
-          </div>
-
-          <div class="border-top pt-3">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Poids:</span>
-              <strong>{{ arrival_note.weight }} kg</strong>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span class="text-muted">Date de réception:</span>
-              <strong>{{ arrival_note.reception_date|date:"d/m/Y" }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="col-lg-8">
       <div class="card mb-3">
         <div class="card-header">
@@ -194,6 +163,36 @@
               <p class="mb-0">{{ arrival_note.created_by.get_full_name|default:arrival_note.created_by.username }}</p>
             </div>
             {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-body text-center">
+          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+            <span class="fas fa-fish fa-4x text-muted"></span>
+          </div>
+
+          <h3 class="mb-2">LOT #{{ arrival_note.lot_id }}</h3>
+          <p class="text-muted mb-1">{{ arrival_note.client.name }}</p>
+          <p class="text-muted mb-2">{{ arrival_note.service_type.category.name|default:'-' }}</p>
+
+          <div class="mb-3">
+            <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ arrival_note.get_status_display }}
+            </span>
+          </div>
+
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Poids:</span>
+              <strong>{{ arrival_note.weight }} kg</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Date de réception:</span>
+              <strong>{{ arrival_note.reception_date|date:"d/m/Y" }}</strong>
+            </div>
           </div>
         </div>
       </div>
