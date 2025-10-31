@@ -176,7 +176,7 @@
                     
 
                         <!-- Réception -->
-                        {% if perms.operations.view_arrivalnote or perms.operations.add_arrivalnote %}
+                        {% if perms.operations.view_reception or perms.operations.add_reception %}
                         <div class="nav-item-wrapper">
                             <a class="nav-link dropdown-indicator label-1" href="#nv-reception" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'reception' in request.path or 'rapports-reception' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-reception">
                                 <div class="d-flex align-items-center">
@@ -187,7 +187,7 @@
                                 <ul class="nav collapse parent {% if 'reception' in request.path or 'rapports-reception' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-reception">
                                     <li class="collapsed-nav-item-title d-none">Réception</li>
 
-                                    {% if perms.operations.view_arrivalnote %}
+                                    {% if perms.operations.view_reception %}
                                         <li class="nav-item">
                                             <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_list' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_list' %}">
                                                 <div class="d-flex align-items-center"><span class="nav-link-text">Liste des réceptions</span></div>
@@ -195,21 +195,21 @@
                                         </li>
                                     {% endif %}
 
-                                    {% if perms.operations.view_classification %}
+                                    {% if perms.operations.view_report %}
                                         <li class="nav-item">
                                             <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_list' %}active{% endif %}" href="{% url 'portal_admin:reception_report_list' %}">
                                                 <div class="d-flex align-items-center"><span class="nav-link-text">Rapports</span></div>
                                             </a>
                                         </li>
                                     {% endif %}
-                                    {% if perms.operations.add_arrivalnote %}
+                                    {% if perms.operations.add_reception %}
                                         <li class="nav-item">
                                             <a class="nav-link {% if request.resolver_match.url_name == 'arrivalnote_add' %}active{% endif %}" href="{% url 'portal_admin:arrivalnote_add' %}">
                                                 <div class="d-flex align-items-center"><span class="nav-link-text">Nouvelle réception</span></div>
                                             </a>
                                         </li>
                                     {% endif %}
-                                    {% if perms.operations.add_classification %}
+                                    {% if perms.operations.add_report %}
                                         <li class="nav-item">
                                             <a class="nav-link {% if request.resolver_match.url_name == 'reception_report_add' %}active{% endif %}" href="{% url 'portal_admin:reception_report_add' %}">
                                                 <div class="d-flex align-items-center"><span class="nav-link-text">Nouveau rapport</span></div>

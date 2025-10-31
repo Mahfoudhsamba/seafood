@@ -1,21 +1,21 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Note d'Arrivée - LOT #{{ arrival_note.lot_id }}{% endblock %}
+{% block title %}Note d'Arrivée - LOT #{{ reception.lot_id }}{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">NOTE D'ARRIVÉE - LOT #{{ arrival_note.lot_id }}</h2>
+      <h2 class="mb-0">NOTE D'ARRIVÉE - LOT #{{ reception.lot_id }}</h2>
     </div>
     <div class="col-auto">
       <div class="d-flex gap-2">
-        {% if perms.operations.change_arrivalnote and arrival_note.status == 'draft' %}
-          <a href="{% url 'portal_admin:arrivalnote_edit' arrival_note.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+        {% if perms.operations.change_reception and reception.status == 'draft' %}
+          <a href="{% url 'portal_admin:arrivalnote_edit' reception.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
         {% endif %}
-        {% if perms.operations.delete_arrivalnote %}
-        <a href="{% url 'portal_admin:arrivalnote_delete' arrival_note.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+        {% if perms.operations.delete_reception %}
+        <a href="{% url 'portal_admin:arrivalnote_delete' reception.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
         {% endif %}
         <a href="{% url 'portal_admin:arrivalnote_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
       </div>
@@ -42,14 +42,14 @@
             <div class="col-md-6">
               <label class="text-muted small">Client</label>
               <div class="d-flex align-items-center">
-                {% if arrival_note.client.logo %}
-                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ arrival_note.client.logo.url }}" alt="{{ arrival_note.client.name }}" /></div>
+                {% if reception.client.logo %}
+                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ reception.client.logo.url }}" alt="{{ reception.client.name }}" /></div>
                 {% else %}
-                  <div class="avatar-name rounded-soft me-2"><span>{{ arrival_note.client.name|first }}</span></div>
+                  <div class="avatar-name rounded-soft me-2"><span>{{ reception.client.name|first }}</span></div>
                 {% endif %}
                 <div>
-                  <h6 class="mb-0 fs-8 fw-bold">{{ arrival_note.client.name|upper }}</h6>
-                  <small class="text-muted">#{{ arrival_note.client.accounting_code }}</small>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ reception.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ reception.client.accounting_code }}</small>
                 </div>
               </div>
 
@@ -58,18 +58,18 @@
               <label class="text-muted small">Catégorie de service</label>
               <div class="d-flex align-items-center">
                 <div class="avatar avatar-l me-2">
-                  {% if arrival_note.service_type.category.avatar %}
-                    <img class="rounded-soft" src="{{ arrival_note.service_type.category.avatar.url }}" alt="{{ arrival_note.service_type.category.name }}" >
+                  {% if reception.service_type.category.avatar %}
+                    <img class="rounded-soft" src="{{ reception.service_type.category.avatar.url }}" alt="{{ reception.service_type.category.name }}" >
                   {% else %}
                     <div class="avatar-name rounded-soft">
-                      <span>{{ arrival_note.service_type.category.name|first }}</span>
+                      <span>{{ reception.service_type.category.name|first }}</span>
                     </div>
                   {% endif %}
                 </div>
                 <div>
                   <div class="d-flex align-items-center">
                     <p class="mb-0 text-body-highlight fw-bold fs-8 me-2">
-                      {{ arrival_note.service_type.category.name }}
+                      {{ reception.service_type.category.name }}
                     </p>
                   </div>
                 </div>
@@ -77,32 +77,32 @@
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Date de réception</label>
-              <p class="mb-0">{{ arrival_note.reception_date|date:"d/m/Y" }}</p>
+              <p class="mb-0">{{ reception.reception_date|date:"d/m/Y" }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Poids</label>
-              <p class="mb-0"><strong>{{ arrival_note.weight }} kg</strong></p>
+              <p class="mb-0"><strong>{{ reception.weight }} kg</strong></p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Type de service</label>
-              <p class="mb-0">{{ arrival_note.service_type.code }} - {{ arrival_note.service_type.name }}</p>
+              <p class="mb-0">{{ reception.service_type.code }} - {{ reception.service_type.name }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Statut</label>
               <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %}">
-                  {{ arrival_note.get_status_display }}
+                <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'in_progress' %}warning{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %}">
+                  {{ reception.get_status_display }}
                 </span>
-                {% if perms.operations.change_arrivalnote and arrival_note.status != 'completed' %}
+                {% if perms.operations.change_reception and reception.status != 'completed' %}
                 <div class="dropdown">
                   <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="fas fa-exchange-alt me-1"></span>Changer
                   </button>
                   <ul class="dropdown-menu">
                     {% for status_code, status_label in status_choices %}
-                      {% if status_code != arrival_note.status %}
+                      {% if status_code != reception.status %}
                         <li>
-                          <form method="post" action="{% url 'portal_admin:arrivalnote_change_status' arrival_note.pk %}" class="d-inline">
+                          <form method="post" action="{% url 'portal_admin:arrivalnote_change_status' reception.pk %}" class="d-inline">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="{{ status_code }}">
                             <button type="submit" class="dropdown-item">
@@ -121,24 +121,24 @@
         </div>
       </div>
 
-      {% if arrival_note.observations %}
+      {% if reception.observations %}
         <div class="card mb-3">
           <div class="card-header">
             <h5 class="mb-0"><span class="fas fa-sticky-note me-2"></span>Observations</h5>
           </div>
           <div class="card-body">
-            <p class="mb-0">{{ arrival_note.observations }}</p>
+            <p class="mb-0">{{ reception.observations }}</p>
           </div>
         </div>
       {% endif %}
 
-      {% if arrival_note.rejection_reason %}
+      {% if reception.rejection_reason %}
         <div class="card mb-3 border-danger">
           <div class="card-header bg-danger text-white">
             <h5 class="mb-0"><span class="fas fa-exclamation-triangle me-2"></span>Motif de rejet</h5>
           </div>
           <div class="card-body">
-            <p class="mb-0">{{ arrival_note.rejection_reason }}</p>
+            <p class="mb-0">{{ reception.rejection_reason }}</p>
           </div>
         </div>
       {% endif %}
@@ -151,16 +151,16 @@
           <div class="row g-3">
             <div class="col-md-4">
               <label class="text-muted small">Date de création</label>
-              <p class="mb-0">{{ arrival_note.created_at|date:"d/m/Y à H:i" }}</p>
+              <p class="mb-0">{{ reception.created_at|date:"d/m/Y à H:i" }}</p>
             </div>
             <div class="col-md-4">
               <label class="text-muted small">Dernière modification</label>
-              <p class="mb-0">{{ arrival_note.updated_at|date:"d/m/Y à H:i" }}</p>
+              <p class="mb-0">{{ reception.updated_at|date:"d/m/Y à H:i" }}</p>
             </div>
-            {% if arrival_note.created_by %}
+            {% if reception.created_by %}
             <div class="col-md-4">
               <label class="text-muted small">Créé par</label>
-              <p class="mb-0">{{ arrival_note.created_by.get_full_name|default:arrival_note.created_by.username }}</p>
+              <p class="mb-0">{{ reception.created_by.get_full_name|default:reception.created_by.username }}</p>
             </div>
             {% endif %}
           </div>
@@ -174,24 +174,24 @@
             <span class="fas fa-fish fa-4x text-muted"></span>
           </div>
 
-          <h3 class="mb-2">LOT #{{ arrival_note.lot_id }}</h3>
-          <p class="text-muted mb-1">{{ arrival_note.client.name }}</p>
-          <p class="text-muted mb-2">{{ arrival_note.service_type.category.name|default:'-' }}</p>
+          <h3 class="mb-2">LOT #{{ reception.lot_id }}</h3>
+          <p class="text-muted mb-1">{{ reception.client.name }}</p>
+          <p class="text-muted mb-2">{{ reception.service_type.category.name|default:'-' }}</p>
 
           <div class="mb-3">
-            <span class="badge bg-{% if arrival_note.status == 'draft' %}secondary{% elif arrival_note.status == 'accepted' %}info{% elif arrival_note.status == 'in_progress' %}warning{% elif arrival_note.status == 'completed' %}success{% elif arrival_note.status == 'suspended' %}dark{% elif arrival_note.status == 'cancelled' %}danger{% endif %} fs-9">
-              {{ arrival_note.get_status_display }}
+            <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'in_progress' %}warning{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ reception.get_status_display }}
             </span>
           </div>
 
           <div class="border-top pt-3">
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">Poids:</span>
-              <strong>{{ arrival_note.weight }} kg</strong>
+              <strong>{{ reception.weight }} kg</strong>
             </div>
             <div class="d-flex justify-content-between">
               <span class="text-muted">Date de réception:</span>
-              <strong>{{ arrival_note.reception_date|date:"d/m/Y" }}</strong>
+              <strong>{{ reception.reception_date|date:"d/m/Y" }}</strong>
             </div>
           </div>
         </div>

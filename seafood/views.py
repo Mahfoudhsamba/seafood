@@ -1556,58 +1556,58 @@ def prospect_change_status(request, pk, new_status):
 # ============ ARRIVAL NOTE VIEWS (Notes d'Arrivée) ============
 
 @staff_member_required
-@permission_required('operations.view_arrivalnote', raise_exception=True)
+@permission_required('operations.view_reception', raise_exception=True)
 def arrivalnote_list(request):
     """Liste des notes d'arrivée"""
-    arrival_notes = ArrivalNote.objects.all().select_related('client', 'service_type__category', 'created_by').order_by('-created_at')
+    receptions = ArrivalNote.objects.all().select_related('client', 'service_type__category', 'created_by').order_by('-created_at')
 
     # Filtrage par statut
     status_filter = request.GET.get('status')
     if status_filter:
-        arrival_notes = arrival_notes.filter(status=status_filter)
+        receptions = receptions.filter(status=status_filter)
 
     # Filtrage par service
     service_filter = request.GET.get('service')
     if service_filter:
-        arrival_notes = arrival_notes.filter(service_type_id=service_filter)
+        receptions = receptions.filter(service_type_id=service_filter)
 
     # Recherche
     search = request.GET.get('search')
     if search:
         from django.db.models import Q
-        arrival_notes = arrival_notes.filter(
+        receptions = receptions.filter(
             Q(lot_id__icontains=search) |
             Q(client__name__icontains=search) |
             Q(client__accounting_code__icontains=search)
         )
 
     return render(request, 'operations/reception/reception_list.html', {
-        'arrival_notes': arrival_notes,
+        'receptions': receptions,
         'statuses': ArrivalNote.STATUS_CHOICES,
         'services': Service.objects.filter(status='active').order_by('code')
     })
 
 
 @staff_member_required
-@permission_required('operations.view_arrivalnote', raise_exception=True)
+@permission_required('operations.view_reception', raise_exception=True)
 def arrivalnote_detail(request, pk):
     """Détails d'une note d'arrivée"""
-    arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'service_type__category', 'created_by'), pk=pk)
+    reception = get_object_or_404(ArrivalNote.objects.select_related('client', 'service_type__category', 'created_by'), pk=pk)
     return render(request, 'operations/reception/reception_detail.html', {
-        'arrival_note': arrival_note,
+        'reception': reception,
         'status_choices': ArrivalNote.STATUS_CHOICES
     })
 
 
 @staff_member_required
-@permission_required('operations.add_arrivalnote', raise_exception=True)
+@permission_required('operations.add_reception', raise_exception=True)
 def arrivalnote_add(request):
     """Formulaire d'ajout de note d'arrivée"""
     if request.method == 'POST':
         try:
             from datetime import date
 
-            arrival_note = ArrivalNote(
+            reception = ArrivalNote(
                 client_id=request.POST.get('client'),
                 reception_date=request.POST.get('reception_date') or date.today(),
                 weight=request.POST.get('weight'),
@@ -1615,9 +1615,9 @@ def arrivalnote_add(request):
                 observations=request.POST.get('observations', ''),
                 created_by=request.user
             )
-            arrival_note.save()
-            messages.success(request, f'Note d\'arrivée créée avec succès! LOT: {arrival_note.lot_id}')
-            return redirect('portal_admin:arrivalnote_detail', pk=arrival_note.pk)
+            reception.save()
+            messages.success(request, f'Note d\'arrivée créée avec succès! LOT: {reception.lot_id}')
+            return redirect('portal_admin:arrivalnote_detail', pk=reception.pk)
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'ajout: {str(e)}')
 
@@ -1631,24 +1631,24 @@ def arrivalnote_add(request):
 
 
 @staff_member_required
-@permission_required('operations.change_arrivalnote', raise_exception=True)
+@permission_required('operations.change_reception', raise_exception=True)
 def arrivalnote_edit(request, pk):
     """Formulaire de modification de note d'arrivée"""
-    arrival_note = get_object_or_404(ArrivalNote, pk=pk)
+    reception = get_object_or_404(ArrivalNote, pk=pk)
 
     # Ne permettre la modification que si le statut est 'draft'
-    if arrival_note.status != 'draft':
+    if reception.status != 'draft':
         messages.error(request, 'Seules les notes d\'arrivée en statut "Brouillon" peuvent être modifiées!')
         return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
     if request.method == 'POST':
         try:
-            arrival_note.client_id = request.POST.get('client')
-            arrival_note.reception_date = request.POST.get('reception_date')
-            arrival_note.weight = request.POST.get('weight')
-            arrival_note.service_type_id = request.POST.get('service_type')
-            arrival_note.observations = request.POST.get('observations', '')
-            arrival_note.save()
+            reception.client_id = request.POST.get('client')
+            reception.reception_date = request.POST.get('reception_date')
+            reception.weight = request.POST.get('weight')
+            reception.service_type_id = request.POST.get('service_type')
+            reception.observations = request.POST.get('observations', '')
+            reception.save()
 
             messages.success(request, 'Note d\'arrivée modifiée avec succès!')
             return redirect('portal_admin:arrivalnote_detail', pk=pk)
@@ -1659,35 +1659,35 @@ def arrivalnote_edit(request, pk):
     services = Service.objects.filter(status='active').order_by('code')
 
     return render(request, 'operations/reception/reception_form.html', {
-        'arrival_note': arrival_note,
+        'reception': reception,
         'clients': clients,
         'services': services
     })
 
 
 @staff_member_required
-@permission_required('operations.delete_arrivalnote', raise_exception=True)
+@permission_required('operations.delete_reception', raise_exception=True)
 def arrivalnote_delete(request, pk):
     """Suppression d'une note d'arrivée"""
-    arrival_note = get_object_or_404(ArrivalNote, pk=pk)
+    reception = get_object_or_404(ArrivalNote, pk=pk)
 
     if request.method == 'POST':
         try:
-            lot_id = arrival_note.lot_id
-            arrival_note.delete()
+            lot_id = reception.lot_id
+            reception.delete()
             messages.success(request, f'Note d\'arrivée LOT {lot_id} supprimée avec succès!')
             return redirect('portal_admin:arrivalnote_list')
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
-    return render(request, 'operations/reception/reception_confirm_delete.html', {'arrival_note': arrival_note})
+    return render(request, 'operations/reception/reception_confirm_delete.html', {'reception': reception})
 
 
 @staff_member_required
-@permission_required('operations.change_arrivalnote', raise_exception=True)
+@permission_required('operations.change_reception', raise_exception=True)
 def arrivalnote_change_status(request, pk):
     """Changer le statut d'une note d'arrivée"""
-    arrival_note = get_object_or_404(ArrivalNote, pk=pk)
+    reception = get_object_or_404(ArrivalNote, pk=pk)
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
@@ -1699,26 +1699,26 @@ def arrivalnote_change_status(request, pk):
             return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
         # Vérifier les règles de changement de statut
-        if arrival_note.status == 'accepted' and new_status != arrival_note.status:
+        if reception.status == 'accepted' and new_status != reception.status:
             # Une fois accepté, on peut seulement passer à 'in_progress', 'suspended' ou 'cancelled'
             if new_status not in ['in_progress', 'suspended', 'cancelled']:
                 messages.error(request, 'Changement de statut non autorisé. Un lot accepté ne peut passer qu\'en traitement, suspendu ou annulé.')
                 return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
-        if arrival_note.status == 'in_progress' and new_status not in ['completed', 'suspended', 'cancelled', 'in_progress']:
+        if reception.status == 'in_progress' and new_status not in ['completed', 'suspended', 'cancelled', 'in_progress']:
             messages.error(request, 'Un lot en traitement ne peut passer qu\'à terminé, suspendu ou annulé.')
             return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
-        if arrival_note.status == 'completed':
+        if reception.status == 'completed':
             messages.error(request, 'Un lot terminé ne peut plus changer de statut.')
             return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
         # Appliquer le changement
-        old_status = arrival_note.get_status_display()
-        arrival_note.status = new_status
-        arrival_note.save()
+        old_status = reception.get_status_display()
+        reception.status = new_status
+        reception.save()
 
-        new_status_display = arrival_note.get_status_display()
+        new_status_display = reception.get_status_display()
         messages.success(request, f'Statut changé de "{old_status}" à "{new_status_display}"')
         return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
@@ -2072,26 +2072,26 @@ def servicecategory_change_status(request, pk):
 # ============ RAPPORTS DE RÉCEPTION ============
 
 @staff_member_required
-@permission_required('operations.view_classification', raise_exception=True)
+@permission_required('operations.view_report', raise_exception=True)
 def reception_report_list(request):
     """Liste des rapports de réception"""
-    classifications = Classification.objects.all().select_related(
+    reports = Classification.objects.all().select_related(
         'arrival_note',
         'arrival_note__client',
         'arrival_note__service_type',
         'created_by'
-    ).prefetch_related('items').order_by('-classification_date')
+    ).prefetch_related('items').order_by('-report_date')
 
     return render(request, 'operations/reception_reports/report_list.html', {
-        'classifications': classifications
+        'reports': reports
     })
 
 
 @staff_member_required
-@permission_required('operations.view_classification', raise_exception=True)
+@permission_required('operations.view_report', raise_exception=True)
 def reception_report_detail(request, pk):
     """Détails d'un rapport de réception"""
-    classification = get_object_or_404(
+    report = get_object_or_404(
         Classification.objects.select_related(
             'arrival_note',
             'arrival_note__client',
@@ -2102,13 +2102,13 @@ def reception_report_detail(request, pk):
     )
 
     return render(request, 'operations/reception_reports/report_detail.html', {
-        'classification': classification,
+        'report': report,
         'status_choices': Classification.STATUS_CHOICES
     })
 
 
 @staff_member_required
-@permission_required('operations.add_classification', raise_exception=True)
+@permission_required('operations.add_report', raise_exception=True)
 def reception_report_add(request):
     """Formulaire d'ajout de rapport de réception"""
     if request.method == 'POST':
@@ -2116,11 +2116,11 @@ def reception_report_add(request):
             import json
 
             # Créer le rapport de réception
-            arrival_note_id = request.POST.get('arrival_note')
-            arrival_note = get_object_or_404(ArrivalNote, pk=arrival_note_id)
+            reception_id = request.POST.get('arrival_note')
+            reception = get_object_or_404(ArrivalNote, pk=reception_id)
 
-            classification = Classification.objects.create(
-                arrival_note=arrival_note,
+            report = Classification.objects.create(
+                arrival_note=reception,
                 general_observation=request.POST.get('general_observation', ''),
                 status='draft',
                 created_by=request.user
@@ -2134,15 +2134,15 @@ def reception_report_add(request):
             for item in items:
                 if item.get('species') and item.get('weight'):
                     ClassificationItem.objects.create(
-                        classification=classification,
+                        report=report,
                         species=item['species'],
                         custom_species_name=item.get('custom_species_name', ''),
                         weight=item['weight'],
                         comment=item.get('comment', '')
                     )
 
-            messages.success(request, f'Rapport de réception pour le LOT {arrival_note.lot_id} créé avec succès!')
-            return redirect('portal_admin:reception_report_detail', pk=classification.pk)
+            messages.success(request, f'Rapport de réception pour le LOT {reception.lot_id} créé avec succès!')
+            return redirect('portal_admin:reception_report_detail', pk=report.pk)
 
         except Exception as e:
             messages.error(request, f'Erreur lors de la création: {str(e)}')
@@ -2150,30 +2150,30 @@ def reception_report_add(request):
     # Récupérer les lots éligibles (service_type.code > '1003')
     # Exclure les lots qui ont déjà un rapport de réception
     # Seuls les lots acceptés peuvent avoir un rapport
-    eligible_lots = ArrivalNote.objects.filter(
+    eligible_receptions = ArrivalNote.objects.filter(
         service_type__code__gt='1003',
         classifications__isnull=True,
         status='accepted'
     ).select_related('client', 'service_type').order_by('-reception_date')
 
     return render(request, 'operations/reception_reports/report_form.html', {
-        'eligible_lots': eligible_lots,
+        'eligible_receptions': eligible_receptions,
         'species_choices': ClassificationItem.SPECIES_CHOICES,
         'status_choices': Classification.STATUS_CHOICES
     })
 
 
 @staff_member_required
-@permission_required('operations.change_classification', raise_exception=True)
+@permission_required('operations.change_report', raise_exception=True)
 def reception_report_edit(request, pk):
     """Formulaire de modification de rapport de réception"""
-    classification = get_object_or_404(
+    report = get_object_or_404(
         Classification.objects.select_related('arrival_note', 'arrival_note__client').prefetch_related('items'),
         pk=pk
     )
 
     # Vérifier si le rapport peut être modifié
-    if not classification.can_be_edited:
+    if not report.can_be_edited:
         messages.error(request, 'Ce rapport ne peut plus être modifié car il est validé ou annulé.')
         return redirect('portal_admin:reception_report_detail', pk=pk)
 
@@ -2182,12 +2182,12 @@ def reception_report_edit(request, pk):
             import json
 
             # Mettre à jour le rapport
-            classification.general_observation = request.POST.get('general_observation', '')
-            classification.status = request.POST.get('status', 'draft')
-            classification.save()
+            report.general_observation = request.POST.get('general_observation', '')
+            report.status = request.POST.get('status', 'draft')
+            report.save()
 
             # Supprimer les anciens items
-            classification.items.all().delete()
+            report.items.all().delete()
 
             # Récupérer et créer les nouveaux items
             items_data = request.POST.get('items_data', '[]')
@@ -2196,7 +2196,7 @@ def reception_report_edit(request, pk):
             for item in items:
                 if item.get('species') and item.get('weight'):
                     ClassificationItem.objects.create(
-                        classification=classification,
+                        report=report,
                         species=item['species'],
                         custom_species_name=item.get('custom_species_name', ''),
                         weight=item['weight'],
@@ -2204,52 +2204,52 @@ def reception_report_edit(request, pk):
                     )
 
             messages.success(request, 'Rapport de réception modifié avec succès!')
-            return redirect('portal_admin:reception_report_detail', pk=classification.pk)
+            return redirect('portal_admin:reception_report_detail', pk=report.pk)
 
         except Exception as e:
             messages.error(request, f'Erreur lors de la modification: {str(e)}')
 
     # Récupérer les lots éligibles
-    eligible_lots = ArrivalNote.objects.filter(
+    eligible_receptions = ArrivalNote.objects.filter(
         service_type__code__gt='1003'
     ).select_related('client', 'service_type').order_by('-reception_date')
 
     return render(request, 'operations/reception_reports/report_form.html', {
-        'classification': classification,
-        'eligible_lots': eligible_lots,
+        'report': report,
+        'eligible_receptions': eligible_receptions,
         'species_choices': ClassificationItem.SPECIES_CHOICES,
         'status_choices': Classification.STATUS_CHOICES
     })
 
 
 @staff_member_required
-@permission_required('operations.delete_classification', raise_exception=True)
+@permission_required('operations.delete_report', raise_exception=True)
 def reception_report_delete(request, pk):
     """Suppression d'un rapport de réception"""
-    classification = get_object_or_404(
+    report = get_object_or_404(
         Classification.objects.select_related('arrival_note'),
         pk=pk
     )
 
     if request.method == 'POST':
         try:
-            lot_id = classification.arrival_note.lot_id
-            classification.delete()
+            lot_id = report.arrival_note.lot_id
+            report.delete()
             messages.success(request, f'Rapport de réception pour le LOT {lot_id} supprimé avec succès!')
             return redirect('portal_admin:reception_report_list')
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
     return render(request, 'operations/reception_reports/report_confirm_delete.html', {
-        'classification': classification
+        'report': report
     })
 
 
 @staff_member_required
-@permission_required('operations.change_classification', raise_exception=True)
+@permission_required('operations.change_report', raise_exception=True)
 def reception_report_change_status(request, pk):
     """Changer le statut d'un rapport de réception"""
-    classification = get_object_or_404(Classification, pk=pk)
+    report = get_object_or_404(Classification, pk=pk)
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
@@ -2261,17 +2261,17 @@ def reception_report_change_status(request, pk):
             return redirect('portal_admin:reception_report_detail', pk=pk)
 
         # Vérifier les règles de changement de statut
-        if classification.status == 'validated':
+        if report.status == 'validated':
             # Une fois validé, on ne peut plus changer le statut
             messages.error(request, 'Un rapport validé ne peut plus être modifié.')
             return redirect('portal_admin:reception_report_detail', pk=pk)
 
         # Appliquer le changement
-        old_status = classification.get_status_display()
-        classification.status = new_status
-        classification.save()
+        old_status = report.get_status_display()
+        report.status = new_status
+        report.save()
 
-        new_status_display = classification.get_status_display()
+        new_status_display = report.get_status_display()
         messages.success(request, f'Statut du rapport changé de "{old_status}" à "{new_status_display}"')
         return redirect('portal_admin:reception_report_detail', pk=pk)
 

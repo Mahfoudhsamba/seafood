@@ -1,22 +1,22 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Rapport de Réception - LOT #{{ classification.arrival_note.lot_id }}{% endblock %}
+{% block title %}Rapport de Réception - LOT #{{ report.arrival_note.lot_id }}{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0"><span class="fas fa-clipboard-list fa-1x "></span> RAPPORT DE RÉCEPTION - LOT {{ classification.arrival_note.lot_id }}</h2>
+      <h2 class="mb-0"><span class="fas fa-clipboard-list fa-1x "></span> RAPPORT DE RÉCEPTION - LOT {{ report.arrival_note.lot_id }}</h2>
     </div>
     <div class="col-auto">
       <div class="d-flex gap-2">
-        {% if perms.operations.change_classification and classification.can_be_edited %}
-          <a href="{% url 'portal_admin:reception_report_edit' classification.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+        {% if perms.operations.change_report and report.can_be_edited %}
+          <a href="{% url 'portal_admin:reception_report_edit' report.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
         {% endif %}
-        {% if perms.operations.delete_classification %}
-          <a href="{% url 'portal_admin:reception_report_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+        {% if perms.operations.delete_report %}
+          <a href="{% url 'portal_admin:reception_report_delete' report.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
         {% endif %}
         <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
       </div>
@@ -35,9 +35,6 @@
   <div class="row g-3 mb-4">
     <div class="col-lg-8">
       <div class="card bg-body-highlight 0 h-100 mb-3">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
-        </div>
         <div class="card-body ">
           <div class="row g-3">
             <div class="col-md-6">
@@ -45,54 +42,54 @@
               <div class="d-flex align-items-center">
 
                 <div class="avatar avatar-xl me-2">
-                  {% if classification.arrival_note.client.logo %}
+                  {% if report.arrival_note.client.logo %}
                     <div class="avatar avatar-l me-2">
-                      <img class="rounded-soft" src="{{ classification.arrival_note.client.logo.url }}" alt="{{ classification.arrival_note.client.name }}" />
+                      <img class="rounded-soft" src="{{ report.arrival_note.client.logo.url }}" alt="{{ report.arrival_note.client.name }}" />
                     </div>
                   {% else %}
                     <div class="avatar-name rounded-soft">
-                      <span>{{ classification.arrival_note.client.name|first }}</span>
+                      <span>{{ report.arrival_note.client.name|first }}</span>
                     </div>
                   {% endif %}
                 </div>
                 <div>
-                  <h6 class="mb-0 fs-8 fw-bold">{{ classification.arrival_note.client.name|upper }}</h6>
-                  <small class="text-muted">#{{ classification.arrival_note.client.accounting_code }}</small>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ report.arrival_note.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ report.arrival_note.client.accounting_code }}</small>
                 </div>
               </div>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Date du rapport</label>
-              <p class="mb-0">{{ classification.classification_date|date:"d/m/Y H:i" }}</p>
+              <p class="mb-0">{{ report.report_date|date:"d/m/Y H:i" }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Poids du lot</label>
-              <p class="mb-0"><strong>{{ classification.arrival_note.weight }} kg</strong></p>
+              <p class="mb-0"><strong>{{ report.arrival_note.weight }} kg</strong></p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Poids classifié</label>
-              <p class="mb-0"><strong>{{ classification.total_weight }} kg</strong></p>
+              <p class="mb-0"><strong>{{ report.total_weight }} kg</strong></p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Type de service</label>
-              <p class="mb-0">{{ classification.arrival_note.service_type.code }} - {{ classification.arrival_note.service_type.name }}</p>
+              <p class="mb-0">{{ report.arrival_note.service_type.code }} - {{ report.arrival_note.service_type.name }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Statut</label>
               <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %}">
-                  {{ classification.get_status_display }}
+                <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'validated' %}success{% elif report.status == 'cancelled' %}danger{% endif %}">
+                  {{ report.get_status_display }}
                 </span>
-                {% if perms.operations.change_classification and classification.status != 'validated' %}
+                {% if perms.operations.change_report and report.status != 'validated' %}
                 <div class="dropdown">
                   <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="fas fa-exchange-alt me-1"></span>Changer
                   </button>
                   <ul class="dropdown-menu">
                     {% for status_code, status_label in status_choices %}
-                      {% if status_code != classification.status %}
+                      {% if status_code != report.status %}
                         <li>
-                          <form method="post" action="{% url 'portal_admin:reception_report_change_status' classification.pk %}" class="d-inline">
+                          <form method="post" action="{% url 'portal_admin:reception_report_change_status' report.pk %}" class="d-inline">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="{{ status_code }}">
                             <button type="submit" class="dropdown-item">
@@ -107,47 +104,47 @@
                 {% endif %}
               </div>
             </div>
-            {% if classification.general_observation %}
+            {% if report.general_observation %}
             <div class="col-12">
               <label class="text-muted small">Observation générale</label>
-              <p class="mb-0">{{ classification.general_observation }}</p>
+              <p class="mb-0">{{ report.general_observation }}</p>
             </div>
             {% endif %}
             <div class="col-md-6">
               <label class="text-muted small">Créé par</label>
-              <p class="mb-0">{{ classification.created_by.get_full_name|default:classification.created_by.username }}</p>
+              <p class="mb-0">{{ report.created_by.get_full_name|default:report.created_by.username }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Date de création</label>
-              <p class="mb-0">{{ classification.created_at|date:"d/m/Y H:i" }}</p>
+              <p class="mb-0">{{ report.created_at|date:"d/m/Y H:i" }}</p>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="col-lg-4">
-      <div class="card h-100">
+      <div class="card bg-body-highlight 0 h-100">
         <div class="card-body text-center">
           <div class="avatar avatar-5xl mb-2">
-            {% if classification.arrival_note.service_type.category.avatar %}
-              <img class="rounded-soft" src="{{ classification.arrival_note.service_type.category.avatar.url }}" alt="{{ classification.arrival_note.service_type.name }}" >
+            {% if report.arrival_note.service_type.category.avatar %}
+              <img class="rounded-soft" src="{{ report.arrival_note.service_type.category.avatar.url }}" alt="{{ report.arrival_note.service_type.name }}" >
             {% else %}
               <div class="avatar-name rounded-soft">
-                <span>{{ classification.arrival_note.service_type.name |first }}</span>
+                <span>{{ report.arrival_note.service_type.name |first }}</span>
               </div>
             {% endif %}
           </div>
-          <h3 class="mb-2">LOT #{{ classification.arrival_note.lot_id }}</h3>
-          <p class="text-muted mb-2">{{ classification.arrival_note.service_type.name }}</p>
+          <h3 class="mb-2">LOT #{{ report.arrival_note.lot_id }}</h3>
+          <p class="text-muted mb-2">{{ report.arrival_note.service_type.name }}</p>
           <div class="mb-3">
-            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %} fs-9">
-              {{ classification.get_status_display }}
+            <span class="badge bg-{% if report.status == 'draft' %}secondary{% elif report.status == 'validated' %}success{% elif report.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ report.get_status_display }}
             </span>
           </div>
           <div class="border-top pt-3">
             <div class="d-flex justify-content-between mb-0">
               <span class="text-muted">Nombre d'espèces:</span>
-              <strong>{{ classification.items.count }}</strong>
+              <strong>{{ report.items.count }}</strong>
             </div>
           </div>
         </div>
@@ -171,7 +168,7 @@
                   </tr>
                 </thead>
                 <tbody class="list" id="customer-order-table-body">
-                  {% for item in classification.items.all %}
+                  {% for item in report.items.all %}
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                       <td class="espece align-middle fw-bold">
                         <span class="badge badge-phoenix badge-phoenix-{% if item.species == 'rejete' %}danger{% elif item.species == 'perdu' %}warning{% else %}info{% endif %}">
@@ -184,10 +181,10 @@
                       <td class="pourcentage align-middle white-space-nowrap text-body fs-9">
                         <div style="display: flex; align-items: center; gap: 10px;">
                           <div class="progress bg-primary-subtle" style="height:8px; flex-grow: 1;" role="progressbar">
-                            <div class="progress-bar bg-primary" style="width: {% widthratio item.weight classification.total_weight 100 %}%" aria-valuenow="{% widthratio item.weight classification.total_weight 100 %}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar bg-primary" style="width: {% widthratio item.weight report.total_weight 100 %}%" aria-valuenow="{% widthratio item.weight report.total_weight 100 %}" aria-valuemin="0" aria-valuemax="100">
                             </div>
                           </div>
-                          <span>{% widthratio item.weight classification.total_weight 100 %}%</span>
+                          <span>{% widthratio item.weight report.total_weight 100 %}%</span>
                         </div>
                       </td>
                       <td class="commentaire align-middle fw-bold text-body-tertiary text-center">
@@ -202,7 +199,7 @@
                   <tfoot>
                     <tr class="hover-actions-trigger btn-reveal-trigger position-static">
                       <th>TOTAL</th>
-                      <th>{{ classification.total_weight }} kg</th>
+                      <th>{{ report.total_weight }} kg</th>
                       <th class="text-end">100%</th>
                       <th></th>
                     </tr>

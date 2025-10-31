@@ -421,7 +421,7 @@ class Report(models.Model):
     )
 
     # Date du rapport
-    classification_date = models.DateTimeField(
+    report_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Date du rapport'
     )
@@ -462,15 +462,15 @@ class Report(models.Model):
         db_table = 'operations_report'
         verbose_name = 'Rapport de réception'
         verbose_name_plural = 'Rapports de réception'
-        ordering = ['-classification_date']
+        ordering = ['-report_date']
         indexes = [
             models.Index(fields=['arrival_note']),
-            models.Index(fields=['classification_date']),
+            models.Index(fields=['report_date']),
             models.Index(fields=['status']),
         ]
 
     def __str__(self):
-        return f"Rapport LOT {self.arrival_note.lot_id} - {self.classification_date.strftime('%d/%m/%Y %H:%M')}"
+        return f"Rapport LOT {self.arrival_note.lot_id} - {self.report_date.strftime('%d/%m/%Y %H:%M')}"
 
     @property
     def total_weight(self):
@@ -505,7 +505,7 @@ class ReportItem(models.Model):
     ]
 
     # Rapport de réception parent
-    classification = models.ForeignKey(
+    report = models.ForeignKey(
         Report,
         on_delete=models.CASCADE,
         related_name='items',
@@ -558,9 +558,9 @@ class ReportItem(models.Model):
         db_table = 'operations_reportitem'
         verbose_name = 'Détail par espèce'
         verbose_name_plural = 'Détails par espèce'
-        ordering = ['classification', 'species']
+        ordering = ['report', 'species']
         indexes = [
-            models.Index(fields=['classification']),
+            models.Index(fields=['report']),
             models.Index(fields=['species']),
         ]
 

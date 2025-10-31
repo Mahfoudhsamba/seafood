@@ -1,13 +1,13 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}{% if classification %}Modifier{% else %}Ajouter{% endif %} Rapport de Réception{% endblock %}
+{% block title %}{% if report %}Modifier{% else %}Ajouter{% endif %} Rapport de Réception{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">{% if classification %}MODIFIER{% else %}NOUVEAU{% endif %} RAPPORT DE RÉCEPTION</h2>
+      <h2 class="mb-0">{% if report %}MODIFIER{% else %}NOUVEAU{% endif %} RAPPORT DE RÉCEPTION</h2>
     </div>
     <div class="col-auto">
       <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary">
@@ -25,7 +25,7 @@
     {% endfor %}
   {% endif %}
 
-  <form method="post" id="classificationForm">
+  <form method="post" id="reportForm">
     {% csrf_token %}
 
     <div class="row g-3">
@@ -38,26 +38,26 @@
             <div class="row g-3">
               <div class="col-md-12">
                 <label for="arrival_note" class="form-label">Numéro de lot <span class="text-danger">*</span></label>
-                <select name="arrival_note" id="arrival_note" class="form-select" required {% if classification %}disabled{% endif %}>
+                <select name="arrival_note" id="arrival_note" class="form-select" required {% if report %}disabled{% endif %}>
                   <option value="">Sélectionner un lot...</option>
-                  {% for lot in eligible_lots %}
+                  {% for lot in eligible_receptions %}
                     <option value="{{ lot.pk }}"
                       data-client="{{ lot.client.name }}"
                       data-weight="{{ lot.weight }}"
                       data-service="{{ lot.service_type.name }}"
-                      {% if classification and classification.arrival_note.pk == lot.pk %}selected{% endif %}>
+                      {% if report and report.arrival_note.pk == lot.pk %}selected{% endif %}>
                       LOT #{{ lot.lot_id }} - {{ lot.weight }} kg 
                     </option>
                   {% endfor %}
                 </select>
-                {% if classification %}
-                  <input type="hidden" name="arrival_note" value="{{ classification.arrival_note.pk }}">
+                {% if report %}
+                  <input type="hidden" name="arrival_note" value="{{ report.arrival_note.pk }}">
                 {% endif %}
                 <div class="form-text">Sélectionner un lot avec service &gt; 1003</div>
               </div>
               <div class="col-12">
                 <label for="general_observation" class="form-label">Observation générale</label>
-                <textarea name="general_observation" id="general_observation" class="form-control" rows="3" placeholder="Remarques générales sur la classification...">{% if classification %}{{ classification.general_observation }}{% endif %}</textarea>
+                <textarea name="general_observation" id="general_observation" class="form-control" rows="3" placeholder="Remarques générales sur la report...">{% if report %}{{ report.general_observation }}{% endif %}</textarea>
               </div>
             </div>
           </div>
@@ -72,8 +72,8 @@
           </div>
           <div class="card-body">
             <div id="itemsContainer">
-              {% if classification %}
-                {% for item in classification.items.all %}
+              {% if report %}
+                {% for item in report.items.all %}
                   <div class="item-row border p-3 mb-3 rounded">
                     <div class="row g-3">
                       <div class="col-md-3">
@@ -107,7 +107,7 @@
                 {% endfor %}
               {% endif %}
             </div>
-            <div id="noItems" class="text-center py-4 text-muted" {% if classification and classification.items.all %}style="display:none;"{% endif %}>
+            <div id="noItems" class="text-center py-4 text-muted" {% if report and report.items.all %}style="display:none;"{% endif %}>
               Aucun item ajouté. Cliquez sur "Ajouter une espèce" pour commencer.
             </div>
           </div>
@@ -119,7 +119,7 @@
 
     <div class="mt-4 d-flex gap-2">
       <button type="submit" class="btn btn-primary">
-        <span class="fas fa-save me-2"></span>{% if classification %}Mettre à jour{% else %}Créer{% endif %}
+        <span class="fas fa-save me-2"></span>{% if report %}Mettre à jour{% else %}Créer{% endif %}
       </button>
       <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-secondary">Annuler</a>
     </div>
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const container = document.getElementById('itemsContainer');
   const addBtn = document.getElementById('addItemBtn');
   const noItems = document.getElementById('noItems');
-  const form = document.getElementById('classificationForm');
+  const form = document.getElementById('reportForm');
 
   // Template pour un nouvel item
   const itemTemplate = `

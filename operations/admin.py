@@ -94,16 +94,16 @@ class ClassificationItemInline(admin.TabularInline):
 
 @admin.register(Classification)
 class ClassificationAdmin(admin.ModelAdmin):
-    list_display = ['arrival_note', 'classification_date', 'status', 'get_total_weight', 'created_by']
-    list_filter = ['status', 'classification_date', 'created_at']
+    list_display = ['arrival_note', 'report_date', 'status', 'get_total_weight', 'created_by']
+    list_filter = ['status', 'report_date', 'created_at']
     search_fields = ['arrival_note__lot_id', 'arrival_note__client__name', 'general_observation']
-    readonly_fields = ['classification_date', 'created_at', 'updated_at', 'created_by']
-    date_hierarchy = 'classification_date'
+    readonly_fields = ['report_date', 'created_at', 'updated_at', 'created_by']
+    date_hierarchy = 'report_date'
     inlines = [ClassificationItemInline]
 
     fieldsets = (
         ('Informations principales', {
-            'fields': ('arrival_note', 'classification_date', 'status')
+            'fields': ('arrival_note', 'report_date', 'status')
         }),
         ('Observations', {
             'fields': ('general_observation',)
@@ -132,14 +132,14 @@ class ClassificationAdmin(admin.ModelAdmin):
 
 @admin.register(ClassificationItem)
 class ClassificationItemAdmin(admin.ModelAdmin):
-    list_display = ['classification', 'get_species_name', 'weight', 'created_at']
+    list_display = ['report', 'get_species_name', 'weight', 'created_at']
     list_filter = ['species', 'created_at']
-    search_fields = ['classification__arrival_note__lot_id', 'species', 'custom_species_name', 'comment']
+    search_fields = ['report__arrival_note__lot_id', 'species', 'custom_species_name', 'comment']
     readonly_fields = ['created_at', 'updated_at']
 
     fieldsets = (
         ('Informations', {
-            'fields': ('classification', 'species', 'custom_species_name', 'weight', 'comment')
+            'fields': ('report', 'species', 'custom_species_name', 'weight', 'comment')
         }),
         ('Dates', {
             'fields': ('created_at', 'updated_at')
@@ -154,4 +154,4 @@ class ClassificationItemAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimise les requêtes en préchargeant les relations"""
         qs = super().get_queryset(request)
-        return qs.select_related('classification', 'classification__arrival_note')
+        return qs.select_related('report', 'report__arrival_note')
