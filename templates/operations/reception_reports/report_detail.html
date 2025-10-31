@@ -34,20 +34,27 @@
 
   <div class="row g-3 mb-4">
     <div class="col-lg-8">
-      <div class="card 0 h-100 mb-3">
+      <div class="card bg-body-highlight 0 h-100 mb-3">
         <div class="card-header">
           <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body ">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="text-muted small">Client</label>
               <div class="d-flex align-items-center">
-                {% if classification.arrival_note.client.logo %}
-                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ classification.arrival_note.client.logo.url }}" alt="{{ classification.arrival_note.client.name }}" /></div>
-                {% else %}
-                  <div class="avatar-name rounded-soft me-2"><span>{{ classification.arrival_note.client.name|first }}</span></div>
-                {% endif %}
+
+                <div class="avatar avatar-xl me-2">
+                  {% if classification.arrival_note.client.logo %}
+                    <div class="avatar avatar-l me-2">
+                      <img class="rounded-soft" src="{{ classification.arrival_note.client.logo.url }}" alt="{{ classification.arrival_note.client.name }}" />
+                    </div>
+                  {% else %}
+                    <div class="avatar-name rounded-soft">
+                      <span>{{ classification.arrival_note.client.name|first }}</span>
+                    </div>
+                  {% endif %}
+                </div>
                 <div>
                   <h6 class="mb-0 fs-8 fw-bold">{{ classification.arrival_note.client.name|upper }}</h6>
                   <small class="text-muted">#{{ classification.arrival_note.client.accounting_code }}</small>
@@ -147,63 +154,68 @@
       </div>
     </div>
   </div>
-
-  <div class="row g-3 mb-2">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-list me-2"></span>Détails du rapport</h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover table-striped">
-              <thead>
-                <tr>
-                  <th>Espèce</th>
-                  <th class="text-end">Poids (kg)</th>
-                  <th class="text-end">Pourcentage</th>
-                  <th>Commentaire</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for item in classification.items.all %}
+  <div class="mb-9">
+    <div class="row g-5">
+      <div class="col-12 col-xxl-12">
+        <div class="mb-6">
+          <h3 class="mb-4">DÉTAILS DU RAPPORT</h3>
+          <div class="border-top border-bottom border-translucent" data-list='{"valueNames":["espece","poids","pourcentage","commentaire"]}'>
+            <div class="table-responsive scrollbar">
+              <table class="table table-sm fs-9 mb-0">
+                <thead>
                   <tr>
-                    <td class="fw-bold">
-                      <span class="badge badge-phoenix badge-phoenix-{% if item.species == 'rejete' %}danger{% elif item.species == 'perdu' %}warning{% else %}info{% endif %}">
-                        {{ item.species_name }}
-                      </span>
-                    </td>
-                    <td class="text-end fw-semibold">{{ item.weight }} kg</td>
-                    <td class="text-end">
-                      {% if classification.total_weight > 0 %}
-                        <span class="text-muted">{{ item.weight|floatformat:2 }} / {{ classification.total_weight }} kg</span>
-                        <small class="d-block text-primary">({% widthratio item.weight classification.total_weight 100 %}%)</small>
-                      {% else %}
-                        -
-                      {% endif %}
-                    </td>
-                    <td><small class="text-muted">{{ item.comment|default:"-" }}</small></td>
+                    <th class="sort align-middle" scope="col" data-sort="espece">ESPÈCE</th>
+                    <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
+                    <th class="sort align-middle" scope="col" data-sort="pourcentage">POURCENTAGE</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="commentaire">COMMENTAIRE</th>
                   </tr>
-                {% empty %}
-                  <tr>
-                    <td colspan="4" class="text-center py-4">Aucun détail disponible</td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-              <tfoot>
-                <tr class="table-secondary">
-                  <th>TOTAL</th>
-                  <th class="text-end">{{ classification.total_weight }} kg</th>
-                  <th class="text-end">100%</th>
-                  <th></th>
-                </tr>
-              </tfoot>
-            </table>
+                </thead>
+                <tbody class="list" id="customer-order-table-body">
+                  {% for item in classification.items.all %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                      <td class="espece align-middle fw-bold">
+                        <span class="badge badge-phoenix badge-phoenix-{% if item.species == 'rejete' %}danger{% elif item.species == 'perdu' %}warning{% else %}info{% endif %}">
+                          {{ item.species_name }}
+                        </span>
+                      </td>
+                      <td class="poids align-middle fw-semibold text-body-highlight">
+                        {{ item.weight }} kg
+                      </td>
+                      <td class="pourcentage align-middle white-space-nowrap text-body fs-9">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                          <div class="progress bg-primary-subtle" style="height:8px; flex-grow: 1;" role="progressbar">
+                            <div class="progress-bar bg-primary" style="width: {% widthratio item.weight classification.total_weight 100 %}%" aria-valuenow="{% widthratio item.weight classification.total_weight 100 %}" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                          </div>
+                          <span>{% widthratio item.weight classification.total_weight 100 %}%</span>
+                        </div>
+                      </td>
+                      <td class="commentaire align-middle fw-bold text-body-tertiary text-center">
+                        <small class="text-muted">{{ item.comment|default:"-" }}</small>
+                      </td>
+                    </tr>                
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center py-4">Aucun détail disponible</td>
+                    </tr>
+                  {% endfor %}
+                  <tfoot>
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                      <th>TOTAL</th>
+                      <th>{{ classification.total_weight }} kg</th>
+                      <th class="text-end">100%</th>
+                      <th></th>
+                    </tr>
+                  </tfoot>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
 
 </div>
 {% endblock %}
