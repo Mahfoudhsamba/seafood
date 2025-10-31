@@ -1581,7 +1581,7 @@ def arrivalnote_list(request):
             Q(client__accounting_code__icontains=search)
         )
 
-    return render(request, 'operations/reception/arrivalnote_list.html', {
+    return render(request, 'operations/reception/reception_list.html', {
         'arrival_notes': arrival_notes,
         'statuses': ArrivalNote.STATUS_CHOICES,
         'services': Service.objects.filter(status='active').order_by('code')
@@ -1593,7 +1593,7 @@ def arrivalnote_list(request):
 def arrivalnote_detail(request, pk):
     """Détails d'une note d'arrivée"""
     arrival_note = get_object_or_404(ArrivalNote.objects.select_related('client', 'service_type__category', 'created_by'), pk=pk)
-    return render(request, 'operations/reception/arrivalnote_detail.html', {
+    return render(request, 'operations/reception/reception_detail.html', {
         'arrival_note': arrival_note,
         'status_choices': ArrivalNote.STATUS_CHOICES
     })
@@ -1624,7 +1624,7 @@ def arrivalnote_add(request):
     clients = Client.objects.filter(status='active').order_by('name')
     services = Service.objects.filter(status='active').order_by('code')
 
-    return render(request, 'operations/reception/arrivalnote_form.html', {
+    return render(request, 'operations/reception/reception_form.html', {
         'clients': clients,
         'services': services
     })
@@ -1658,7 +1658,7 @@ def arrivalnote_edit(request, pk):
     clients = Client.objects.filter(status='active').order_by('name')
     services = Service.objects.filter(status='active').order_by('code')
 
-    return render(request, 'operations/reception/arrivalnote_form.html', {
+    return render(request, 'operations/reception/reception_form.html', {
         'arrival_note': arrival_note,
         'clients': clients,
         'services': services
@@ -1680,7 +1680,7 @@ def arrivalnote_delete(request, pk):
         except Exception as e:
             messages.error(request, f'Erreur lors de la suppression: {str(e)}')
 
-    return render(request, 'operations/reception/arrivalnote_confirm_delete.html', {'arrival_note': arrival_note})
+    return render(request, 'operations/reception/reception_confirm_delete.html', {'arrival_note': arrival_note})
 
 
 @staff_member_required

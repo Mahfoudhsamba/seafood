@@ -252,7 +252,7 @@ class FishCategory(models.Model):
         return self.name
 
 
-class ArrivalNote(models.Model):
+class Reception(models.Model):
     """
     Modèle pour la Note d'Arrivée (réception des lots de poissons)
     """
@@ -342,6 +342,7 @@ class ArrivalNote(models.Model):
     )
 
     class Meta:
+        db_table = 'operations_reception'
         verbose_name = 'Note d\'arrivée'
         verbose_name_plural = 'Notes d\'arrivée'
         ordering = ['-created_at']
@@ -364,7 +365,7 @@ class ArrivalNote(models.Model):
     @staticmethod
     def generate_lot_id():
         """Génère un ID de lot unique au format XXXXXX (6+ chiffres)"""
-        last_note = ArrivalNote.objects.order_by('-lot_id').first()
+        last_note = Reception.objects.order_by('-lot_id').first()
 
         if last_note and last_note.lot_id:
             try:
@@ -398,7 +399,7 @@ class ArrivalNote(models.Model):
         return self.status in ['accepted', 'in_progress', 'completed']
 
 
-class Classification(models.Model):
+class Report(models.Model):
     """
     Modèle pour le rapport de réception des poissons reçus
     Contient les détails par espèce avec les poids,
@@ -412,7 +413,7 @@ class Classification(models.Model):
 
     # Numéro du lot (Note d'arrivée)
     arrival_note = models.ForeignKey(
-        ArrivalNote,
+        Reception,
         on_delete=models.PROTECT,
         related_name='classifications',
         verbose_name='Lot (Note d\'arrivée)',
@@ -458,6 +459,7 @@ class Classification(models.Model):
     )
 
     class Meta:
+        db_table = 'operations_report'
         verbose_name = 'Rapport de réception'
         verbose_name_plural = 'Rapports de réception'
         ordering = ['-classification_date']
@@ -481,7 +483,7 @@ class Classification(models.Model):
         return self.status == 'draft'
 
 
-class ClassificationItem(models.Model):
+class ReportItem(models.Model):
     """
     Modèle pour les détails par espèce du rapport de réception
     Chaque item représente une espèce de poisson avec son poids et commentaires
@@ -504,7 +506,7 @@ class ClassificationItem(models.Model):
 
     # Rapport de réception parent
     classification = models.ForeignKey(
-        Classification,
+        Report,
         on_delete=models.CASCADE,
         related_name='items',
         verbose_name='Rapport de réception'
@@ -553,6 +555,7 @@ class ClassificationItem(models.Model):
     )
 
     class Meta:
+        db_table = 'operations_reportitem'
         verbose_name = 'Détail par espèce'
         verbose_name_plural = 'Détails par espèce'
         ordering = ['classification', 'species']
@@ -573,3 +576,9 @@ class ClassificationItem(models.Model):
         if self.species == 'autre' and self.custom_species_name:
             return self.custom_species_name
         return self.get_species_display()
+
+
+# Aliases pour la compatibilité
+ArrivalNote = Reception
+Classification = Report
+ClassificationItem = ReportItem
