@@ -62,11 +62,17 @@
                   </td>
                   <td class="client align-middle white-space-nowrap">
                     <div class="d-flex align-items-center">
-                      {% if classification.arrival_note.client.logo %}
-                        <div class="avatar avatar-m me-1"><img class="rounded-soft" src="{{ classification.arrival_note.client.logo.url }}" alt="{{ classification.arrival_note.client.name }}" /></div>
-                      {% else %}
-                        <div class="avatar-name rounded-soft"><span>{{ classification.arrival_note.client.name|first }}</span></div>
-                      {% endif %}
+                      <div class="avatar avatar-xl me-2">
+                         {% if classification.arrival_note.client.logo %}
+                          <div class="avatar avatar-l me-2">
+                            <img class="rounded-soft" src="{{ classification.arrival_note.client.logo.url }}" alt="{{ classification.arrival_note.client.name }}" />
+                          </div>
+                        {% else %}
+                          <div class="avatar-name rounded-soft">
+                            <span>{{ classification.arrival_note.client.name|first }}</span>
+                          </div>
+                        {% endif %}
+                      </div>
                       <div>
                         <a href="{% url 'portal_admin:reception_report_detail' classification.pk %}"><h6 class="mb-0 fs-8 fw-bold">{{ classification.arrival_note.client.name|upper }}</h6></a>
                         <small class="text-muted">#{{ classification.arrival_note.client.accounting_code }}</small>
