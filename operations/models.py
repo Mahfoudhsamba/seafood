@@ -259,7 +259,6 @@ class Reception(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Brouillon'),
         ('accepted', 'Accepté'),
-        ('in_progress', 'En traitement'),
         ('completed', 'Terminé'),
         ('suspended', 'Suspendu'),
         ('cancelled', 'Annulé'),
@@ -396,7 +395,7 @@ class Reception(models.Model):
     @property
     def is_locked(self):
         """Vérifie si le lot est verrouillé (accepté et en circulation)"""
-        return self.status in ['accepted', 'in_progress', 'completed']
+        return self.status in ['accepted', 'completed']
 
 
 class Report(models.Model):

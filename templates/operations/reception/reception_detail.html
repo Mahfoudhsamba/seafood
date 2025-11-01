@@ -90,7 +90,7 @@
             <div class="col-md-6">
               <label class="text-muted small">Statut</label>
               <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'in_progress' %}warning{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %}">
+                <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %}">
                   {{ reception.get_status_display }}
                 </span>
                 {% if perms.operations.change_reception and reception.status != 'completed' %}
@@ -106,7 +106,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="status" value="{{ status_code }}">
                             <button type="submit" class="dropdown-item">
-                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'accepted' %}info{% elif status_code == 'in_progress' %}warning{% elif status_code == 'completed' %}success{% elif status_code == 'suspended' %}dark{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'accepted' %}info{% elif status_code == 'completed' %}success{% elif status_code == 'suspended' %}dark{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
                             </button>
                           </form>
                         </li>
@@ -179,7 +179,7 @@
           <p class="text-muted mb-2">{{ reception.service_type.category.name|default:'-' }}</p>
 
           <div class="mb-3">
-            <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'in_progress' %}warning{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %} fs-9">
+            <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %} fs-9">
               {{ reception.get_status_display }}
             </span>
           </div>

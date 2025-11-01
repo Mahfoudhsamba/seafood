@@ -1671,6 +1671,11 @@ def arrivalnote_delete(request, pk):
     """Suppression d'une note d'arrivée"""
     reception = get_object_or_404(ArrivalNote, pk=pk)
 
+    # Empêcher la suppression des réceptions acceptées
+    if reception.status == 'accepted':
+        messages.error(request, 'Impossible de supprimer une réception acceptée!')
+        return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
     if request.method == 'POST':
         try:
             lot_id = reception.lot_id
@@ -1700,14 +1705,10 @@ def arrivalnote_change_status(request, pk):
 
         # Vérifier les règles de changement de statut
         if reception.status == 'accepted' and new_status != reception.status:
-            # Une fois accepté, on peut seulement passer à 'in_progress', 'suspended' ou 'cancelled'
-            if new_status not in ['in_progress', 'suspended', 'cancelled']:
-                messages.error(request, 'Changement de statut non autorisé. Un lot accepté ne peut passer qu\'en traitement, suspendu ou annulé.')
+            # Une fois accepté, on peut seulement passer à 'completed', 'suspended' ou 'cancelled'
+            if new_status not in ['completed', 'suspended', 'cancelled']:
+                messages.error(request, 'Changement de statut non autorisé. Un lot accepté ne peut passer qu\'à terminé, suspendu ou annulé.')
                 return redirect('portal_admin:arrivalnote_detail', pk=pk)
-
-        if reception.status == 'in_progress' and new_status not in ['completed', 'suspended', 'cancelled', 'in_progress']:
-            messages.error(request, 'Un lot en traitement ne peut passer qu\'à terminé, suspendu ou annulé.')
-            return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
         if reception.status == 'completed':
             messages.error(request, 'Un lot terminé ne peut plus changer de statut.')

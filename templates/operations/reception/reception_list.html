@@ -89,7 +89,7 @@
                   <td class="fs-9 align-middle px-0 py-3"><div class="form-check mb-0 fs-8"><input class="form-check-input" type="checkbox" data-bulk-select-row=''/></div></td>
                   <td class="lot align-middle white-space-nowrap py-0"><a class="fw-bold fs-8" href="{% url 'portal_admin:arrivalnote_detail' note.pk %}">#{{ note.lot_id }}</a></td>
                   <td class="statut align-middle white-space-nowrap text-start fw-bold">
-                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'draft' %}secondary{% elif note.status == 'accepted' %}info{% elif note.status == 'in_progress' %}warning{% elif note.status == 'completed' %}success{% elif note.status == 'suspended' %}dark{% elif note.status == 'cancelled' %}danger{% endif %}">
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if note.status == 'draft' %}secondary{% elif note.status == 'accepted' %}info{% elif note.status == 'completed' %}success{% elif note.status == 'suspended' %}dark{% elif note.status == 'cancelled' %}danger{% endif %}">
                       <span class="badge-label">{{ note.get_status_display }}</span>
                     </span>
                   </td>
