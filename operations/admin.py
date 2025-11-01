@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, FishCategory, ArrivalNote, Classification, ClassificationItem
+from .models import Service, FishCategory, ArrivalNote, Report, ReportItem
 
 # Register your models here.
 
@@ -81,25 +81,25 @@ class ArrivalNoteAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-class ClassificationItemInline(admin.TabularInline):
+class ReportItemInline(admin.TabularInline):
     """
     Inline pour gérer les détails par espèce directement depuis le rapport
     """
-    model = ClassificationItem
+    model = ReportItem
     extra = 1
     fields = ['species', 'custom_species_name', 'weight', 'comment']
     verbose_name = 'Détail par espèce'
     verbose_name_plural = 'Détails par espèce'
 
 
-@admin.register(Classification)
-class ClassificationAdmin(admin.ModelAdmin):
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
     list_display = ['arrival_note', 'report_date', 'status', 'get_total_weight', 'created_by']
     list_filter = ['status', 'report_date', 'created_at']
     search_fields = ['arrival_note__lot_id', 'arrival_note__client__name', 'general_observation']
     readonly_fields = ['report_date', 'created_at', 'updated_at', 'created_by']
     date_hierarchy = 'report_date'
-    inlines = [ClassificationItemInline]
+    inlines = [ReportItemInline]
 
     fieldsets = (
         ('Informations principales', {
@@ -130,8 +130,8 @@ class ClassificationAdmin(admin.ModelAdmin):
         return qs.select_related('arrival_note', 'arrival_note__client', 'created_by').prefetch_related('items')
 
 
-@admin.register(ClassificationItem)
-class ClassificationItemAdmin(admin.ModelAdmin):
+@admin.register(ReportItem)
+class ReportItemAdmin(admin.ModelAdmin):
     list_display = ['report', 'get_species_name', 'weight', 'created_at']
     list_filter = ['species', 'created_at']
     search_fields = ['report__arrival_note__lot_id', 'species', 'custom_species_name', 'comment']

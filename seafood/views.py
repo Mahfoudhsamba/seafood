@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory, Classification, ClassificationItem
+from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory, Report, ReportItem
 
 # Create your views here.
 
@@ -2076,7 +2076,7 @@ def servicecategory_change_status(request, pk):
 @permission_required('operations.view_report', raise_exception=True)
 def reception_report_list(request):
     """Liste des rapports de réception"""
-    reports = Classification.objects.all().select_related(
+    reports = Report.objects.all().select_related(
         'arrival_note',
         'arrival_note__client',
         'arrival_note__service_type',
@@ -2093,7 +2093,7 @@ def reception_report_list(request):
 def reception_report_detail(request, pk):
     """Détails d'un rapport de réception"""
     report = get_object_or_404(
-        Classification.objects.select_related(
+        Report.objects.select_related(
             'arrival_note',
             'arrival_note__client',
             'arrival_note__service_type',
@@ -2104,7 +2104,7 @@ def reception_report_detail(request, pk):
 
     return render(request, 'operations/reception_reports/report_detail.html', {
         'report': report,
-        'status_choices': Classification.STATUS_CHOICES
+        'status_choices': Report.STATUS_CHOICES
     })
 
 
@@ -2120,7 +2120,7 @@ def reception_report_add(request):
             reception_id = request.POST.get('arrival_note')
             reception = get_object_or_404(ArrivalNote, pk=reception_id)
 
-            report = Classification.objects.create(
+            report = Report.objects.create(
                 arrival_note=reception,
                 general_observation=request.POST.get('general_observation', ''),
                 status='draft',
@@ -2134,7 +2134,7 @@ def reception_report_add(request):
             # Créer les détails par espèce
             for item in items:
                 if item.get('species') and item.get('weight'):
-                    ClassificationItem.objects.create(
+                    ReportItem.objects.create(
                         report=report,
                         species=item['species'],
                         custom_species_name=item.get('custom_species_name', ''),
@@ -2153,14 +2153,14 @@ def reception_report_add(request):
     # Seuls les lots acceptés peuvent avoir un rapport
     eligible_receptions = ArrivalNote.objects.filter(
         service_type__code__gt='1003',
-        classifications__isnull=True,
+        reports__isnull=True,
         status='accepted'
     ).select_related('client', 'service_type').order_by('-reception_date')
 
     return render(request, 'operations/reception_reports/report_form.html', {
         'eligible_receptions': eligible_receptions,
-        'species_choices': ClassificationItem.SPECIES_CHOICES,
-        'status_choices': Classification.STATUS_CHOICES
+        'species_choices': ReportItem.SPECIES_CHOICES,
+        'status_choices': Report.STATUS_CHOICES
     })
 
 
@@ -2169,7 +2169,7 @@ def reception_report_add(request):
 def reception_report_edit(request, pk):
     """Formulaire de modification de rapport de réception"""
     report = get_object_or_404(
-        Classification.objects.select_related('arrival_note', 'arrival_note__client').prefetch_related('items'),
+        Report.objects.select_related('arrival_note', 'arrival_note__client').prefetch_related('items'),
         pk=pk
     )
 
@@ -2196,7 +2196,7 @@ def reception_report_edit(request, pk):
 
             for item in items:
                 if item.get('species') and item.get('weight'):
-                    ClassificationItem.objects.create(
+                    ReportItem.objects.create(
                         report=report,
                         species=item['species'],
                         custom_species_name=item.get('custom_species_name', ''),
@@ -2218,8 +2218,8 @@ def reception_report_edit(request, pk):
     return render(request, 'operations/reception_reports/report_form.html', {
         'report': report,
         'eligible_receptions': eligible_receptions,
-        'species_choices': ClassificationItem.SPECIES_CHOICES,
-        'status_choices': Classification.STATUS_CHOICES
+        'species_choices': ReportItem.SPECIES_CHOICES,
+        'status_choices': Report.STATUS_CHOICES
     })
 
 
@@ -2228,7 +2228,7 @@ def reception_report_edit(request, pk):
 def reception_report_delete(request, pk):
     """Suppression d'un rapport de réception"""
     report = get_object_or_404(
-        Classification.objects.select_related('arrival_note'),
+        Report.objects.select_related('arrival_note'),
         pk=pk
     )
 
@@ -2250,13 +2250,13 @@ def reception_report_delete(request, pk):
 @permission_required('operations.change_report', raise_exception=True)
 def reception_report_change_status(request, pk):
     """Changer le statut d'un rapport de réception"""
-    report = get_object_or_404(Classification, pk=pk)
+    report = get_object_or_404(Report, pk=pk)
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
 
         # Vérifier que le nouveau statut est valide
-        valid_statuses = [choice[0] for choice in Classification.STATUS_CHOICES]
+        valid_statuses = [choice[0] for choice in Report.STATUS_CHOICES]
         if new_status not in valid_statuses:
             messages.error(request, 'Statut invalide!')
             return redirect('portal_admin:reception_report_detail', pk=pk)

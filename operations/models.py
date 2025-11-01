@@ -414,7 +414,7 @@ class Report(models.Model):
     arrival_note = models.ForeignKey(
         Reception,
         on_delete=models.PROTECT,
-        related_name='classifications',
+        related_name='reports',
         verbose_name='Lot (Note d\'arrivée)',
         help_text='Sélectionner un lot dont le type de service est supérieur à 1003'
     )
@@ -453,7 +453,7 @@ class Report(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='created_classifications',
+        related_name='created_reports',
         verbose_name='Créé par'
     )
 
@@ -473,7 +473,7 @@ class Report(models.Model):
 
     @property
     def total_weight(self):
-        """Calcule le poids total de tous les items de classification"""
+        """Calcule le poids total de tous les items du rapport"""
         return sum(item.weight for item in self.items.all())
 
     @property
