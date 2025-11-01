@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory, Report, ReportItem
+from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem
 
 # Create your views here.
 
@@ -2068,6 +2068,130 @@ def servicecategory_change_status(request, pk):
         return redirect('portal_admin:servicecategory_detail', pk=pk)
 
     return redirect('portal_admin:servicecategory_detail', pk=pk)
+
+
+# ============ SOUS-CATÉGORIES DE SERVICES ============
+
+@staff_member_required
+@permission_required('operations.add_servicesubcategory', raise_exception=True)
+def servicesubcategory_add(request, category_pk):
+    """Formulaire d'ajout de sous-catégorie de service"""
+    category = get_object_or_404(ServiceCategory, pk=category_pk)
+
+    if request.method == 'POST':
+        try:
+            weight = request.POST.get('weight', '').strip()
+            price = request.POST.get('price', '').strip()
+
+            subcategory = ServiceSubCategory(
+                category=category,
+                name=request.POST.get('name'),
+                weight=weight if weight else None,
+                price=price if price else None,
+                description=request.POST.get('description', ''),
+                status=request.POST.get('status', 'active'),
+                created_by=request.user
+            )
+            subcategory.save()
+
+            messages.success(request, f'Sous-catégorie "{subcategory.name}" créée avec succès!')
+            return redirect('portal_admin:servicecategory_detail', pk=category_pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création: {str(e)}')
+
+    return render(request, 'operations/service_subcategories/servicesubcategory_form.html', {
+        'category': category,
+        'statuses': ServiceSubCategory.STATUS_CHOICES,
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_servicesubcategory', raise_exception=True)
+def servicesubcategory_detail(request, pk):
+    """Détails d'une sous-catégorie de service"""
+    subcategory = get_object_or_404(ServiceSubCategory, pk=pk)
+    return render(request, 'operations/service_subcategories/servicesubcategory_detail.html', {
+        'subcategory': subcategory,
+        'status_choices': ServiceSubCategory.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_servicesubcategory', raise_exception=True)
+def servicesubcategory_edit(request, pk):
+    """Formulaire de modification de sous-catégorie de service"""
+    subcategory = get_object_or_404(ServiceSubCategory, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            weight = request.POST.get('weight', '').strip()
+            price = request.POST.get('price', '').strip()
+
+            subcategory.name = request.POST.get('name')
+            subcategory.weight = weight if weight else None
+            subcategory.price = price if price else None
+            subcategory.description = request.POST.get('description', '')
+            subcategory.status = request.POST.get('status', 'active')
+            subcategory.save()
+
+            messages.success(request, f'Sous-catégorie "{subcategory.name}" modifiée avec succès!')
+            return redirect('portal_admin:servicesubcategory_detail', pk=subcategory.pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    return render(request, 'operations/service_subcategories/servicesubcategory_form.html', {
+        'subcategory': subcategory,
+        'category': subcategory.category,
+        'statuses': ServiceSubCategory.STATUS_CHOICES,
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_servicesubcategory', raise_exception=True)
+def servicesubcategory_delete(request, pk):
+    """Suppression d'une sous-catégorie de service"""
+    subcategory = get_object_or_404(ServiceSubCategory, pk=pk)
+    category_pk = subcategory.category.pk
+
+    if request.method == 'POST':
+        try:
+            name = subcategory.name
+            subcategory.delete()
+            messages.success(request, f'Sous-catégorie "{name}" supprimée avec succès!')
+            return redirect('portal_admin:servicecategory_detail', pk=category_pk)
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+
+    return render(request, 'operations/service_subcategories/servicesubcategory_confirm_delete.html', {
+        'subcategory': subcategory
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_servicesubcategory', raise_exception=True)
+def servicesubcategory_change_status(request, pk):
+    """Changer le statut d'une sous-catégorie de service"""
+    subcategory = get_object_or_404(ServiceSubCategory, pk=pk)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+
+        # Vérifier que le nouveau statut est valide
+        valid_statuses = [choice[0] for choice in ServiceSubCategory.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Statut invalide!')
+            return redirect('portal_admin:servicesubcategory_detail', pk=pk)
+
+        # Appliquer le changement
+        old_status = subcategory.get_status_display()
+        subcategory.status = new_status
+        subcategory.save()
+
+        new_status_display = subcategory.get_status_display()
+        messages.success(request, f'Statut de la sous-catégorie changé de "{old_status}" à "{new_status_display}"')
+        return redirect('portal_admin:servicesubcategory_detail', pk=pk)
+
+    return redirect('portal_admin:servicesubcategory_detail', pk=pk)
 
 
 # ============ RAPPORTS DE RÉCEPTION ============

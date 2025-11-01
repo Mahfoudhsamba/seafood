@@ -105,6 +105,13 @@ class PortalAdminSite(AdminSite):
             path('service-categories/<int:pk>/delete/', views.servicecategory_delete, name='servicecategory_delete'),
             path('service-categories/<int:pk>/change-status/', views.servicecategory_change_status, name='servicecategory_change_status'),
 
+            # Sous-catégories de services
+            path('service-categories/<int:category_pk>/subcategories/add/', views.servicesubcategory_add, name='servicesubcategory_add'),
+            path('service-subcategories/<int:pk>/', views.servicesubcategory_detail, name='servicesubcategory_detail'),
+            path('service-subcategories/<int:pk>/edit/', views.servicesubcategory_edit, name='servicesubcategory_edit'),
+            path('service-subcategories/<int:pk>/delete/', views.servicesubcategory_delete, name='servicesubcategory_delete'),
+            path('service-subcategories/<int:pk>/change-status/', views.servicesubcategory_change_status, name='servicesubcategory_change_status'),
+
             # Rapports de réception
             path('rapports-reception/', views.reception_report_list, name='reception_report_list'),
             path('rapports-reception/add/', views.reception_report_add, name='reception_report_add'),

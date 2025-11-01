@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, FishCategory, ArrivalNote, Report, ReportItem
+from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, ArrivalNote, Report, ReportItem
 
 # Register your models here.
 
@@ -155,3 +155,29 @@ class ReportItemAdmin(admin.ModelAdmin):
         """Optimise les requêtes en préchargeant les relations"""
         qs = super().get_queryset(request)
         return qs.select_related('report', 'report__arrival_note')
+
+
+@admin.register(ServiceSubCategory)
+class ServiceSubCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'weight', 'price', 'status', 'created_at']
+    list_filter = ['status', 'category', 'created_at']
+    search_fields = ['name', 'description', 'category__name']
+    readonly_fields = ['created_at', 'updated_at', 'created_by']
+
+    fieldsets = (
+        ('Informations de base', {
+            'fields': ('category', 'name')
+        }),
+        ('Détails', {
+            'fields': ('weight', 'price', 'description', 'status')
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si c'est une nouvelle instance
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)

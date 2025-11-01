@@ -76,6 +76,101 @@ class ServiceCategory(models.Model):
         return self.status == 'active'
 
 
+class ServiceSubCategory(models.Model):
+    """
+    Modèle pour les sous-catégories de services
+    """
+    STATUS_CHOICES = [
+        ('active', 'Actif'),
+        ('suspended', 'Suspendu'),
+    ]
+
+    # Catégorie parente
+    category = models.ForeignKey(
+        ServiceCategory,
+        on_delete=models.CASCADE,
+        related_name='subcategories',
+        verbose_name='Catégorie'
+    )
+
+    # Nom de la sous-catégorie (requis)
+    name = models.CharField(
+        max_length=200,
+        verbose_name='Nom de la sous-catégorie'
+    )
+
+    # Poids (optionnel)
+    weight = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name='Poids (kg)',
+        help_text='Poids en kilogrammes (optionnel)'
+    )
+
+    # Prix (optionnel)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name='Prix',
+        help_text='Prix en devise locale (optionnel)'
+    )
+
+    # Description (optionnelle)
+    description = models.TextField(
+        blank=True,
+        verbose_name='Description'
+    )
+
+    # Statut
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='État'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_service_subcategories',
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        verbose_name = 'Sous-catégorie de service'
+        verbose_name_plural = 'Sous-catégories de services'
+        ordering = ['category', 'name']
+        unique_together = [['category', 'name']]
+        indexes = [
+            models.Index(fields=['category']),
+            models.Index(fields=['status']),
+        ]
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
+
+    @property
+    def is_active(self):
+        """Vérifie si la sous-catégorie est active"""
+        return self.status == 'active'
+
+
 class Service(models.Model):
     """
     Modèle pour les services offerts par l'entreprise

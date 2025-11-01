@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}{% if subcategory %}Modifier{% else %}Ajouter{% endif %} Sous-catégorie - Seafood Portal{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">{% if subcategory %}Modifier{% else %}Ajouter{% endif %} une Sous-catégorie</h2>
+      <p class="text-muted mb-0">Catégorie: {{ category.name }}</p>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:servicecategory_detail' category.pk %}" class="btn btn-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour à la catégorie
+      </a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><span class="fas fa-layer-group me-2"></span>Informations de la sous-catégorie</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label for="name" class="form-label">Nom de la sous-catégorie <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" name="name"
+                     value="{{ subcategory.name|default:'' }}" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="weight" class="form-label">Poids (kg)</label>
+                <input type="number" step="0.01" class="form-control" id="weight" name="weight"
+                       value="{{ subcategory.weight|default:'' }}" placeholder="Ex: 10.50">
+                <div class="form-text">Optionnel - Poids en kilogrammes</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="price" class="form-label">Prix (MRU)</label>
+                <input type="number" step="0.01" class="form-control" id="price" name="price"
+                       value="{{ subcategory.price|default:'' }}" placeholder="Ex: 1500.00">
+                <div class="form-text">Optionnel - Prix en MRU</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3"
+                        placeholder="Description de la sous-catégorie">{{ subcategory.description|default:'' }}</textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="status" class="form-label">État</label>
+              <select class="form-select" id="status" name="status">
+                {% for status_code, status_label in statuses %}
+                  <option value="{{ status_code }}" {% if subcategory.status == status_code or status_code == 'active' and not subcategory %}selected{% endif %}>
+                    {{ status_label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <a href="{% url 'portal_admin:servicecategory_detail' category.pk %}" class="btn btn-secondary">
+                <span class="fas fa-times me-2"></span>Annuler
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <span class="fas fa-save me-2"></span>{% if subcategory %}Modifier{% else %}Créer{% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
