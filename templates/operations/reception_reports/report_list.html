@@ -98,7 +98,9 @@
                     {% if report.can_be_edited %}
                       <a href="{% url 'portal_admin:reception_report_edit' report.pk %}" title="Modifier"><span class="text-body fs-5" data-feather="edit"></span></a>
                     {% endif %}
-                    <a href="{% url 'portal_admin:reception_report_delete' report.pk %}" title="Supprimer"><span class="text-body fs-5" data-feather="trash-2"></span></a>
+                    {% if report.status == 'draft' %}
+                      <a href="{% url 'portal_admin:reception_report_delete' report.pk %}" title="Supprimer"><span class="text-body fs-5" data-feather="trash-2"></span></a>
+                    {% endif %}
                   </td>
                 </tr>
               {% empty %}

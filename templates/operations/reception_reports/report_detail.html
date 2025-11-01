@@ -15,7 +15,7 @@
         {% if perms.operations.change_report and report.can_be_edited %}
           <a href="{% url 'portal_admin:reception_report_edit' report.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
         {% endif %}
-        {% if perms.operations.delete_report %}
+        {% if perms.operations.delete_report and report.status == 'draft' %}
           <a href="{% url 'portal_admin:reception_report_delete' report.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
         {% endif %}
         <a href="{% url 'portal_admin:reception_report_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>

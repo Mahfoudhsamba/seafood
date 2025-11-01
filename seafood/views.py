@@ -2356,6 +2356,11 @@ def reception_report_delete(request, pk):
         pk=pk
     )
 
+    # Bloquer la suppression si le rapport n'est pas en brouillon
+    if report.status != 'draft':
+        messages.error(request, 'Impossible de supprimer un rapport qui n\'est pas en brouillon! Seuls les rapports en brouillon peuvent être supprimés.')
+        return redirect('portal_admin:reception_report_detail', pk=pk)
+
     if request.method == 'POST':
         try:
             lot_id = report.arrival_note.lot_id
