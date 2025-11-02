@@ -663,9 +663,3 @@ class ReportItem(models.Model):
         if self.species == 'autre' and self.custom_species_name:
             return self.custom_species_name
         return self.get_species_display()
-
-
-# Aliases pour la compatibilité
-ArrivalNote = Reception
-Classification = Report
-ClassificationItem = ReportItem
