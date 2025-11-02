@@ -1,13 +1,13 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Détails Catégorie - {{ category.name }} - Seafood Portal{% endblock %}
+{% block title %}Détails Catégorie - {{ category.name }}{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">Détails de la Catégorie</h2>
+      <h2 class="mb-0">DÉTAILS DE LA CATÉGORIE</h2>
     </div>
     <div class="col-auto">
       <div class="d-flex gap-2">
@@ -21,7 +21,7 @@
           <span class="fas fa-trash me-2"></span>Supprimer
         </a>
         {% endif %}
-        <a href="{% url 'portal_admin:servicecategory_list' %}" class="btn btn-secondary">
+        <a href="{% url 'portal_admin:servicecategory_list' %}" class="btn btn-phoenix-secondary">
           <span class="fas fa-arrow-left me-2"></span>Retour à la liste
         </a>
       </div>
@@ -38,57 +38,30 @@
   {% endif %}
 
   <div class="row g-3">
-    <!-- Informations principales -->
-    <div class="col-lg-4">
-      <div class="card h-100">
-        <div class="card-body text-center">
-          <div class="mb-3 mx-auto">
-            <div class="avatar avatar-5xl ">
-              {% if category.avatar %}
-                <img class="rounded-soft " src="{{ category.avatar.url }}" alt="{{ category.name }}" />
-              {% else %}
-                <div class="avatar-name rounded-soft">
-                  <span>{{ category.name|first }}</span>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-          <h4 class="mb-2">{{ category.name }}</h4>
-          <div class="mb-3">
-            {% if category.status == 'active' %}
-              <span class="badge bg-success fs-9">{{ category.get_status_display }}</span>
-            {% else %}
-              <span class="badge bg-warning fs-9">{{ category.get_status_display }}</span>
-            {% endif %}
-          </div>
-          <div class="border-top pt-3">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Sous-catégories:</span>
-              <strong>{{ category.subcategories.count }}</strong>
-            </div>
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Services:</span>
-              <strong>{{ category.services.count }}</strong>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span class="text-muted">Créée le:</span>
-              <strong>{{ category.created_at|date:"d/m/Y" }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-8">
+    <div class="col-lg-12">
       <div class="card mb-3">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
-        </div>
         <div class="card-body">
-          <div class="row g-3">
+          <div class="row mb-2">
             <div class="col-md-6">
-              <label class="text-muted small">Nom de la catégorie</label>
-              <p class="mb-0"><strong>{{ category.name }}</strong></p>
+              <label class="text-muted small">Catégorie</label>
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar-3xl me-2">
+                  {% if category.avatar %}
+                    <img class="rounded-soft" src="{{ category.avatar.url }}" alt="{{ category.name }}" >
+                  {% else %}
+                    <div class="avatar-name rounded-soft">
+                      <span>{{ category.name|first }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="d-flex align-items-center">
+                    <p class="mb-0 text-body-highlight fw-bold fs-8 me-2">
+                      {{ category.name }}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">État</label>
@@ -98,7 +71,7 @@
                 {% else %}
                   <span class="badge bg-warning">{{ category.get_status_display }}</span>
                 {% endif %}
-
+  
                 {% if perms.operations.change_servicecategory %}
                 <div class="dropdown">
                   <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -124,28 +97,50 @@
               </div>
             </div>
           </div>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <label class="text-muted small">Nombre de classes</label>
+              <p class="mb-0"><strong>{{ category.subcategories.count }}</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Services associés</label>
+              <p class="mb-0"><strong>{{ category.services.count }}</strong></p>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-12">
+              <label class="text-muted small">Description</label>
+              {% if category.description %}
+                <p class="mb-0">{{ category.description|linebreaks }}</p>
+              {% else %}
+                <p class="text-muted mb-0 fst-italic">Aucune description fournie</p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-4">
+              <label class="text-muted small">Date de création</label>
+              <p class="mb-0">{{ category.created_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+            <div class="col-md-4">
+              <label class="text-muted small">Dernière modification</label>
+              <p class="mb-0">{{ category.updated_at|date:"d/m/Y à H:i" }}</p>
+            </div>
+            {% if category.created_by %}
+            <div class="col-md-4">
+              <label class="text-muted small">Créée par</label>
+              <p class="mb-0">{{ category.created_by.get_full_name|default:category.created_by.username }}</p>
+            </div>
+            {% endif %}
+          </div>
         </div>
       </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-align-left me-2"></span>Description</h5>
-        </div>
-        <div class="card-body">
-          {% if category.description %}
-            <p class="mb-0">{{ category.description|linebreaks }}</p>
-          {% else %}
-            <p class="text-muted mb-0 fst-italic">Aucune description fournie</p>
-          {% endif %}
-        </div>
-      </div>
-
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0"><span class="fas fa-layer-group me-2"></span>Sous-catégories ({{ category.subcategories.count }})</h5>
+          <h5 class="mb-0"><span class="fas fa-layer-group me-2"></span>Classes ({{ category.subcategories.count }})</h5>
           {% if perms.operations.add_servicesubcategory %}
           <a href="{% url 'portal_admin:servicesubcategory_add' category.pk %}" class="btn btn-sm btn-primary">
-            <span class="fas fa-plus me-1"></span>Ajouter une sous-catégorie
+            <span class="fas fa-plus me-1"></span>Ajouter une classe
           </a>
           {% endif %}
         </div>
@@ -176,18 +171,12 @@
                     {% endif %}
                   </td>
                   <td class="text-end">
-                    <a href="{% url 'portal_admin:servicesubcategory_detail' subcategory.pk %}" class="btn btn-sm btn-phoenix-secondary" title="Détails">
-                      <span class="fas fa-eye"></span>
-                    </a>
+                    <a href="{% url 'portal_admin:servicesubcategory_detail' subcategory.pk %}" title="Détails"><span class="text-body fs-5" data-feather="eye"></span></a>
                     {% if perms.operations.change_servicesubcategory %}
-                    <a href="{% url 'portal_admin:servicesubcategory_edit' subcategory.pk %}" class="btn btn-sm btn-phoenix-primary" title="Modifier">
-                      <span class="fas fa-edit"></span>
-                    </a>
+                      <a href="{% url 'portal_admin:servicesubcategory_edit' subcategory.pk %}" title="Modifier"><span class="text-body fs-5" data-feather="edit"></span></a>
                     {% endif %}
                     {% if perms.operations.delete_servicesubcategory %}
-                    <a href="{% url 'portal_admin:servicesubcategory_delete' subcategory.pk %}" class="btn btn-sm btn-phoenix-danger" title="Supprimer">
-                      <span class="fas fa-trash"></span>
-                    </a>
+                      <a href="{% url 'portal_admin:servicesubcategory_delete' subcategory.pk %}" title="Supprimer"><span class="text-body fs-5" data-feather="trash-2"></span></a>
                     {% endif %}
                   </td>
                 </tr>
@@ -196,11 +185,10 @@
             </table>
           </div>
           {% else %}
-          <p class="text-muted mb-0">Aucune sous-catégorie dans cette catégorie</p>
+          <p class="text-muted mb-0">Aucune classe dans cette catégorie</p>
           {% endif %}
         </div>
       </div>
-
       <div class="card mb-3">
         <div class="card-header">
           <h5 class="mb-0"><span class="fas fa-list me-2"></span>Services de cette catégorie ({{ category.services.count }})</h5>
@@ -227,32 +215,8 @@
             {% endfor %}
           </div>
           {% else %}
-          <p class="text-muted mb-0">Aucun service dans cette catégorie</p>
+          <p class="text-muted mb-0">Aucun service assoccié à cette catégorie</p>
           {% endif %}
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-clock me-2"></span>Métadonnées</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="text-muted small">Date de création</label>
-              <p class="mb-0">{{ category.created_at|date:"d/m/Y à H:i" }}</p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Dernière modification</label>
-              <p class="mb-0">{{ category.updated_at|date:"d/m/Y à H:i" }}</p>
-            </div>
-            {% if category.created_by %}
-            <div class="col-md-6">
-              <label class="text-muted small">Créée par</label>
-              <p class="mb-0">{{ category.created_by.get_full_name|default:category.created_by.username }}</p>
-            </div>
-            {% endif %}
-          </div>
         </div>
       </div>
     </div>
