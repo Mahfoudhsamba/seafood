@@ -34,9 +34,6 @@
   <div class="row g-3">
     <div class="col-lg-8">
       <div class="card mb-3">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-info-circle me-2"></span>Informations de base</h5>
-        </div>
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
@@ -117,38 +114,15 @@
                 {% endif %}
               </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {% if reception.observations %}
-        <div class="card mb-3">
-          <div class="card-header">
-            <h5 class="mb-0"><span class="fas fa-sticky-note me-2"></span>Observations</h5>
-          </div>
-          <div class="card-body">
-            <p class="mb-0">{{ reception.observations }}</p>
-          </div>
-        </div>
-      {% endif %}
+            {% if reception.observations %}
+              <div class="col-md-12">
+                <label class="text-muted small">Observations</label>
+                <p class="mb-0">{{ reception.observations }}</p>
+              </div>
+            {% endif %}
 
-      {% if reception.rejection_reason %}
-        <div class="card mb-3 border-danger">
-          <div class="card-header bg-danger text-white">
-            <h5 class="mb-0"><span class="fas fa-exclamation-triangle me-2"></span>Motif de rejet</h5>
-          </div>
-          <div class="card-body">
-            <p class="mb-0">{{ reception.rejection_reason }}</p>
-          </div>
-        </div>
-      {% endif %}
 
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0"><span class="fas fa-clock me-2"></span>Métadonnées</h5>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
             <div class="col-md-4">
               <label class="text-muted small">Date de création</label>
               <p class="mb-0">{{ reception.created_at|date:"d/m/Y à H:i" }}</p>
@@ -163,9 +137,21 @@
               <p class="mb-0">{{ reception.created_by.get_full_name|default:reception.created_by.username }}</p>
             </div>
             {% endif %}
+
           </div>
         </div>
       </div>
+
+      {% if reception.rejection_reason %}
+        <div class="card mb-3 border-danger">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><span class="fas fa-exclamation-triangle me-2"></span>Motif de rejet</h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ reception.rejection_reason }}</p>
+          </div>
+        </div>
+      {% endif %}
     </div>
     <div class="col-lg-4">
       <div class="card h-100">
