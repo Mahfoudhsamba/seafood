@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, ArrivalNote, Report, ReportItem
+from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, Reception, Report, ReportItem
 
 # Register your models here.
 
@@ -47,8 +47,8 @@ class FishCategoryAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(ArrivalNote)
-class ArrivalNoteAdmin(admin.ModelAdmin):
+@admin.register(Reception)
+class ReceptionAdmin(admin.ModelAdmin):
     list_display = ['lot_id', 'client', 'reception_date', 'weight', 'get_service_category', 'service_type', 'status', 'created_at']
     list_filter = ['status', 'service_type', 'reception_date', 'created_at', 'service_type__category']
     search_fields = ['lot_id', 'client__name', 'client__accounting_code']

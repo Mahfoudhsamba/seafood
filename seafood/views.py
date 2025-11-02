@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import ArrivalNote, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem
+from operations.models import Reception, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem
 
 # Create your views here.
 
@@ -1559,7 +1559,7 @@ def prospect_change_status(request, pk, new_status):
 @permission_required('operations.view_reception', raise_exception=True)
 def arrivalnote_list(request):
     """Liste des notes d'arrivée"""
-    receptions = ArrivalNote.objects.all().select_related('client', 'service_type__category', 'created_by').order_by('-created_at')
+    receptions = Reception.objects.all().select_related('client', 'service_type__category', 'created_by').order_by('-created_at')
 
     # Filtrage par statut
     status_filter = request.GET.get('status')
@@ -1583,7 +1583,7 @@ def arrivalnote_list(request):
 
     return render(request, 'operations/reception/reception_list.html', {
         'receptions': receptions,
-        'statuses': ArrivalNote.STATUS_CHOICES,
+        'statuses': Reception.STATUS_CHOICES,
         'services': Service.objects.filter(status='active').order_by('code')
     })
 
@@ -1592,10 +1592,10 @@ def arrivalnote_list(request):
 @permission_required('operations.view_reception', raise_exception=True)
 def arrivalnote_detail(request, pk):
     """Détails d'une note d'arrivée"""
-    reception = get_object_or_404(ArrivalNote.objects.select_related('client', 'service_type__category', 'created_by'), pk=pk)
+    reception = get_object_or_404(Reception.objects.select_related('client', 'service_type__category', 'created_by'), pk=pk)
     return render(request, 'operations/reception/reception_detail.html', {
         'reception': reception,
-        'status_choices': ArrivalNote.STATUS_CHOICES
+        'status_choices': Reception.STATUS_CHOICES
     })
 
 
@@ -1607,7 +1607,7 @@ def arrivalnote_add(request):
         try:
             from datetime import date
 
-            reception = ArrivalNote(
+            reception = Reception(
                 client_id=request.POST.get('client'),
                 reception_date=request.POST.get('reception_date') or date.today(),
                 weight=request.POST.get('weight'),
@@ -1634,7 +1634,7 @@ def arrivalnote_add(request):
 @permission_required('operations.change_reception', raise_exception=True)
 def arrivalnote_edit(request, pk):
     """Formulaire de modification de note d'arrivée"""
-    reception = get_object_or_404(ArrivalNote, pk=pk)
+    reception = get_object_or_404(Reception, pk=pk)
 
     # Ne permettre la modification que si le statut est 'draft'
     if reception.status != 'draft':
@@ -1669,7 +1669,7 @@ def arrivalnote_edit(request, pk):
 @permission_required('operations.delete_reception', raise_exception=True)
 def arrivalnote_delete(request, pk):
     """Suppression d'une note d'arrivée"""
-    reception = get_object_or_404(ArrivalNote, pk=pk)
+    reception = get_object_or_404(Reception, pk=pk)
 
     # Empêcher la suppression des réceptions acceptées
     if reception.status == 'accepted':
@@ -1692,13 +1692,13 @@ def arrivalnote_delete(request, pk):
 @permission_required('operations.change_reception', raise_exception=True)
 def arrivalnote_change_status(request, pk):
     """Changer le statut d'une note d'arrivée"""
-    reception = get_object_or_404(ArrivalNote, pk=pk)
+    reception = get_object_or_404(Reception, pk=pk)
 
     if request.method == 'POST':
         new_status = request.POST.get('status')
 
         # Vérifier que le nouveau statut est valide
-        valid_statuses = [choice[0] for choice in ArrivalNote.STATUS_CHOICES]
+        valid_statuses = [choice[0] for choice in Reception.STATUS_CHOICES]
         if new_status not in valid_statuses:
             messages.error(request, 'Statut invalide!')
             return redirect('portal_admin:arrivalnote_detail', pk=pk)
@@ -2242,7 +2242,7 @@ def reception_report_add(request):
 
             # Créer le rapport de réception
             reception_id = request.POST.get('arrival_note')
-            reception = get_object_or_404(ArrivalNote, pk=reception_id)
+            reception = get_object_or_404(Reception, pk=reception_id)
 
             report = Report.objects.create(
                 arrival_note=reception,
@@ -2275,7 +2275,7 @@ def reception_report_add(request):
     # Récupérer les lots éligibles (service_type.code > '1003')
     # Exclure les lots qui ont déjà un rapport de réception
     # Seuls les lots acceptés peuvent avoir un rapport
-    eligible_receptions = ArrivalNote.objects.filter(
+    eligible_receptions = Reception.objects.filter(
         service_type__code__gt='1003',
         reports__isnull=True,
         status='accepted'
@@ -2335,7 +2335,7 @@ def reception_report_edit(request, pk):
             messages.error(request, f'Erreur lors de la modification: {str(e)}')
 
     # Récupérer les lots éligibles
-    eligible_receptions = ArrivalNote.objects.filter(
+    eligible_receptions = Reception.objects.filter(
         service_type__code__gt='1003'
     ).select_related('client', 'service_type').order_by('-reception_date')
 
