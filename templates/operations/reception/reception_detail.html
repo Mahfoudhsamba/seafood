@@ -33,28 +33,33 @@
 
   <div class="row g-3">
     <div class="col-lg-8">
-      <div class="card mb-3">
+      <div class="card h-100 mb-3">
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="text-muted small">Client</label>
               <div class="d-flex align-items-center">
-                {% if reception.client.logo %}
-                  <div class="avatar avatar-m me-2"><img class="rounded-soft" src="{{ reception.client.logo.url }}" alt="{{ reception.client.name }}" /></div>
-                {% else %}
-                  <div class="avatar-name rounded-soft me-2"><span>{{ reception.client.name|first }}</span></div>
-                {% endif %}
+                <div class="avatar avatar-xl me-2">
+                  {% if reception.client.logo %}
+                    <div class="avatar avatar-l me-2">
+                      <img class="rounded-soft" src="{{ reception.client.logo.url }}" alt="{{ reception.client.name }}" />
+                    </div>
+                  {% else %}
+                    <div class="avatar-name rounded-soft">
+                      <span>{{ reception.client.name|first }}</span>
+                    </div>
+                  {% endif %}
+                </div>
                 <div>
                   <h6 class="mb-0 fs-8 fw-bold">{{ reception.client.name|upper }}</h6>
                   <small class="text-muted">#{{ reception.client.accounting_code }}</small>
                 </div>
               </div>
-
             </div>
             <div class="col-md-6">
-              <label class="text-muted small">Catégorie de service</label>
+              <label class="text-muted small">Catégorie</label>
               <div class="d-flex align-items-center">
-                <div class="avatar avatar-l me-2">
+                <div class="avatar avatar-xl me-2">
                   {% if reception.service_type.category.avatar %}
                     <img class="rounded-soft" src="{{ reception.service_type.category.avatar.url }}" alt="{{ reception.service_type.category.name }}" >
                   {% else %}
@@ -122,56 +127,49 @@
               </div>
             {% endif %}
 
-
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="text-muted small">Date de création</label>
               <p class="mb-0">{{ reception.created_at|date:"d/m/Y à H:i" }}</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="text-muted small">Dernière modification</label>
               <p class="mb-0">{{ reception.updated_at|date:"d/m/Y à H:i" }}</p>
             </div>
             {% if reception.created_by %}
-            <div class="col-md-4">
+            <div class="col-md-6">
               <label class="text-muted small">Créé par</label>
               <p class="mb-0">{{ reception.created_by.get_full_name|default:reception.created_by.username }}</p>
             </div>
             {% endif %}
-
           </div>
         </div>
       </div>
     </div>
+
+    
     <div class="col-lg-4">
       <div class="card h-100">
         <div class="card-body text-center">
-          <div class="mb-3 mx-auto" style="width: 150px; height: 150px; background: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-            <span class="fas fa-fish fa-4x text-muted"></span>
+          <div class="align-items-center mb-3">
+            <div class="avatar avatar-5xl">
+              <div class="avatar-name rounded-soft">
+                <span>
+                  <i class="fas fa-fish text-muted"></i>
+                </span>
+              </div>
+            </div>
           </div>
-
           <h3 class="mb-2">LOT #{{ reception.lot_id }}</h3>
-          <p class="text-muted mb-1">{{ reception.client.name }}</p>
-          <p class="text-muted mb-2">{{ reception.service_type.category.name|default:'-' }}</p>
-
           <div class="mb-3">
             <span class="badge bg-{% if reception.status == 'draft' %}secondary{% elif reception.status == 'accepted' %}info{% elif reception.status == 'completed' %}success{% elif reception.status == 'suspended' %}dark{% elif reception.status == 'cancelled' %}danger{% endif %} fs-9">
               {{ reception.get_status_display }}
             </span>
           </div>
-
-          <div class="border-top pt-3">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Poids:</span>
-              <strong>{{ reception.weight }} kg</strong>
-            </div>
-            <div class="d-flex justify-content-between">
-              <span class="text-muted">Date de réception:</span>
-              <strong>{{ reception.reception_date|date:"d/m/Y" }}</strong>
-            </div>
-          </div>
         </div>
       </div>
     </div>
+
+
   </div>
 </div>
 {% endblock %}
