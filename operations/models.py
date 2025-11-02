@@ -411,13 +411,6 @@ class Reception(models.Model):
         help_text='Notes ou remarques sur la réception'
     )
 
-    # Motif de rejet (si status = rejected)
-    rejection_reason = models.TextField(
-        blank=True,
-        verbose_name='Motif de rejet',
-        help_text='Raison du rejet du lot'
-    )
-
     # Métadonnées
     created_at = models.DateTimeField(
         auto_now_add=True,
