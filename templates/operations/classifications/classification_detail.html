@@ -59,24 +59,24 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label class="text-muted small">Date du rapport</label>
-              <p class="mb-0">{{ classification.report_date|date:"d/m/Y" }}</p>
+              <label class="text-muted small">Date et heure de début</label>
+              <p class="mb-0">{{ classification.start_datetime|date:"d/m/Y H:i" }}</p>
             </div>
             <div class="col-md-6">
               <label class="text-muted small">Pointeur</label>
               <p class="mb-0"><strong>{{ classification.pointer_full_name }}</strong></p>
             </div>
             <div class="col-md-6">
-              <label class="text-muted small">Durée</label>
+              <label class="text-muted small">Heure de fin et durée</label>
               <p class="mb-0">
-                {% if classification.start_datetime and classification.end_datetime %}
+                {% if classification.end_datetime %}
                   <i class="fas fa-clock me-1"></i>
-                  {{ classification.start_datetime|date:"H:i" }} - {{ classification.end_datetime|date:"H:i" }}
+                  Fin: {{ classification.end_datetime|date:"H:i" }}
                   {% if classification.duration %}
                     <span class="badge badge-phoenix badge-phoenix-secondary ms-2">{{ classification.duration }}</span>
                   {% endif %}
                 {% else %}
-                  <span class="text-muted"><i>Non définie (sera renseignée lors de la validation)</i></span>
+                  <span class="text-muted"><i>Non définie</i></span>
                 {% endif %}
               </p>
             </div>

@@ -2205,7 +2205,7 @@ def reception_report_list(request):
         'arrival_note__client',
         'arrival_note__service_type',
         'created_by'
-    ).prefetch_related('items').order_by('-report_date')
+    ).prefetch_related('items').order_by('-classification_date')
 
     return render(request, 'operations/reception_reports/report_list.html', {
         'reports': reports
@@ -2421,7 +2421,7 @@ def classification_list(request):
         'reception__client',
         'reception__service_type',
         'created_by'
-    ).prefetch_related('items__species').order_by('-report_date', '-created_at')
+    ).prefetch_related('items__species').order_by('-start_datetime', '-created_at')
 
     return render(request, 'operations/classifications/classification_list.html', {
         'classifications': classifications
@@ -2466,13 +2466,14 @@ def classification_add(request):
                 messages.error(request, 'Cette réception doit avoir un rapport validé avant de pouvoir créer une classification.')
                 return redirect('portal_admin:classification_add')
 
-            # Parser la date
-            report_date_str = request.POST.get('report_date')
+            # Parser la date et heure de début
+            start_datetime_str = request.POST.get('start_datetime')
+            start_datetime = datetime.strptime(start_datetime_str, '%Y-%m-%dT%H:%M')
 
             classification = Classification.objects.create(
                 reception=reception,
-                report_date=datetime.strptime(report_date_str, '%Y-%m-%d').date(),
                 pointer_full_name=request.POST.get('pointer_full_name'),
+                start_datetime=start_datetime,
                 status='draft',
                 created_by=request.user
             )
@@ -2550,8 +2551,12 @@ def classification_edit(request, pk):
 
             # Mettre à jour la classification
             classification.pointer_full_name = request.POST.get('pointer_full_name')
-            classification.report_date = datetime.strptime(request.POST.get('report_date'), '%Y-%m-%d').date()
             classification.status = request.POST.get('status', 'draft')
+
+            # Parser la date et heure de début
+            start_datetime_str = request.POST.get('start_datetime')
+            classification.start_datetime = datetime.strptime(start_datetime_str, '%Y-%m-%dT%H:%M')
+
             classification.save()
 
             # Supprimer les anciens items

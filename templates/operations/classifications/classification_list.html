@@ -86,7 +86,7 @@
                     </div>
                   </td>
                   <td class="pointeur align-middle white-space-nowrap">{{ classification.pointer_full_name }}</td>
-                  <td class="date align-middle white-space-nowrap">{{ classification.report_date|date:"d/m/Y" }}</td>
+                  <td class="date align-middle white-space-nowrap">{{ classification.start_datetime|date:"d/m/Y H:i" }}</td>
                   <td class="especes align-middle white-space-nowrap text-center">
                     <span class="badge badge-phoenix badge-phoenix-info">{{ classification.items.count }}</span>
                   </td>

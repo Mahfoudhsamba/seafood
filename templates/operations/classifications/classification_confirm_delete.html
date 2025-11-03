@@ -41,8 +41,8 @@
       <p class="mb-0">{{ classification.pointer_full_name }}</p>
     </div>
     <div class="col-md-6">
-      <label class="text-muted small">Date du rapport</label>
-      <p class="mb-0">{{ classification.report_date|date:"d/m/Y" }}</p>
+      <label class="text-muted small">Date et heure de début</label>
+      <p class="mb-0">{{ classification.start_datetime|date:"d/m/Y H:i" }}</p>
     </div>
     <div class="col-md-6">
       <label class="text-muted small">Statut</label>

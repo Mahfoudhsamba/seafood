@@ -685,11 +685,6 @@ class Classification(models.Model):
         help_text='Note d\'arrivée à classifier'
     )
 
-    # Date du rapport
-    report_date = models.DateField(
-        verbose_name='Date du rapport'
-    )
-
     # Nom complet du pointeur
     pointer_full_name = models.CharField(
         max_length=200,
@@ -699,10 +694,8 @@ class Classification(models.Model):
 
     # Date et heure de début
     start_datetime = models.DateTimeField(
-        null=True,
-        blank=True,
         verbose_name='Date et heure de début',
-        help_text='Début de la classification (rempli lors de la validation)'
+        help_text='Début de la classification'
     )
 
     # Date et heure de fin
@@ -710,7 +703,7 @@ class Classification(models.Model):
         null=True,
         blank=True,
         verbose_name='Date et heure de fin',
-        help_text='Fin de la classification (rempli lors de la validation)'
+        help_text='Fin de la classification'
     )
 
     # Statut
@@ -742,17 +735,16 @@ class Classification(models.Model):
         db_table = 'operations_classification'
         verbose_name = 'Classification'
         verbose_name_plural = 'Classifications'
-        ordering = ['-report_date', '-created_at']
+        ordering = ['-start_datetime', '-created_at']
         indexes = [
             models.Index(fields=['reception']),
-            models.Index(fields=['report_date']),
-            models.Index(fields=['status']),
             models.Index(fields=['start_datetime']),
             models.Index(fields=['end_datetime']),
+            models.Index(fields=['status']),
         ]
 
     def __str__(self):
-        return f"Classification LOT {self.reception.lot_id} - {self.report_date.strftime('%d/%m/%Y')}"
+        return f"Classification LOT {self.reception.lot_id} - {self.start_datetime.strftime('%d/%m/%Y %H:%M')}"
 
     def clean(self):
         """Validation personnalisée"""
@@ -790,7 +782,10 @@ class Classification(models.Model):
     def duration(self):
         """Calcule la durée de la classification"""
         if self.start_datetime and self.end_datetime:
-            return self.end_datetime - self.start_datetime
+            delta = self.end_datetime - self.start_datetime
+            hours = int(delta.total_seconds() // 3600)
+            minutes = int((delta.total_seconds() % 3600) // 60)
+            return f"{hours}h{minutes:02d}min"
         return None
 
 

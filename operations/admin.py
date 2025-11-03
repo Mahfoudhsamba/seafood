@@ -197,16 +197,16 @@ class ClassificationItemInline(admin.TabularInline):
 
 @admin.register(Classification)
 class ClassificationAdmin(admin.ModelAdmin):
-    list_display = ['reception', 'report_date', 'pointer_full_name', 'status', 'get_total_weight', 'get_total_plates', 'created_by']
-    list_filter = ['status', 'report_date', 'created_at']
+    list_display = ['reception', 'start_datetime', 'pointer_full_name', 'status', 'get_total_weight', 'get_total_plates', 'created_by']
+    list_filter = ['status', 'start_datetime', 'created_at']
     search_fields = ['reception__lot_id', 'reception__client__name', 'pointer_full_name']
     readonly_fields = ['created_at', 'updated_at', 'created_by']
-    date_hierarchy = 'report_date'
+    date_hierarchy = 'start_datetime'
     inlines = [ClassificationItemInline]
 
     fieldsets = (
         ('Informations principales', {
-            'fields': ('reception', 'report_date', 'pointer_full_name', 'status')
+            'fields': ('reception', 'pointer_full_name', 'status')
         }),
         ('Période de classification', {
             'fields': ('start_datetime', 'end_datetime')
