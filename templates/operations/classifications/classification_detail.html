@@ -1,465 +1,464 @@
 {% extends "layouts/base.html" %}
 {% load static %}
-
 {% block title %}Classification - LOT #{{ classification.reception.lot_id }}{% endblock %}
-
 {% block content %}
-<div class="pb-5">
+  <div class="pb-5">
 
-  <div class="row align-items-center justify-content-between g-3 mb-4">
-    <div class="col-auto">
-      <h3 class="mb-0"><span class="fas fa-th-list fa-1x "></span> CLASSIFICATION - LOT{{ classification.reception.lot_id }}</h3>
-    </div>
-    <div class="col-auto">
-      <div class="d-flex gap-2">
-        {% if perms.operations.change_classification and classification.can_be_edited %}
-          <a href="{% url 'portal_admin:classification_edit' classification.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
-        {% endif %}
-        {% if perms.operations.delete_classification and classification.status == 'draft' %}
-          <a href="{% url 'portal_admin:classification_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
-        {% endif %}
-        <a href="{% url 'portal_admin:classification_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+    <div class="row align-items-center justify-content-between g-3 mb-4">
+      <div class="col-auto">
+        <h3 class="mb-0"><span class="fas fa-th-list fa-1x "></span> CLASSIFICATION - LOT{{ classification.reception.lot_id }}</h3>
+      </div>
+      <div class="col-auto">
+        <div class="d-flex gap-2">
+          {% if perms.operations.change_classification and classification.can_be_edited %}
+            <a href="{% url 'portal_admin:classification_edit' classification.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+          {% endif %}
+          {% if perms.operations.delete_classification and classification.status == 'draft' %}
+            <a href="{% url 'portal_admin:classification_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+          {% endif %}
+          <a href="{% url 'portal_admin:classification_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+        </div>
       </div>
     </div>
-  </div>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
 
-  <div class="row g-3 mb-4">
-    <div class="col-lg-8">
-      <div class="card 0 h-100 mb-3">
-        <div class="card-body ">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="text-muted small">Client</label>
-              <div class="d-flex align-items-center">
+    <div class="row g-3 mb-4">
+      <div class="col-lg-8">
+        <div class="card 0 h-100 mb-3">
+          <div class="card-body ">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="text-muted small">Client</label>
+                <div class="d-flex align-items-center">
 
-                <div class="avatar avatar-xl me-2">
-                  {% if classification.reception.client.logo %}
-                    <div class="avatar avatar-l me-2">
-                      <img class="rounded-soft" src="{{ classification.reception.client.logo.url }}" alt="{{ classification.reception.client.name }}" />
-                    </div>
+                  <div class="avatar avatar-xl me-2">
+                    {% if classification.reception.client.logo %}
+                      <div class="avatar avatar-l me-2">
+                        <img class="rounded-soft" src="{{ classification.reception.client.logo.url }}" alt="{{ classification.reception.client.name }}" />
+                      </div>
+                    {% else %}
+                      <div class="avatar-name rounded-soft">
+                        <span>{{ classification.reception.client.name|first }}</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fs-8 fw-bold">{{ classification.reception.client.name|upper }}</h6>
+                    <small class="text-muted">#{{ classification.reception.client.accounting_code }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Date et heure de début</label>
+                <p class="mb-0">{{ classification.start_datetime|date:"d/m/Y H:i" }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Pointeur</label>
+                <p class="mb-0"><strong>{{ classification.pointer_full_name }}</strong></p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Référence de la chambre</label>
+                <p class="mb-0"><strong>{{ classification.reference_chambre |default:"-"}}</strong></p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Heure de fin et durée</label>
+                <p class="mb-0">
+                  {% if classification.end_datetime %}
+                    <i class="fas fa-clock me-1"></i>
+                    Fin: {{ classification.end_datetime|date:"d/m/Y H:i" }}
+                    {% if classification.duration %}
+                      <span class="badge badge-phoenix badge-phoenix-warning ms-2">
+                        <i class="fas fa-fish me-1"></i> {{ classification.duration }}
+                      </span>
+                    {% endif %}
                   {% else %}
-                    <div class="avatar-name rounded-soft">
-                      <span>{{ classification.reception.client.name|first }}</span>
-                    </div>
+                    <span class="text-muted"><i>-</i></span>
                   {% endif %}
-                </div>
-                <div>
-                  <h6 class="mb-0 fs-8 fw-bold">{{ classification.reception.client.name|upper }}</h6>
-                  <small class="text-muted">#{{ classification.reception.client.accounting_code }}</small>
-                </div>
+                </p>
               </div>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Date et heure de début</label>
-              <p class="mb-0">{{ classification.start_datetime|date:"d/m/Y H:i" }}</p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Pointeur</label>
-              <p class="mb-0"><strong>{{ classification.pointer_full_name }}</strong></p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Référence de la chambre</label>
-              <p class="mb-0"><strong>{{ classification.reference_chambre |default:"-"}}</strong></p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Heure de fin et durée</label>
-              <p class="mb-0">
-                {% if classification.end_datetime %}
-                  <i class="fas fa-clock me-1"></i>
-                  Fin: {{ classification.end_datetime|date:"d/m/Y H:i" }}
-                  {% if classification.duration %}
-                    <span class="badge badge-phoenix badge-phoenix-warning ms-2">
-                      <i class="fas fa-fish me-1"></i> {{ classification.duration }}
-                    </span>
+              <div class="col-md-6">
+                <label class="text-muted small">Tunnel</label>
+                <p class="mb-0">
+                  {% if classification.tunnel_in and classification.tunnel_out %}
+                    <i class="fas fa-temperature-low me-1"></i>
+                    {{ classification.tunnel_in|date:"d/m/Y H:i" }} → {{ classification.tunnel_out|date:"d/m/Y H:i" }}
+                    {% if classification.tunnel_duration %}
+                      <span class="badge badge-phoenix badge-phoenix-danger ms-2">
+                        <i class="fas fa-snowflake me-1"></i>{{ classification.tunnel_duration }}
+                      </span>
+                    {% endif %}
+                  {% elif classification.tunnel_in %}
+                    <i class="fas fa-temperature-low me-1"></i>
+                    Entrée: {{ classification.tunnel_in|date:"d/m/Y H:i" }}
+                  {% else %}
+                    <span class="text-muted"><i>-</i></span>
                   {% endif %}
-                {% else %}
-                  <span class="text-muted"><i>-</i></span>
-                {% endif %}
-              </p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Tunnel</label>
-              <p class="mb-0">
-                {% if classification.tunnel_in and classification.tunnel_out %}
-                  <i class="fas fa-temperature-low me-1"></i>
-                  {{ classification.tunnel_in|date:"d/m/Y H:i" }} → {{ classification.tunnel_out|date:"d/m/Y H:i" }}
-                  {% if classification.tunnel_duration %}
-                    <span class="badge badge-phoenix badge-phoenix-danger ms-2">
-                      <i class="fas fa-snowflake me-1"></i>{{ classification.tunnel_duration }}
-                    </span>
-                  {% endif %}
-                {% elif classification.tunnel_in %}
-                  <i class="fas fa-temperature-low me-1"></i>
-                  Entrée: {{ classification.tunnel_in|date:"d/m/Y H:i" }}
-                {% else %}
-                  <span class="text-muted"><i>-</i></span>
-                {% endif %}
-              </p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Poids du lot</label>
-              <p class="mb-0"><strong>{{ classification.reception.weight }} kg</strong></p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Poids classifié</label>
-              <p class="mb-0"><strong>{{ classification.total_weight }} kg</strong></p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Type de service</label>
-              <p class="mb-0">{{ classification.reception.service_type.code }} - {{ classification.reception.service_type.name }}</p>
-            </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Statut</label>
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}danger{% endif %}">
-                  {{ classification.get_status_display }}
-                </span>
-                {% if perms.operations.change_classification and allowed_status_choices %}
-                <div class="dropdown">
-                  <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="fas fa-exchange-alt me-1"></span>Changer
-                  </button>
-                  <ul class="dropdown-menu">
-                    {% for status_code, status_label in allowed_status_choices %}
-                      <li>
-                        {% if status_code == 'validated' %}
-                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#validateModal">
-                            <span class="badge bg-success me-2">{{ status_label }}</span>
-                          </button>
-                        {% elif status_code == 'in_tunnel' %}
-                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#tunnelModal">
-                            <span class="badge bg-info me-2">{{ status_label }}</span>
-                          </button>
-                        {% elif status_code == 'completed' %}
-                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#completedModal">
-                            <span class="badge bg-primary me-2">{{ status_label }}</span>
-                          </button>
-                        {% else %}
-                          <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <input type="hidden" name="status" value="{{ status_code }}">
-                            <button type="submit" class="dropdown-item">
-                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Poids du lot</label>
+                <p class="mb-0"><strong>{{ classification.reception.weight }} kg</strong></p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Poids classifié</label>
+                <p class="mb-0"><strong>{{ classification.total_weight }} kg</strong></p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Type de service</label>
+                <p class="mb-0">{{ classification.reception.service_type.code }} - {{ classification.reception.service_type.name }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Statut</label>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}danger{% endif %}">
+                    {{ classification.get_status_display }}
+                  </span>
+                  {% if perms.operations.change_classification and allowed_status_choices %}
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="fas fa-exchange-alt me-1"></span>Changer
+                    </button>
+                    <ul class="dropdown-menu">
+                      {% for status_code, status_label in allowed_status_choices %}
+                        <li>
+                          {% if status_code == 'validated' %}
+                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#validateModal">
+                              <span class="badge bg-success me-2">{{ status_label }}</span>
                             </button>
-                          </form>
-                        {% endif %}
-                      </li>
-                    {% endfor %}
-                  </ul>
+                          {% elif status_code == 'in_tunnel' %}
+                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#tunnelModal">
+                              <span class="badge bg-info me-2">{{ status_label }}</span>
+                            </button>
+                          {% elif status_code == 'completed' %}
+                            <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#completedModal">
+                              <span class="badge bg-primary me-2">{{ status_label }}</span>
+                            </button>
+                          {% else %}
+                            <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}" class="d-inline">
+                              {% csrf_token %}
+                              <input type="hidden" name="status" value="{{ status_code }}">
+                              <button type="submit" class="dropdown-item">
+                                <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                              </button>
+                            </form>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endif %}
                 </div>
-                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Créé par</label>
+                <p class="mb-0">{{ classification.created_by.get_full_name|default:classification.created_by.username }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="text-muted small">Date de création</label>
+                <p class="mb-0">{{ classification.created_at|date:"d/m/Y H:i" }}</p>
               </div>
             </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Créé par</label>
-              <p class="mb-0">{{ classification.created_by.get_full_name|default:classification.created_by.username }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card 0 h-100">
+          <div class="card-body text-center">
+            <div class="avatar avatar-5xl mb-2">
+              {% if classification.reception.service_type.category.avatar %}
+                <img class="rounded-soft" src="{{ classification.reception.service_type.category.avatar.url }}" alt="{{ classification.reception.service_type.name }}" >
+              {% else %}
+                <div class="avatar-name rounded-soft">
+                  <span>{{ classification.reception.service_type.name |first }}</span>
+                </div>
+              {% endif %}
             </div>
-            <div class="col-md-6">
-              <label class="text-muted small">Date de création</label>
-              <p class="mb-0">{{ classification.created_at|date:"d/m/Y H:i" }}</p>
+            <h3 class="mb-2">LOT #{{ classification.reception.lot_id }}</h3>
+            <p class="text-muted mb-2">{{ classification.reception.service_type.name }}</p>
+            <div class="mb-3">
+              <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}danger{% endif %}  fs-9">
+                {{ classification.get_status_display }}
+              </span>
+            </div>
+            <div class="border-top pt-3">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Nombre d'espèces:</span>
+                <strong>{{ classification.items.count }}</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-0">
+                <span class="text-muted">Total de plats:</span>
+                <strong>{{ classification.total_plates }}</strong>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-4">
-      <div class="card 0 h-100">
-        <div class="card-body text-center">
-          <div class="avatar avatar-5xl mb-2">
-            {% if classification.reception.service_type.category.avatar %}
-              <img class="rounded-soft" src="{{ classification.reception.service_type.category.avatar.url }}" alt="{{ classification.reception.service_type.name }}" >
-            {% else %}
-              <div class="avatar-name rounded-soft">
-                <span>{{ classification.reception.service_type.name |first }}</span>
-              </div>
-            {% endif %}
-          </div>
-          <h3 class="mb-2">LOT #{{ classification.reception.lot_id }}</h3>
-          <p class="text-muted mb-2">{{ classification.reception.service_type.name }}</p>
-          <div class="mb-3">
-            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}danger{% endif %}" fs-9">
-              {{ classification.get_status_display }}
-            </span>
-          </div>
-          <div class="border-top pt-3">
-            <div class="d-flex justify-content-between mb-2">
-              <span class="text-muted">Nombre d'espèces:</span>
-              <strong>{{ classification.items.count }}</strong>
-            </div>
-            <div class="d-flex justify-content-between mb-0">
-              <span class="text-muted">Total de plats:</span>
-              <strong>{{ classification.total_plates }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="mb-9">
-    <div class="row g-5">
-      <div class="col-12 col-xxl-12">
-        <div class="mb-6">
-          <h3 class="mb-4">DÉTAILS DE LA CLASSIFICATION</h3>
-          <div class="border-top border-bottom border-translucent" data-list='{"valueNames":["espece","plats","poids","moyenne"]}'>
-            <div class="table-responsive scrollbar">
-              <table class="table table-sm fs-9 mb-0 table-striped">
-                <thead>
-                  <tr>
-                    <th class="sort align-middle" scope="col" data-sort="espece">ESPÈCE</th>
-                    <th class="sort align-middle text-center" scope="col" data-sort="plats">NOMBRE DE PLATS</th>
-                    <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
-                    <th class="sort align-middle" scope="col" data-sort="moyenne">POIDS MOYEN/PLAT</th>
-                  </tr>
-                </thead>
-                <tbody class="list" id="classification-table-body">
-                  {% for item in classification.items.all %}
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                      <td class="espece align-middle fw-bold">
-                        <span class="badge badge-phoenix badge-phoenix-info">
-                          {{ item.species.category.name }} - {{ item.species.name }}
-                        </span>
-                      </td>
-                      <td class="plats align-middle text-center fw-semibold">
-                        <span class="badge badge-phoenix badge-phoenix-primary">{{ item.plate_count }}</span>
-                      </td>
-                      <td class="poids align-middle fw-semibold text-body-highlight">
-                        {{ item.weight }} kg
-                      </td>
-                      <td class="moyenne align-middle fw-bold text-body-tertiary">
-                        {{ item.average_weight_per_plate|floatformat:2 }} kg
-                      </td>
-                    </tr>
-                  {% empty %}
+    <div class="mb-9">
+      <div class="row g-5">
+        <div class="col-12 col-xxl-12">
+          <div class="mb-6">
+            <h3 class="mb-4">DÉTAILS DE LA CLASSIFICATION</h3>
+            <div class="border-top border-bottom border-translucent" data-list='{"valueNames":["espece","plats","poids","moyenne"]}'>
+              <div class="table-responsive scrollbar">
+                <table class="table table-sm fs-9 mb-0 table-striped">
+                  <thead>
                     <tr>
-                      <td colspan="4" class="text-center py-4">Aucun détail disponible</td>
+                      <th class="sort align-middle" scope="col" data-sort="espece">ESPÈCE</th>
+                      <th class="sort align-middle text-center" scope="col" data-sort="plats">NOMBRE DE PLATS</th>
+                      <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
+                      <th class="sort align-middle" scope="col" data-sort="moyenne">POIDS MOYEN/PLAT</th>
                     </tr>
-                  {% endfor %}
-                  <tfoot>
-                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
-                      <th>TOTAL</th>
-                      <th class="text-center">{{ classification.total_plates }}</th>
-                      <th>{{ classification.total_weight }} kg</th>
-                      <th></th>
-                    </tr>
-                  </tfoot>
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody class="list" id="classification-table-body">
+                    {% for item in classification.items.all %}
+                      <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <td class="espece align-middle fw-bold">
+                          <span class="badge badge-phoenix badge-phoenix-info">
+                            {{ item.species.category.name }} - {{ item.species.name }}
+                          </span>
+                        </td>
+                        <td class="plats align-middle text-center fw-semibold">
+                          <span class="badge badge-phoenix badge-phoenix-primary">{{ item.plate_count }}</span>
+                        </td>
+                        <td class="poids align-middle fw-semibold text-body-highlight">
+                          {{ item.weight }} kg
+                        </td>
+                        <td class="moyenne align-middle fw-bold text-body-tertiary">
+                          {{ item.average_weight_per_plate|floatformat:2 }} kg
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="4" class="text-center py-4">Aucun détail disponible</td>
+                      </tr>
+                    {% endfor %}
+                    <tfoot>
+                      <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                        <th>TOTAL</th>
+                        <th class="text-center">{{ classification.total_plates }}</th>
+                        <th>{{ classification.total_weight }} kg</th>
+                        <th></th>
+                      </tr>
+                    </tfoot>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modale de validation -->
-  <div class="modal fade" id="validateModal" tabindex="-1" aria-labelledby="validateModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="status" value="validated">
-          <div class="modal-header">
-            <h5 class="modal-title" id="validateModalLabel">
-              <span class="fas fa-check-circle me-2 text-success"></span>Terminer la classification
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle me-2"></i>
-              Pour terminer cette classification, veuillez indiquer la date et l'heure de fin du classification.
+    <!-- Modale de validation -->
+    <div class="modal fade" id="validateModal" tabindex="-1" aria-labelledby="validateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="validated">
+            <div class="modal-header">
+              <h5 class="modal-title" id="validateModalLabel">
+                <span class="fas fa-check-circle me-2 text-success"></span>Terminer la classification
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="mb-3">
-              <label for="end_datetime" class="form-label">Date et heure de fin <span class="text-danger">*</span></label>
-              <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required>
+            <div class="modal-body">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Pour terminer cette classification, veuillez indiquer la date et l'heure de fin du classification.
+              </div>
+              <div class="mb-3">
+                <label for="end_datetime" class="form-label">Date et heure de fin <span class="text-danger">*</span></label>
+                <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required>
+              </div>
+              <p class="text-muted small mb-0">
+                <strong>Note :</strong> Après validation, la classification ne pourra plus être supprimée et/ou Modifier.
+              </p>
             </div>
-            <p class="text-muted small mb-0">
-              <strong>Note :</strong> Après validation, la classification ne pourra plus être supprimée et/ou Modifier.
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <span class="fas fa-times me-2"></span>Annuler
-            </button>
-            <button type="submit" class="btn btn-success">
-              <span class="fas fa-check me-2"></span>Valider
-            </button>
-          </div>
-        </form>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <span class="fas fa-times me-2"></span>Annuler
+              </button>
+              <button type="submit" class="btn btn-success">
+                <span class="fas fa-check me-2"></span>Valider
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modale pour entrée en tunnel -->
+    <div class="modal fade" id="tunnelModal" tabindex="-1" aria-labelledby="tunnelModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="in_tunnel">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tunnelModalLabel">
+                <span class="fas fa-snowflake me-2 text-info"></span>Entrée en tunnel
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Pour mettre la classification en tunnel, veuillez indiquer la référence de la chambre et la date d'entrée.
+              </div>
+              <div class="mb-3">
+                <label for="reference_chambre" class="form-label">Référence de la chambre <span class="text-danger">*</span></label>
+                <input type="text" name="reference_chambre" id="reference_chambre" class="form-control" required placeholder="Ex: CH-001">
+                <small class="form-text text-muted">Référence de la chambre froide</small>
+              </div>
+              <div class="mb-3">
+                <label for="tunnel_in" class="form-label">Date et heure d'entrée <span class="text-danger">*</span></label>
+                <input type="datetime-local" name="tunnel_in" id="tunnel_in" class="form-control" required>
+                <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <span class="fas fa-times me-2"></span>Annuler
+              </button>
+              <button type="submit" class="btn btn-info">
+                <span class="fas fa-arrow-right me-2"></span>Mettre en tunnel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modale pour terminé (sortie du tunnel) -->
+    <div class="modal fade" id="completedModal" tabindex="-1" aria-labelledby="completedModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="completed">
+            <div class="modal-header">
+              <h5 class="modal-title" id="completedModalLabel">
+                <span class="fas fa-check-circle me-2 text-primary"></span>Terminer la classification
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Pour terminer la classification, veuillez indiquer la date et l'heure de sortie du tunnel.
+              </div>
+              <div class="mb-3">
+                <label for="tunnel_out" class="form-label">Date et heure de sortie <span class="text-danger">*</span></label>
+                <input type="datetime-local" name="tunnel_out" id="tunnel_out" class="form-control" required>
+                <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
+              </div>
+              <p class="text-muted small mb-0">
+                <strong>Note :</strong> Cette action marquera la classification comme terminée.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <span class="fas fa-times me-2"></span>Annuler
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <span class="fas fa-check me-2"></span>Terminer
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Modale pour entrée en tunnel -->
-  <div class="modal fade" id="tunnelModal" tabindex="-1" aria-labelledby="tunnelModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="status" value="in_tunnel">
-          <div class="modal-header">
-            <h5 class="modal-title" id="tunnelModalLabel">
-              <span class="fas fa-snowflake me-2 text-info"></span>Entrée en tunnel
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle me-2"></i>
-              Pour mettre la classification en tunnel, veuillez indiquer la référence de la chambre et la date d'entrée.
-            </div>
-            <div class="mb-3">
-              <label for="reference_chambre" class="form-label">Référence de la chambre <span class="text-danger">*</span></label>
-              <input type="text" name="reference_chambre" id="reference_chambre" class="form-control" required placeholder="Ex: CH-001">
-              <small class="form-text text-muted">Référence de la chambre froide</small>
-            </div>
-            <div class="mb-3">
-              <label for="tunnel_in" class="form-label">Date et heure d'entrée <span class="text-danger">*</span></label>
-              <input type="datetime-local" name="tunnel_in" id="tunnel_in" class="form-control" required>
-              <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <span class="fas fa-times me-2"></span>Annuler
-            </button>
-            <button type="submit" class="btn btn-info">
-              <span class="fas fa-arrow-right me-2"></span>Mettre en tunnel
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modale pour terminé (sortie du tunnel) -->
-  <div class="modal fade" id="completedModal" tabindex="-1" aria-labelledby="completedModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
-          {% csrf_token %}
-          <input type="hidden" name="status" value="completed">
-          <div class="modal-header">
-            <h5 class="modal-title" id="completedModalLabel">
-              <span class="fas fa-check-circle me-2 text-primary"></span>Terminer la classification
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="alert alert-info">
-              <i class="fas fa-info-circle me-2"></i>
-              Pour terminer la classification, veuillez indiquer la date et l'heure de sortie du tunnel.
-            </div>
-            <div class="mb-3">
-              <label for="tunnel_out" class="form-label">Date et heure de sortie <span class="text-danger">*</span></label>
-              <input type="datetime-local" name="tunnel_out" id="tunnel_out" class="form-control" required>
-              <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
-            </div>
-            <p class="text-muted small mb-0">
-              <strong>Note :</strong> Cette action marquera la classification comme terminée.
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <span class="fas fa-times me-2"></span>Annuler
-            </button>
-            <button type="submit" class="btn btn-primary">
-              <span class="fas fa-check me-2"></span>Terminer
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Fonction pour obtenir la date/heure actuelle au format datetime-local
-  function getNowFormatted() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  }
-
-  // Validation pour le modal de validation (end_datetime)
-  const endDatetimeInput = document.getElementById('end_datetime');
-  if (endDatetimeInput) {
-    // Définir le max à la date/heure actuelle
-    endDatetimeInput.setAttribute('max', getNowFormatted());
-
-    // Validation lors de la soumission du formulaire
-    const validateForm = endDatetimeInput.closest('form');
-    if (validateForm) {
-      validateForm.addEventListener('submit', function(e) {
-        const selectedDate = new Date(endDatetimeInput.value);
+{% endblock %}
+{% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fonction pour obtenir la date/heure actuelle au format datetime-local
+      function getNowFormatted() {
         const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
 
-        if (selectedDate > now) {
-          e.preventDefault();
-          alert('La date et l\'heure de fin ne peuvent pas être dans le futur.');
-          endDatetimeInput.focus();
+      // Validation pour le modal de validation (end_datetime)
+      const endDatetimeInput = document.getElementById('end_datetime');
+      if (endDatetimeInput) {
+        // Définir le max à la date/heure actuelle
+        endDatetimeInput.setAttribute('max', getNowFormatted());
+
+        // Validation lors de la soumission du formulaire
+        const validateForm = endDatetimeInput.closest('form');
+        if (validateForm) {
+          validateForm.addEventListener('submit', function(e) {
+            const selectedDate = new Date(endDatetimeInput.value);
+            const now = new Date();
+
+            if (selectedDate > now) {
+              e.preventDefault();
+              alert('La date et l\'heure de fin ne peuvent pas être dans le futur.');
+              endDatetimeInput.focus();
+            }
+          });
         }
-      });
-    }
-  }
+      }
 
-  // Validation pour le modal tunnel (tunnel_in)
-  const tunnelInInput = document.getElementById('tunnel_in');
-  if (tunnelInInput) {
-    // Définir le max à la date/heure actuelle
-    tunnelInInput.setAttribute('max', getNowFormatted());
+      // Validation pour le modal tunnel (tunnel_in)
+      const tunnelInInput = document.getElementById('tunnel_in');
+      if (tunnelInInput) {
+        // Définir le max à la date/heure actuelle
+        tunnelInInput.setAttribute('max', getNowFormatted());
 
-    // Validation lors de la soumission du formulaire
-    const tunnelForm = tunnelInInput.closest('form');
-    if (tunnelForm) {
-      tunnelForm.addEventListener('submit', function(e) {
-        const selectedDate = new Date(tunnelInInput.value);
-        const now = new Date();
+        // Validation lors de la soumission du formulaire
+        const tunnelForm = tunnelInInput.closest('form');
+        if (tunnelForm) {
+          tunnelForm.addEventListener('submit', function(e) {
+            const selectedDate = new Date(tunnelInInput.value);
+            const now = new Date();
 
-        if (selectedDate > now) {
-          e.preventDefault();
-          alert('La date et l\'heure d\'entrée ne peuvent pas être dans le futur.');
-          tunnelInInput.focus();
+            if (selectedDate > now) {
+              e.preventDefault();
+              alert('La date et l\'heure d\'entrée ne peuvent pas être dans le futur.');
+              tunnelInInput.focus();
+            }
+          });
         }
-      });
-    }
-  }
+      }
 
-  // Validation pour le modal terminé (tunnel_out)
-  const tunnelOutInput = document.getElementById('tunnel_out');
-  if (tunnelOutInput) {
-    // Définir le max à la date/heure actuelle
-    tunnelOutInput.setAttribute('max', getNowFormatted());
+      // Validation pour le modal terminé (tunnel_out)
+      const tunnelOutInput = document.getElementById('tunnel_out');
+      if (tunnelOutInput) {
+        // Définir le max à la date/heure actuelle
+        tunnelOutInput.setAttribute('max', getNowFormatted());
 
-    // Validation lors de la soumission du formulaire
-    const completedForm = tunnelOutInput.closest('form');
-    if (completedForm) {
-      completedForm.addEventListener('submit', function(e) {
-        const selectedDate = new Date(tunnelOutInput.value);
-        const now = new Date();
+        // Validation lors de la soumission du formulaire
+        const completedForm = tunnelOutInput.closest('form');
+        if (completedForm) {
+          completedForm.addEventListener('submit', function(e) {
+            const selectedDate = new Date(tunnelOutInput.value);
+            const now = new Date();
 
-        if (selectedDate > now) {
-          e.preventDefault();
-          alert('La date et l\'heure de sortie ne peuvent pas être dans le futur.');
-          tunnelOutInput.focus();
+            if (selectedDate > now) {
+              e.preventDefault();
+              alert('La date et l\'heure de sortie ne peuvent pas être dans le futur.');
+              tunnelOutInput.focus();
+            }
+          });
         }
-      });
-    }
-  }
-});
-</script>
+      }
+    });
+  </script>
 {% endblock %}
