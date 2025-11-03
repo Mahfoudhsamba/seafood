@@ -673,6 +673,8 @@ class Classification(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Brouillon'),
         ('validated', 'Validé'),
+        ('in_tunnel', 'In tunnel'),
+        ('completed', 'Terminé'),
         ('cancelled', 'Annulé'),
     ]
 
@@ -692,6 +694,15 @@ class Classification(models.Model):
         help_text='Nom de la personne effectuant la classification'
     )
 
+    # Référence de la chambre
+    reference_chambre = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        verbose_name='Référence de la chambre',
+        help_text='Référence de la chambre froide'
+    )
+
     # Date et heure de début
     start_datetime = models.DateTimeField(
         verbose_name='Date et heure de début',
@@ -704,6 +715,22 @@ class Classification(models.Model):
         blank=True,
         verbose_name='Date et heure de fin',
         help_text='Fin de la classification'
+    )
+
+    # Date et heure d'entrée dans le tunnel
+    tunnel_in = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Entrée tunnel',
+        help_text='Date et heure d\'entrée dans le tunnel'
+    )
+
+    # Date et heure de sortie du tunnel
+    tunnel_out = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Sortie tunnel',
+        help_text='Date et heure de sortie du tunnel'
     )
 
     # Statut
@@ -740,6 +767,8 @@ class Classification(models.Model):
             models.Index(fields=['reception']),
             models.Index(fields=['start_datetime']),
             models.Index(fields=['end_datetime']),
+            models.Index(fields=['tunnel_in']),
+            models.Index(fields=['tunnel_out']),
             models.Index(fields=['status']),
         ]
 
@@ -755,6 +784,13 @@ class Classification(models.Model):
             if self.end_datetime <= self.start_datetime:
                 raise ValidationError({
                     'end_datetime': 'La date de fin doit être postérieure à la date de début.'
+                })
+
+        # Vérifier que tunnel_out est après tunnel_in
+        if self.tunnel_in and self.tunnel_out:
+            if self.tunnel_out <= self.tunnel_in:
+                raise ValidationError({
+                    'tunnel_out': 'La date de sortie du tunnel doit être postérieure à l\'entrée.'
                 })
 
         # Vérifier que la réception a un rapport
@@ -775,14 +811,44 @@ class Classification(models.Model):
 
     @property
     def can_be_edited(self):
-        """Vérifie si la classification peut être modifiée"""
+        """Vérifie si la classification peut être modifiée (seulement en brouillon)"""
         return self.status == 'draft'
+
+    @property
+    def can_be_deleted(self):
+        """Vérifie si la classification peut être supprimée (seulement en brouillon)"""
+        return self.status == 'draft'
+
+    def get_allowed_next_statuses(self):
+        """Retourne les statuts suivants autorisés selon le statut actuel"""
+        status_transitions = {
+            'draft': ['validated', 'cancelled'],
+            'validated': ['in_tunnel', 'cancelled'],
+            'in_tunnel': ['completed', 'cancelled'],
+            'completed': [],  # Statut final
+            'cancelled': [],  # Statut final
+        }
+        return status_transitions.get(self.status, [])
+
+    def can_transition_to(self, new_status):
+        """Vérifie si la transition vers le nouveau statut est autorisée"""
+        return new_status in self.get_allowed_next_statuses()
 
     @property
     def duration(self):
         """Calcule la durée de la classification"""
         if self.start_datetime and self.end_datetime:
             delta = self.end_datetime - self.start_datetime
+            hours = int(delta.total_seconds() // 3600)
+            minutes = int((delta.total_seconds() % 3600) // 60)
+            return f"{hours}h{minutes:02d}min"
+        return None
+
+    @property
+    def tunnel_duration(self):
+        """Calcule la durée dans le tunnel"""
+        if self.tunnel_in and self.tunnel_out:
+            delta = self.tunnel_out - self.tunnel_in
             hours = int(delta.total_seconds() // 3600)
             minutes = int((delta.total_seconds() % 3600) // 60)
             return f"{hours}h{minutes:02d}min"

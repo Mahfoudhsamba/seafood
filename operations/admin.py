@@ -206,10 +206,13 @@ class ClassificationAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Informations principales', {
-            'fields': ('reception', 'pointer_full_name', 'status')
+            'fields': ('reception', 'pointer_full_name', 'reference_chambre', 'status')
         }),
         ('Période de classification', {
             'fields': ('start_datetime', 'end_datetime')
+        }),
+        ('Tunnel', {
+            'fields': ('tunnel_in', 'tunnel_out')
         }),
         ('Métadonnées', {
             'fields': ('created_at', 'updated_at', 'created_by'),

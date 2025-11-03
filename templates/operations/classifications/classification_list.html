@@ -94,7 +94,7 @@
                     <span class="badge badge-phoenix badge-phoenix-primary">{{ classification.total_plates }}</span>
                   </td>
                   <td class="statut align-middle white-space-nowrap text-start fw-bold">
-                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if classification.status == 'draft' %}danger{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}warning{% endif %}">
+                    <span class="badge badge-phoenix fs-10 badge-phoenix-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}warning{% endif %}">
                       <span class="badge-label">{{ classification.get_status_display }}</span>
                     </span>
                   </td>

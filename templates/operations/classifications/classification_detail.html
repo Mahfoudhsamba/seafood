@@ -67,16 +67,41 @@
               <p class="mb-0"><strong>{{ classification.pointer_full_name }}</strong></p>
             </div>
             <div class="col-md-6">
+              <label class="text-muted small">Référence de la chambre</label>
+              <p class="mb-0"><strong>{{ classification.reference_chambre |default:"-"}}</strong></p>
+            </div>
+            <div class="col-md-6">
               <label class="text-muted small">Heure de fin et durée</label>
               <p class="mb-0">
                 {% if classification.end_datetime %}
                   <i class="fas fa-clock me-1"></i>
-                  Fin: {{ classification.end_datetime|date:"H:i" }}
+                  Fin: {{ classification.end_datetime|date:"d/m/Y H:i" }}
                   {% if classification.duration %}
-                    <span class="badge badge-phoenix badge-phoenix-secondary ms-2">{{ classification.duration }}</span>
+                    <span class="badge badge-phoenix badge-phoenix-warning ms-2">
+                      <i class="fas fa-fish me-1"></i> {{ classification.duration }}
+                    </span>
                   {% endif %}
                 {% else %}
-                  <span class="text-muted"><i>Non définie</i></span>
+                  <span class="text-muted"><i>-</i></span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Tunnel</label>
+              <p class="mb-0">
+                {% if classification.tunnel_in and classification.tunnel_out %}
+                  <i class="fas fa-temperature-low me-1"></i>
+                  {{ classification.tunnel_in|date:"d/m/Y H:i" }} → {{ classification.tunnel_out|date:"d/m/Y H:i" }}
+                  {% if classification.tunnel_duration %}
+                    <span class="badge badge-phoenix badge-phoenix-danger ms-2">
+                      <i class="fas fa-snowflake me-1"></i>{{ classification.tunnel_duration }}
+                    </span>
+                  {% endif %}
+                {% elif classification.tunnel_in %}
+                  <i class="fas fa-temperature-low me-1"></i>
+                  Entrée: {{ classification.tunnel_in|date:"d/m/Y H:i" }}
+                {% else %}
+                  <span class="text-muted"><i>-</i></span>
                 {% endif %}
               </p>
             </div>
@@ -95,27 +120,39 @@
             <div class="col-md-6">
               <label class="text-muted small">Statut</label>
               <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %}">
+                <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}danger{% endif %}">
                   {{ classification.get_status_display }}
                 </span>
-                {% if perms.operations.change_classification and classification.status != 'validated' %}
+                {% if perms.operations.change_classification and allowed_status_choices %}
                 <div class="dropdown">
                   <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="fas fa-exchange-alt me-1"></span>Changer
                   </button>
                   <ul class="dropdown-menu">
-                    {% for status_code, status_label in status_choices %}
-                      {% if status_code != classification.status %}
-                        <li>
+                    {% for status_code, status_label in allowed_status_choices %}
+                      <li>
+                        {% if status_code == 'validated' %}
+                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#validateModal">
+                            <span class="badge bg-success me-2">{{ status_label }}</span>
+                          </button>
+                        {% elif status_code == 'in_tunnel' %}
+                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#tunnelModal">
+                            <span class="badge bg-info me-2">{{ status_label }}</span>
+                          </button>
+                        {% elif status_code == 'completed' %}
+                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#completedModal">
+                            <span class="badge bg-primary me-2">{{ status_label }}</span>
+                          </button>
+                        {% else %}
                           <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}" class="d-inline">
                             {% csrf_token %}
                             <input type="hidden" name="status" value="{{ status_code }}">
                             <button type="submit" class="dropdown-item">
-                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'validated' %}success{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
                             </button>
                           </form>
-                        </li>
-                      {% endif %}
+                        {% endif %}
+                      </li>
                     {% endfor %}
                   </ul>
                 </div>
@@ -149,7 +186,7 @@
           <h3 class="mb-2">LOT #{{ classification.reception.lot_id }}</h3>
           <p class="text-muted mb-2">{{ classification.reception.service_type.name }}</p>
           <div class="mb-3">
-            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %} fs-9">
+            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'in_tunnel' %}info{% elif classification.status == 'completed' %}primary{% elif classification.status == 'cancelled' %}danger{% endif %}" fs-9">
               {{ classification.get_status_display }}
             </span>
           </div>
@@ -222,5 +259,207 @@
       </div>
     </div>
   </div>
+
+  <!-- Modale de validation -->
+  <div class="modal fade" id="validateModal" tabindex="-1" aria-labelledby="validateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="validated">
+          <div class="modal-header">
+            <h5 class="modal-title" id="validateModalLabel">
+              <span class="fas fa-check-circle me-2 text-success"></span>Terminer la classification
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Pour terminer cette classification, veuillez indiquer la date et l'heure de fin du classification.
+            </div>
+            <div class="mb-3">
+              <label for="end_datetime" class="form-label">Date et heure de fin <span class="text-danger">*</span></label>
+              <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required>
+            </div>
+            <p class="text-muted small mb-0">
+              <strong>Note :</strong> Après validation, la classification ne pourra plus être supprimée et/ou Modifier.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <span class="fas fa-times me-2"></span>Annuler
+            </button>
+            <button type="submit" class="btn btn-success">
+              <span class="fas fa-check me-2"></span>Valider
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale pour entrée en tunnel -->
+  <div class="modal fade" id="tunnelModal" tabindex="-1" aria-labelledby="tunnelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="in_tunnel">
+          <div class="modal-header">
+            <h5 class="modal-title" id="tunnelModalLabel">
+              <span class="fas fa-snowflake me-2 text-info"></span>Entrée en tunnel
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Pour mettre la classification en tunnel, veuillez indiquer la référence de la chambre et la date d'entrée.
+            </div>
+            <div class="mb-3">
+              <label for="reference_chambre" class="form-label">Référence de la chambre <span class="text-danger">*</span></label>
+              <input type="text" name="reference_chambre" id="reference_chambre" class="form-control" required placeholder="Ex: CH-001">
+              <small class="form-text text-muted">Référence de la chambre froide</small>
+            </div>
+            <div class="mb-3">
+              <label for="tunnel_in" class="form-label">Date et heure d'entrée <span class="text-danger">*</span></label>
+              <input type="datetime-local" name="tunnel_in" id="tunnel_in" class="form-control" required>
+              <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <span class="fas fa-times me-2"></span>Annuler
+            </button>
+            <button type="submit" class="btn btn-info">
+              <span class="fas fa-arrow-right me-2"></span>Mettre en tunnel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale pour terminé (sortie du tunnel) -->
+  <div class="modal fade" id="completedModal" tabindex="-1" aria-labelledby="completedModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="completed">
+          <div class="modal-header">
+            <h5 class="modal-title" id="completedModalLabel">
+              <span class="fas fa-check-circle me-2 text-primary"></span>Terminer la classification
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Pour terminer la classification, veuillez indiquer la date et l'heure de sortie du tunnel.
+            </div>
+            <div class="mb-3">
+              <label for="tunnel_out" class="form-label">Date et heure de sortie <span class="text-danger">*</span></label>
+              <input type="datetime-local" name="tunnel_out" id="tunnel_out" class="form-control" required>
+              <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
+            </div>
+            <p class="text-muted small mb-0">
+              <strong>Note :</strong> Cette action marquera la classification comme terminée.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <span class="fas fa-times me-2"></span>Annuler
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <span class="fas fa-check me-2"></span>Terminer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Fonction pour obtenir la date/heure actuelle au format datetime-local
+  function getNowFormatted() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // Validation pour le modal de validation (end_datetime)
+  const endDatetimeInput = document.getElementById('end_datetime');
+  if (endDatetimeInput) {
+    // Définir le max à la date/heure actuelle
+    endDatetimeInput.setAttribute('max', getNowFormatted());
+
+    // Validation lors de la soumission du formulaire
+    const validateForm = endDatetimeInput.closest('form');
+    if (validateForm) {
+      validateForm.addEventListener('submit', function(e) {
+        const selectedDate = new Date(endDatetimeInput.value);
+        const now = new Date();
+
+        if (selectedDate > now) {
+          e.preventDefault();
+          alert('La date et l\'heure de fin ne peuvent pas être dans le futur.');
+          endDatetimeInput.focus();
+        }
+      });
+    }
+  }
+
+  // Validation pour le modal tunnel (tunnel_in)
+  const tunnelInInput = document.getElementById('tunnel_in');
+  if (tunnelInInput) {
+    // Définir le max à la date/heure actuelle
+    tunnelInInput.setAttribute('max', getNowFormatted());
+
+    // Validation lors de la soumission du formulaire
+    const tunnelForm = tunnelInInput.closest('form');
+    if (tunnelForm) {
+      tunnelForm.addEventListener('submit', function(e) {
+        const selectedDate = new Date(tunnelInInput.value);
+        const now = new Date();
+
+        if (selectedDate > now) {
+          e.preventDefault();
+          alert('La date et l\'heure d\'entrée ne peuvent pas être dans le futur.');
+          tunnelInInput.focus();
+        }
+      });
+    }
+  }
+
+  // Validation pour le modal terminé (tunnel_out)
+  const tunnelOutInput = document.getElementById('tunnel_out');
+  if (tunnelOutInput) {
+    // Définir le max à la date/heure actuelle
+    tunnelOutInput.setAttribute('max', getNowFormatted());
+
+    // Validation lors de la soumission du formulaire
+    const completedForm = tunnelOutInput.closest('form');
+    if (completedForm) {
+      completedForm.addEventListener('submit', function(e) {
+        const selectedDate = new Date(tunnelOutInput.value);
+        const now = new Date();
+
+        if (selectedDate > now) {
+          e.preventDefault();
+          alert('La date et l\'heure de sortie ne peuvent pas être dans le futur.');
+          tunnelOutInput.focus();
+        }
+      });
+    }
+  }
+});
+</script>
 {% endblock %}

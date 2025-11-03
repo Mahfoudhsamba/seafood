@@ -2205,7 +2205,7 @@ def reception_report_list(request):
         'arrival_note__client',
         'arrival_note__service_type',
         'created_by'
-    ).prefetch_related('items').order_by('-classification_date')
+    ).prefetch_related('items').order_by('-report_date')
 
     return render(request, 'operations/reception_reports/report_list.html', {
         'reports': reports
@@ -2442,9 +2442,14 @@ def classification_detail(request, pk):
         pk=pk
     )
 
+    # Obtenir les statuts suivants autorisés
+    allowed_statuses = classification.get_allowed_next_statuses()
+    allowed_status_choices = [(code, label) for code, label in Classification.STATUS_CHOICES if code in allowed_statuses]
+
     return render(request, 'operations/classifications/classification_detail.html', {
         'classification': classification,
-        'status_choices': Classification.STATUS_CHOICES
+        'status_choices': Classification.STATUS_CHOICES,
+        'allowed_status_choices': allowed_status_choices
     })
 
 
@@ -2473,6 +2478,7 @@ def classification_add(request):
             classification = Classification.objects.create(
                 reception=reception,
                 pointer_full_name=request.POST.get('pointer_full_name'),
+                reference_chambre=request.POST.get('reference_chambre'),
                 start_datetime=start_datetime,
                 status='draft',
                 created_by=request.user
@@ -2551,6 +2557,7 @@ def classification_edit(request, pk):
 
             # Mettre à jour la classification
             classification.pointer_full_name = request.POST.get('pointer_full_name')
+            classification.reference_chambre = request.POST.get('reference_chambre')
             classification.status = request.POST.get('status', 'draft')
 
             # Parser la date et heure de début
@@ -2616,8 +2623,8 @@ def classification_delete(request, pk):
     """Suppression d'une classification"""
     classification = get_object_or_404(Classification, pk=pk)
 
-    # Vérifier que la classification est en brouillon
-    if classification.status != 'draft':
+    # Vérifier que la classification peut être supprimée (seulement en brouillon)
+    if not classification.can_be_deleted:
         messages.error(request, 'Erreur: Seules les classifications en brouillon peuvent être supprimées!')
         return redirect('portal_admin:classification_detail', pk=pk)
 
@@ -2641,6 +2648,8 @@ def classification_delete(request, pk):
 def classification_change_status(request, pk):
     """Changer le statut d'une classification"""
     if request.method == 'POST':
+        from datetime import datetime
+
         classification = get_object_or_404(Classification, pk=pk)
         new_status = request.POST.get('status')
 
@@ -2650,7 +2659,81 @@ def classification_change_status(request, pk):
             messages.error(request, 'Statut invalide')
             return redirect('portal_admin:classification_detail', pk=pk)
 
+        # Vérifier que la transition est autorisée (statuts séquentiels)
+        if not classification.can_transition_to(new_status):
+            messages.error(request, f'Transition non autorisée. Vous devez suivre l\'ordre séquentiel des statuts.')
+            return redirect('portal_admin:classification_detail', pk=pk)
+
         old_status = classification.get_status_display()
+
+        # Si on passe à "validé", on doit avoir end_datetime
+        if new_status == 'validated':
+            end_datetime_str = request.POST.get('end_datetime')
+            if not end_datetime_str:
+                messages.error(request, 'La date et heure de fin est requise pour valider la classification')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
+            try:
+                end_datetime = datetime.strptime(end_datetime_str, '%Y-%m-%dT%H:%M')
+
+                # Vérifier que end_datetime n'est pas dans le futur
+                if end_datetime > datetime.now():
+                    messages.error(request, 'La date et heure de fin ne peut pas être dans le futur')
+                    return redirect('portal_admin:classification_detail', pk=pk)
+
+                classification.end_datetime = end_datetime
+            except ValueError:
+                messages.error(request, 'Format de date invalide')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
+        # Si on passe à "in_tunnel", on doit avoir reference_chambre et tunnel_in
+        if new_status == 'in_tunnel':
+            reference_chambre = request.POST.get('reference_chambre')
+            tunnel_in_str = request.POST.get('tunnel_in')
+
+            if not reference_chambre:
+                messages.error(request, 'La référence de la chambre est requise pour mettre en tunnel')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
+            if not tunnel_in_str:
+                messages.error(request, 'La date et heure d\'entrée est requise pour mettre en tunnel')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
+            try:
+                tunnel_in = datetime.strptime(tunnel_in_str, '%Y-%m-%dT%H:%M')
+
+                # Vérifier que tunnel_in n'est pas dans le futur
+                if tunnel_in > datetime.now():
+                    messages.error(request, 'La date et heure d\'entrée ne peut pas être dans le futur')
+                    return redirect('portal_admin:classification_detail', pk=pk)
+
+                classification.reference_chambre = reference_chambre
+                classification.tunnel_in = tunnel_in
+            except ValueError:
+                messages.error(request, 'Format de date invalide')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
+        # Si on passe à "terminé", on doit avoir tunnel_out
+        if new_status == 'completed':
+            tunnel_out_str = request.POST.get('tunnel_out')
+
+            if not tunnel_out_str:
+                messages.error(request, 'La date et heure de sortie est requise pour terminer la classification')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
+            try:
+                tunnel_out = datetime.strptime(tunnel_out_str, '%Y-%m-%dT%H:%M')
+
+                # Vérifier que tunnel_out n'est pas dans le futur
+                if tunnel_out > datetime.now():
+                    messages.error(request, 'La date et heure de sortie ne peut pas être dans le futur')
+                    return redirect('portal_admin:classification_detail', pk=pk)
+
+                classification.tunnel_out = tunnel_out
+            except ValueError:
+                messages.error(request, 'Format de date invalide')
+                return redirect('portal_admin:classification_detail', pk=pk)
+
         classification.status = new_status
         classification.save()
 
