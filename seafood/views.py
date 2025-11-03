@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import Reception, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem
+from operations.models import Reception, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem, Classification, ClassificationItem
 
 # Create your views here.
 
@@ -2406,5 +2406,248 @@ def reception_report_change_status(request, pk):
         return redirect('portal_admin:reception_report_detail', pk=pk)
 
     return redirect('portal_admin:reception_report_detail', pk=pk)
+
+
+# ============================================================
+# CLASSIFICATION VIEWS
+# ============================================================
+
+@staff_member_required
+@permission_required('operations.view_classification', raise_exception=True)
+def classification_list(request):
+    """Liste des classifications"""
+    classifications = Classification.objects.all().select_related(
+        'reception',
+        'reception__client',
+        'reception__service_type',
+        'created_by'
+    ).prefetch_related('items__species').order_by('-report_date', '-created_at')
+
+    return render(request, 'operations/classifications/classification_list.html', {
+        'classifications': classifications
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_classification', raise_exception=True)
+def classification_detail(request, pk):
+    """Détails d'une classification"""
+    classification = get_object_or_404(
+        Classification.objects.select_related(
+            'reception',
+            'reception__client',
+            'reception__service_type',
+            'created_by'
+        ).prefetch_related('items__species'),
+        pk=pk
+    )
+
+    return render(request, 'operations/classifications/classification_detail.html', {
+        'classification': classification,
+        'status_choices': Classification.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.add_classification', raise_exception=True)
+def classification_add(request):
+    """Formulaire d'ajout de classification"""
+    if request.method == 'POST':
+        try:
+            import json
+            from datetime import datetime
+
+            # Créer la classification
+            reception_id = request.POST.get('reception')
+            reception = get_object_or_404(Reception, pk=reception_id)
+
+            # Vérifier que la réception a un rapport validé
+            if not reception.reports.filter(status='validated').exists():
+                messages.error(request, 'Cette réception doit avoir un rapport validé avant de pouvoir créer une classification.')
+                return redirect('portal_admin:classification_add')
+
+            # Parser la date
+            report_date_str = request.POST.get('report_date')
+
+            classification = Classification.objects.create(
+                reception=reception,
+                report_date=datetime.strptime(report_date_str, '%Y-%m-%d').date(),
+                pointer_full_name=request.POST.get('pointer_full_name'),
+                status='draft',
+                created_by=request.user
+            )
+
+            # Récupérer les items depuis le formulaire
+            items_data = request.POST.get('items_data', '[]')
+            items = json.loads(items_data)
+
+            # Vérifier qu'il y a au moins une espèce
+            if not items or len(items) == 0:
+                messages.error(request, 'Erreur: Vous devez ajouter au moins une espèce pour créer la classification!')
+                classification.delete()
+                return redirect('portal_admin:classification_add')
+
+            # Vérifier qu'il n'y a pas de doublons d'espèces
+            species_ids = [item.get('species') for item in items if item.get('species')]
+            if len(species_ids) != len(set(species_ids)):
+                messages.error(request, 'Erreur: Vous ne pouvez pas sélectionner la même espèce plusieurs fois!')
+                classification.delete()
+                return redirect('portal_admin:classification_add')
+
+            # Créer les détails par espèce
+            for item in items:
+                if item.get('species') and item.get('plate_count') and item.get('weight'):
+                    ClassificationItem.objects.create(
+                        classification=classification,
+                        species_id=item['species'],
+                        plate_count=item['plate_count'],
+                        weight=item['weight']
+                    )
+
+            messages.success(request, f'Classification pour le LOT {reception.lot_id} créée avec succès!')
+            return redirect('portal_admin:classification_detail', pk=classification.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la création: {str(e)}')
+
+    # Récupérer les réceptions éligibles (qui ont un rapport validé et pas encore de classification)
+    eligible_receptions = Reception.objects.filter(
+        reports__status='validated',
+        status='accepted',
+        classifications__isnull=True  # Exclure les lots déjà classifiés
+    ).select_related('client', 'service_type').order_by('-reception_date').distinct()
+
+    # Récupérer les sous-catégories actives
+    species = ServiceSubCategory.objects.filter(
+        status='active'
+    ).select_related('category').order_by('category__name', 'name')
+
+    return render(request, 'operations/classifications/classification_form.html', {
+        'eligible_receptions': eligible_receptions,
+        'species_list': species,
+        'status_choices': Classification.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_classification', raise_exception=True)
+def classification_edit(request, pk):
+    """Formulaire de modification de classification"""
+    classification = get_object_or_404(
+        Classification.objects.select_related('reception', 'reception__client').prefetch_related('items__species'),
+        pk=pk
+    )
+
+    # Vérifier si la classification peut être modifiée
+    if not classification.can_be_edited:
+        messages.error(request, 'Cette classification ne peut plus être modifiée car elle est validée ou annulée.')
+        return redirect('portal_admin:classification_detail', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            import json
+            from datetime import datetime
+
+            # Mettre à jour la classification
+            classification.pointer_full_name = request.POST.get('pointer_full_name')
+            classification.report_date = datetime.strptime(request.POST.get('report_date'), '%Y-%m-%d').date()
+            classification.status = request.POST.get('status', 'draft')
+            classification.save()
+
+            # Supprimer les anciens items
+            classification.items.all().delete()
+
+            # Récupérer et créer les nouveaux items
+            items_data = request.POST.get('items_data', '[]')
+            items = json.loads(items_data)
+
+            # Vérifier qu'il y a au moins une espèce
+            if not items or len(items) == 0:
+                messages.error(request, 'Erreur: Vous devez ajouter au moins une espèce pour modifier la classification!')
+                return redirect('portal_admin:classification_edit', pk=pk)
+
+            # Vérifier qu'il n'y a pas de doublons d'espèces
+            species_ids = [item.get('species') for item in items if item.get('species')]
+            if len(species_ids) != len(set(species_ids)):
+                messages.error(request, 'Erreur: Vous ne pouvez pas sélectionner la même espèce plusieurs fois!')
+                return redirect('portal_admin:classification_edit', pk=pk)
+
+            for item in items:
+                if item.get('species') and item.get('plate_count') and item.get('weight'):
+                    ClassificationItem.objects.create(
+                        classification=classification,
+                        species_id=item['species'],
+                        plate_count=item['plate_count'],
+                        weight=item['weight']
+                    )
+
+            messages.success(request, 'Classification modifiée avec succès!')
+            return redirect('portal_admin:classification_detail', pk=classification.pk)
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la modification: {str(e)}')
+
+    # Récupérer les réceptions éligibles (qui ont un rapport validé)
+    eligible_receptions = Reception.objects.filter(
+        reports__status='validated'
+    ).select_related('client', 'service_type').order_by('-reception_date').distinct()
+
+    # Récupérer les sous-catégories actives
+    species = ServiceSubCategory.objects.filter(
+        status='active'
+    ).select_related('category').order_by('category__name', 'name')
+
+    return render(request, 'operations/classifications/classification_form.html', {
+        'classification': classification,
+        'eligible_receptions': eligible_receptions,
+        'species_list': species,
+        'status_choices': Classification.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_classification', raise_exception=True)
+def classification_delete(request, pk):
+    """Suppression d'une classification"""
+    classification = get_object_or_404(Classification, pk=pk)
+
+    if request.method == 'POST':
+        try:
+            lot_id = classification.reception.lot_id
+            classification.delete()
+            messages.success(request, f'Classification du LOT {lot_id} supprimée avec succès!')
+            return redirect('portal_admin:classification_list')
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la suppression: {str(e)}')
+            return redirect('portal_admin:classification_detail', pk=pk)
+
+    return render(request, 'operations/classifications/classification_confirm_delete.html', {
+        'classification': classification
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_classification', raise_exception=True)
+def classification_change_status(request, pk):
+    """Changer le statut d'une classification"""
+    if request.method == 'POST':
+        classification = get_object_or_404(Classification, pk=pk)
+        new_status = request.POST.get('status')
+
+        # Valider le nouveau statut
+        valid_statuses = [choice[0] for choice in Classification.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Statut invalide')
+            return redirect('portal_admin:classification_detail', pk=pk)
+
+        old_status = classification.get_status_display()
+        classification.status = new_status
+        classification.save()
+
+        new_status_display = classification.get_status_display()
+        messages.success(request, f'Statut de la classification changé de "{old_status}" à "{new_status_display}"')
+        return redirect('portal_admin:classification_detail', pk=pk)
+
+    return redirect('portal_admin:classification_detail', pk=pk)
 
 

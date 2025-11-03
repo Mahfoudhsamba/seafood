@@ -1,0 +1,82 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Supprimer Classification - LOT #{{ classification.reception.lot_id }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0">CONFIRMER LA SUPPRESSION</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:classification_detail' classification.pk %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-danger">
+    <div class="card-header bg-danger text-white">
+      <h5 class="mb-0"><span class="fas fa-exclamation-triangle me-2"></span>Attention: Suppression de Classification</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-danger">
+        <p class="mb-0">
+          <strong>Êtes-vous sûr de vouloir supprimer cette classification?</strong>
+        </p>
+        <p class="mb-0">Cette action est irréversible et supprimera également tous les détails associés.</p>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="text-muted small">Numéro de Classification</label>
+          <p class="mb-0 fw-bold">#{{ classification.id|stringformat:"06d" }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">LOT</label>
+          <p class="mb-0 fw-bold">LOT #{{ classification.reception.lot_id }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Client</label>
+          <p class="mb-0">{{ classification.reception.client.name }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Pointeur</label>
+          <p class="mb-0">{{ classification.pointer_full_name }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Date du rapport</label>
+          <p class="mb-0">{{ classification.report_date|date:"d/m/Y" }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Statut</label>
+          <p class="mb-0">
+            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %}">
+              {{ classification.get_status_display }}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Nombre d'espèces</label>
+          <p class="mb-0">{{ classification.items.count }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Total plats</label>
+          <p class="mb-0">{{ classification.total_plates }}</p>
+        </div>
+      </div>
+
+      <form method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+          <span class="fas fa-trash me-2"></span>Confirmer la suppression
+        </button>
+        <a href="{% url 'portal_admin:classification_detail' classification.pk %}" class="btn btn-secondary">
+          <span class="fas fa-times me-2"></span>Annuler
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

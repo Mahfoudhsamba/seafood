@@ -119,6 +119,14 @@ class PortalAdminSite(AdminSite):
             path('rapports-reception/<int:pk>/edit/', views.reception_report_edit, name='reception_report_edit'),
             path('rapports-reception/<int:pk>/delete/', views.reception_report_delete, name='reception_report_delete'),
             path('rapports-reception/<int:pk>/change-status/', views.reception_report_change_status, name='reception_report_change_status'),
+
+            # Classifications
+            path('classifications/', views.classification_list, name='classification_list'),
+            path('classifications/add/', views.classification_add, name='classification_add'),
+            path('classifications/<int:pk>/', views.classification_detail, name='classification_detail'),
+            path('classifications/<int:pk>/edit/', views.classification_edit, name='classification_edit'),
+            path('classifications/<int:pk>/delete/', views.classification_delete, name='classification_delete'),
+            path('classifications/<int:pk>/change-status/', views.classification_change_status, name='classification_change_status'),
         ]
         return custom_urls + urls
 

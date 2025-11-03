@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, Reception, Report, ReportItem
+from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, Reception, Report, ReportItem, Classification, ClassificationItem
 
 # Register your models here.
 
@@ -181,3 +181,91 @@ class ServiceSubCategoryAdmin(admin.ModelAdmin):
         if not change:  # Si c'est une nouvelle instance
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
+
+
+class ClassificationItemInline(admin.TabularInline):
+    """
+    Inline pour gérer les détails par espèce directement depuis la classification
+    """
+    model = ClassificationItem
+    extra = 1
+    fields = ['species', 'plate_count', 'weight']
+    verbose_name = 'Détail de classification'
+    verbose_name_plural = 'Détails de classification'
+    raw_id_fields = ['species']
+
+
+@admin.register(Classification)
+class ClassificationAdmin(admin.ModelAdmin):
+    list_display = ['reception', 'report_date', 'pointer_full_name', 'status', 'get_total_weight', 'get_total_plates', 'created_by']
+    list_filter = ['status', 'report_date', 'created_at']
+    search_fields = ['reception__lot_id', 'reception__client__name', 'pointer_full_name']
+    readonly_fields = ['created_at', 'updated_at', 'created_by']
+    date_hierarchy = 'report_date'
+    inlines = [ClassificationItemInline]
+
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('reception', 'report_date', 'pointer_full_name', 'status')
+        }),
+        ('Période de classification', {
+            'fields': ('start_datetime', 'end_datetime')
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def get_total_weight(self, obj):
+        """Retourne le poids total de tous les items"""
+        return f"{obj.total_weight} kg"
+    get_total_weight.short_description = 'Poids total'
+
+    def get_total_plates(self, obj):
+        """Retourne le nombre total de plats"""
+        return obj.total_plates
+    get_total_plates.short_description = 'Total plats'
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si c'est une nouvelle instance
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        """Optimise les requêtes en préchargeant les relations"""
+        qs = super().get_queryset(request)
+        return qs.select_related('reception', 'reception__client', 'created_by').prefetch_related('items')
+
+
+@admin.register(ClassificationItem)
+class ClassificationItemAdmin(admin.ModelAdmin):
+    list_display = ['classification', 'get_species_name', 'plate_count', 'weight', 'get_average_weight', 'created_at']
+    list_filter = ['species__category', 'created_at']
+    search_fields = ['classification__reception__lot_id', 'species__name']
+    readonly_fields = ['created_at', 'updated_at']
+    raw_id_fields = ['classification', 'species']
+
+    fieldsets = (
+        ('Informations', {
+            'fields': ('classification', 'species', 'plate_count', 'weight')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+    def get_species_name(self, obj):
+        """Retourne le nom de l'espèce"""
+        return f"{obj.species.category.name} - {obj.species.name}"
+    get_species_name.short_description = 'Espèce'
+
+    def get_average_weight(self, obj):
+        """Retourne le poids moyen par plat"""
+        return f"{obj.average_weight_per_plate:.2f} kg"
+    get_average_weight.short_description = 'Poids moyen/plat'
+
+    def get_queryset(self, request):
+        """Optimise les requêtes en préchargeant les relations"""
+        qs = super().get_queryset(request)
+        return qs.select_related('classification', 'classification__reception', 'species', 'species__category')

@@ -1,0 +1,226 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Classification - LOT #{{ classification.reception.lot_id }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h3 class="mb-0"><span class="fas fa-th-list fa-1x "></span> CLASSIFICATION - LOT{{ classification.reception.lot_id }}</h3>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        {% if perms.operations.change_classification and classification.can_be_edited %}
+          <a href="{% url 'portal_admin:classification_edit' classification.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+        {% endif %}
+        {% if perms.operations.delete_classification and classification.status == 'draft' %}
+          <a href="{% url 'portal_admin:classification_delete' classification.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+        {% endif %}
+        <a href="{% url 'portal_admin:classification_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card 0 h-100 mb-3">
+        <div class="card-body ">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Client</label>
+              <div class="d-flex align-items-center">
+
+                <div class="avatar avatar-xl me-2">
+                  {% if classification.reception.client.logo %}
+                    <div class="avatar avatar-l me-2">
+                      <img class="rounded-soft" src="{{ classification.reception.client.logo.url }}" alt="{{ classification.reception.client.name }}" />
+                    </div>
+                  {% else %}
+                    <div class="avatar-name rounded-soft">
+                      <span>{{ classification.reception.client.name|first }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+                <div>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ classification.reception.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ classification.reception.client.accounting_code }}</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date du rapport</label>
+              <p class="mb-0">{{ classification.report_date|date:"d/m/Y" }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Pointeur</label>
+              <p class="mb-0"><strong>{{ classification.pointer_full_name }}</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Durée</label>
+              <p class="mb-0">
+                {% if classification.start_datetime and classification.end_datetime %}
+                  <i class="fas fa-clock me-1"></i>
+                  {{ classification.start_datetime|date:"H:i" }} - {{ classification.end_datetime|date:"H:i" }}
+                  {% if classification.duration %}
+                    <span class="badge badge-phoenix badge-phoenix-secondary ms-2">{{ classification.duration }}</span>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted"><i>Non définie (sera renseignée lors de la validation)</i></span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Poids du lot</label>
+              <p class="mb-0"><strong>{{ classification.reception.weight }} kg</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Poids classifié</label>
+              <p class="mb-0"><strong>{{ classification.total_weight }} kg</strong></p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Type de service</label>
+              <p class="mb-0">{{ classification.reception.service_type.code }} - {{ classification.reception.service_type.name }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Statut</label>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %}">
+                  {{ classification.get_status_display }}
+                </span>
+                {% if perms.operations.change_classification and classification.status != 'validated' %}
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fas fa-exchange-alt me-1"></span>Changer
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for status_code, status_label in status_choices %}
+                      {% if status_code != classification.status %}
+                        <li>
+                          <form method="post" action="{% url 'portal_admin:classification_change_status' classification.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ status_code }}">
+                            <button type="submit" class="dropdown-item">
+                              <span class="badge bg-{% if status_code == 'draft' %}secondary{% elif status_code == 'validated' %}success{% elif status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                            </button>
+                          </form>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Créé par</label>
+              <p class="mb-0">{{ classification.created_by.get_full_name|default:classification.created_by.username }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date de création</label>
+              <p class="mb-0">{{ classification.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card 0 h-100">
+        <div class="card-body text-center">
+          <div class="avatar avatar-5xl mb-2">
+            {% if classification.reception.service_type.category.avatar %}
+              <img class="rounded-soft" src="{{ classification.reception.service_type.category.avatar.url }}" alt="{{ classification.reception.service_type.name }}" >
+            {% else %}
+              <div class="avatar-name rounded-soft">
+                <span>{{ classification.reception.service_type.name |first }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <h3 class="mb-2">LOT #{{ classification.reception.lot_id }}</h3>
+          <p class="text-muted mb-2">{{ classification.reception.service_type.name }}</p>
+          <div class="mb-3">
+            <span class="badge bg-{% if classification.status == 'draft' %}secondary{% elif classification.status == 'validated' %}success{% elif classification.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ classification.get_status_display }}
+            </span>
+          </div>
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Nombre d'espèces:</span>
+              <strong>{{ classification.items.count }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-0">
+              <span class="text-muted">Total de plats:</span>
+              <strong>{{ classification.total_plates }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mb-9">
+    <div class="row g-5">
+      <div class="col-12 col-xxl-12">
+        <div class="mb-6">
+          <h3 class="mb-4">DÉTAILS DE LA CLASSIFICATION</h3>
+          <div class="border-top border-bottom border-translucent" data-list='{"valueNames":["espece","plats","poids","moyenne"]}'>
+            <div class="table-responsive scrollbar">
+              <table class="table table-sm fs-9 mb-0 table-striped">
+                <thead>
+                  <tr>
+                    <th class="sort align-middle" scope="col" data-sort="espece">ESPÈCE</th>
+                    <th class="sort align-middle text-center" scope="col" data-sort="plats">NOMBRE DE PLATS</th>
+                    <th class="sort align-middle" scope="col" data-sort="poids">POIDS (KG)</th>
+                    <th class="sort align-middle" scope="col" data-sort="moyenne">POIDS MOYEN/PLAT</th>
+                  </tr>
+                </thead>
+                <tbody class="list" id="classification-table-body">
+                  {% for item in classification.items.all %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                      <td class="espece align-middle fw-bold">
+                        <span class="badge badge-phoenix badge-phoenix-info">
+                          {{ item.species.category.name }} - {{ item.species.name }}
+                        </span>
+                      </td>
+                      <td class="plats align-middle text-center fw-semibold">
+                        <span class="badge badge-phoenix badge-phoenix-primary">{{ item.plate_count }}</span>
+                      </td>
+                      <td class="poids align-middle fw-semibold text-body-highlight">
+                        {{ item.weight }} kg
+                      </td>
+                      <td class="moyenne align-middle fw-bold text-body-tertiary">
+                        {{ item.average_weight_per_plate|floatformat:2 }} kg
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center py-4">Aucun détail disponible</td>
+                    </tr>
+                  {% endfor %}
+                  <tfoot>
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                      <th>TOTAL</th>
+                      <th class="text-center">{{ classification.total_plates }}</th>
+                      <th>{{ classification.total_weight }} kg</th>
+                      <th></th>
+                    </tr>
+                  </tfoot>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

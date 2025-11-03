@@ -663,3 +663,204 @@ class ReportItem(models.Model):
         if self.species == 'autre' and self.custom_species_name:
             return self.custom_species_name
         return self.get_species_display()
+
+
+class Classification(models.Model):
+    """
+    Modèle pour la classification d'un rapport de réception
+    Permet de classifier les poissons par espèce avec le nombre de plats et poids
+    """
+    STATUS_CHOICES = [
+        ('draft', 'Brouillon'),
+        ('validated', 'Validé'),
+        ('cancelled', 'Annulé'),
+    ]
+
+    # Numéro du rapport (lié à la réception)
+    reception = models.ForeignKey(
+        Reception,
+        on_delete=models.PROTECT,
+        related_name='classifications',
+        verbose_name='Réception (LOT)',
+        help_text='Note d\'arrivée à classifier'
+    )
+
+    # Date du rapport
+    report_date = models.DateField(
+        verbose_name='Date du rapport'
+    )
+
+    # Nom complet du pointeur
+    pointer_full_name = models.CharField(
+        max_length=200,
+        verbose_name='Nom complet du pointeur',
+        help_text='Nom de la personne effectuant la classification'
+    )
+
+    # Date et heure de début
+    start_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Date et heure de début',
+        help_text='Début de la classification (rempli lors de la validation)'
+    )
+
+    # Date et heure de fin
+    end_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Date et heure de fin',
+        help_text='Fin de la classification (rempli lors de la validation)'
+    )
+
+    # Statut
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft',
+        verbose_name='Statut'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_classifications',
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        db_table = 'operations_classification'
+        verbose_name = 'Classification'
+        verbose_name_plural = 'Classifications'
+        ordering = ['-report_date', '-created_at']
+        indexes = [
+            models.Index(fields=['reception']),
+            models.Index(fields=['report_date']),
+            models.Index(fields=['status']),
+            models.Index(fields=['start_datetime']),
+            models.Index(fields=['end_datetime']),
+        ]
+
+    def __str__(self):
+        return f"Classification LOT {self.reception.lot_id} - {self.report_date.strftime('%d/%m/%Y')}"
+
+    def clean(self):
+        """Validation personnalisée"""
+        super().clean()
+
+        # Vérifier que la date de fin est après la date de début
+        if self.start_datetime and self.end_datetime:
+            if self.end_datetime <= self.start_datetime:
+                raise ValidationError({
+                    'end_datetime': 'La date de fin doit être postérieure à la date de début.'
+                })
+
+        # Vérifier que la réception a un rapport
+        if self.reception and not self.reception.reports.exists():
+            raise ValidationError({
+                'reception': 'Cette réception doit avoir un rapport avant de pouvoir créer une classification.'
+            })
+
+    @property
+    def total_weight(self):
+        """Calcule le poids total de tous les items de la classification"""
+        return sum(item.weight for item in self.items.all())
+
+    @property
+    def total_plates(self):
+        """Calcule le nombre total de plats de tous les items"""
+        return sum(item.plate_count for item in self.items.all())
+
+    @property
+    def can_be_edited(self):
+        """Vérifie si la classification peut être modifiée"""
+        return self.status == 'draft'
+
+    @property
+    def duration(self):
+        """Calcule la durée de la classification"""
+        if self.start_datetime and self.end_datetime:
+            return self.end_datetime - self.start_datetime
+        return None
+
+
+class ClassificationItem(models.Model):
+    """
+    Modèle pour les détails par espèce de la classification
+    Chaque item représente une espèce avec son nombre de plats et poids
+    """
+
+    # Classification parent
+    classification = models.ForeignKey(
+        Classification,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name='Classification'
+    )
+
+    # Espèce (sous-catégorie de service)
+    species = models.ForeignKey(
+        ServiceSubCategory,
+        on_delete=models.PROTECT,
+        related_name='classification_items',
+        verbose_name='Espèce',
+        help_text='Sous-catégorie de service représentant l\'espèce'
+    )
+
+    # Nombre de plats
+    plate_count = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name='Nombre de plats',
+        help_text='Nombre de plats pour cette espèce'
+    )
+
+    # Poids en kg
+    weight = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name='Poids (kg)',
+        help_text='Poids total de cette espèce en kilogrammes'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+
+    class Meta:
+        db_table = 'operations_classificationitem'
+        verbose_name = 'Détail de classification'
+        verbose_name_plural = 'Détails de classification'
+        ordering = ['classification', 'species']
+        indexes = [
+            models.Index(fields=['classification']),
+            models.Index(fields=['species']),
+        ]
+        # Éviter les doublons d'espèce dans une même classification
+        unique_together = [['classification', 'species']]
+
+    def __str__(self):
+        return f"{self.species.name} - {self.plate_count} plats - {self.weight} kg"
+
+    @property
+    def average_weight_per_plate(self):
+        """Calcule le poids moyen par plat"""
+        if self.plate_count > 0:
+            return self.weight / self.plate_count
+        return Decimal('0.00')
