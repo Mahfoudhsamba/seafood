@@ -2611,6 +2611,11 @@ def classification_delete(request, pk):
     """Suppression d'une classification"""
     classification = get_object_or_404(Classification, pk=pk)
 
+    # Vérifier que la classification est en brouillon
+    if classification.status != 'draft':
+        messages.error(request, 'Erreur: Seules les classifications en brouillon peuvent être supprimées!')
+        return redirect('portal_admin:classification_detail', pk=pk)
+
     if request.method == 'POST':
         try:
             lot_id = classification.reception.lot_id
