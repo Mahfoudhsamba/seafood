@@ -1,16 +1,16 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}{% if classification %}Modifier{% else %}Ajouter{% endif %} Classification{% endblock %}
+{% block title %}{% if packaging %}Modifier{% else %}Ajouter{% endif %} cartonage{% endblock %}
 
 {% block content %}
 <div class="pb-5">
   <div class="row align-items-center justify-content-between g-3 mb-4">
     <div class="col-auto">
-      <h2 class="mb-0">{% if classification %}MODIFIER{% else %}NOUVELLE{% endif %} CLASSIFICATION</h2>
+      <h2 class="mb-0">{% if packaging %}MODIFIER{% else %}NOUVEAU{% endif %} CARTONAGE</h2>
     </div>
     <div class="col-auto">
-      <a href="{% url 'portal_admin:classification_list' %}" class="btn btn-phoenix-secondary">
+      <a href="{% url 'portal_admin:packaging_list' %}" class="btn btn-phoenix-secondary">
         <span class="fas fa-arrow-left me-2"></span>Retour à la liste
       </a>
     </div>
@@ -25,7 +25,7 @@
     {% endfor %}
   {% endif %}
 
-  <form method="post" id="classificationForm">
+  <form method="post" id="packagingForm">
     {% csrf_token %}
 
     <div class="row g-3">
@@ -33,35 +33,30 @@
         <div class="card mb-3">
           <div class="card-body">
             <div class="row g-3">
-              <div class="col-md-4">
-                <label for="reception" class="form-label">Numéro de lot <span class="text-danger">*</span></label>
-                <select name="reception" id="reception" class="form-select" required {% if classification %}disabled{% endif %}>
+              <div class="col-md-6">
+                <label for="classification" class="form-label">Numéro LOT <span class="text-danger">*</span></label>
+                <select name="classification" id="classification" class="form-select" required {% if packaging %}disabled{% endif %}>
                   <option value="">Sélectionner un lot...</option>
-                  {% for lot in eligible_receptions %}
-                    <option value="{{ lot.pk }}"
-                            data-client="{{ lot.client.name }}"
-                            data-weight="{{ lot.weight }}"
-                            data-service="{{ lot.service_type.name }}"
-                            data-category-id="{{ lot.service_type.category.pk }}"
-                            {% if classification and classification.reception.pk == lot.pk %}selected{% endif %}>
-                      {{ lot.client.name }} - LOT #{{ lot.lot_id }}
+                  {% for classification in eligible_classifications %}
+                    <option value="{{ classification.pk }}"
+                            data-client="{{ classification.reception.client.name }}"
+                            data-lot="{{ classification.reception.lot_id }}"
+                            data-service="{{ classification.reception.service_type.name }}"
+                            data-category-id="{{ classification.reception.service_type.category.pk }}"
+                            {% if packaging and packaging.classification.pk == classification.pk %}selected{% endif %}>
+                      {{ classification.reception.client.name }} - LOT #{{ classification.reception.lot_id }}
                     </option>
                   {% endfor %}
                 </select>
-                {% if classification %}
-                  <input type="hidden" name="reception" value="{{ classification.reception.pk }}">
+                {% if packaging %}
+                  <input type="hidden" name="classification" value="{{ packaging.classification.pk }}">
                 {% endif %}
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <label for="start_datetime" class="form-label">Date et heure de début <span class="text-danger">*</span></label>
-                <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required value="{% if classification and classification.start_datetime %}{{ classification.start_datetime|date:'Y-m-d\TH:i' }}{% endif %}">
+                <input type="datetime-local" name="start_datetime" id="start_datetime" class="form-control" required value="{% if packaging and packaging.start_datetime %}{{ packaging.start_datetime|date:'Y-m-d\TH:i' }}{% endif %}">
                 <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
-              </div>
-
-              <div class="col-md-4">
-                <label for="pointer_full_name" class="form-label">Nom du pointeur <span class="text-danger">*</span></label>
-                <input type="text" name="pointer_full_name" id="pointer_full_name" class="form-control" required placeholder="Pointeur" value="{% if classification %}{{ classification.pointer_full_name }}{% endif %}">
               </div>
             </div>
           </div>
@@ -69,18 +64,18 @@
 
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><span class="fas fa-list me-2"></span>Classement par espèce</h5>
-            <button type="button" class="btn btn-sm btn-primary" id="addItemBtn" {% if not classification %}disabled{% endif %}>
+            <h5 class="mb-0"><span class="fas fa-boxes me-2"></span>Cartons par espèce</h5>
+            <button type="button" class="btn btn-sm btn-primary" id="addItemBtn" {% if not packaging %}disabled{% endif %}>
               <span class="fas fa-plus me-1"></span>Espèce
             </button>
           </div>
           <div class="card-body">
             <div id="itemsContainer">
-              {% if classification %}
-                {% for item in classification.items.all %}
+              {% if packaging %}
+                {% for item in packaging.items.all %}
                   <div class="item-row border p-3 mb-3 rounded">
                     <div class="row g-3">
-                      <div class="col-md-6">
+                      <div class="col-md-10">
                         <label class="form-label">Espèce <span class="text-danger">*</span></label>
                         <select class="form-select item-species" required>
                           <option value="">Sélectionner...</option>
@@ -93,13 +88,9 @@
                           {% endfor %}
                         </select>
                       </div>
-                      <div class="col-md-2">
-                        <label class="form-label">Nombre de plats <span class="text-danger">*</span></label>
-                        <input type="number" step="1" min="1" class="form-control item-plate-count" placeholder="0" required value="{{ item.plate_count }}">
-                      </div>
-                      <div class="col-md-3">
-                        <label class="form-label">Poids (kg) <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" min="0.01" class="form-control item-weight" placeholder="0.00" required value="{{ item.weight }}">
+                      <div class="col-md-1">
+                        <label class="form-label">Cartons <span class="text-danger">*</span></label>
+                        <input type="number" step="1" min="1" class="form-control item-carton-count" placeholder="0" required value="{{ item.carton_count }}">
                       </div>
                       <div class="col-md-1 d-flex align-items-end">
                         <button type="button" class="btn btn-danger btn-sm remove-item w-100">
@@ -111,8 +102,8 @@
                 {% endfor %}
               {% endif %}
             </div>
-            <div id="noItems" class="text-center py-4 text-muted" {% if classification and classification.items.all %}style="display:none;"{% endif %}>
-              Aucun item ajouté. Cliquez sur "Ajouter une espèce" pour commencer.
+            <div id="noItems" class="text-center py-4 text-muted" {% if packaging and packaging.items.all %}style="display:none;"{% endif %}>
+              Aucun élément ajouté. Cliquez sur "Ajouter espèce" pour commencer.
             </div>
           </div>
         </div>
@@ -123,9 +114,9 @@
 
     <div class="mt-4 d-flex gap-2">
       <button type="submit" class="btn btn-primary">
-        <span class="fas fa-save me-2"></span>{% if classification %}Mettre à jour{% else %}Enregistrer{% endif %}
+        <span class="fas fa-save me-2"></span>{% if packaging %}Mettre à jour{% else %}Enregistrer{% endif %}
       </button>
-      <a href="{% url 'portal_admin:classification_list' %}" class="btn btn-secondary">Annuler</a>
+      <a href="{% url 'portal_admin:packaging_list' %}" class="btn btn-secondary">Annuler</a>
     </div>
   </form>
 </div>
@@ -138,9 +129,10 @@
       const container = document.getElementById('itemsContainer');
       const addBtn = document.getElementById('addItemBtn');
       const noItems = document.getElementById('noItems');
-      const form = document.getElementById('classificationForm');
-      const receptionSelect = document.getElementById('reception');
+      const form = document.getElementById('packagingForm');
+      const classificationSelect = document.getElementById('classification');
       const startDatetimeInput = document.getElementById('start_datetime');
+      let speciesList = [];
 
       // Function to get current date/time in datetime-local format
       function getNowFormatted() {
@@ -158,10 +150,10 @@
         startDatetimeInput.setAttribute('max', getNowFormatted());
       }
 
-      // When reception is selected, filter species by category
-      receptionSelect.addEventListener('change', function() {
-        const receptionId = this.value;
-        if (receptionId) {
+      // When classification is selected, filter species by category
+      classificationSelect.addEventListener('change', function() {
+        const classificationId = this.value;
+        if (classificationId) {
           const selectedOption = this.options[this.selectedIndex];
           const categoryId = selectedOption.getAttribute('data-category-id');
 
@@ -171,20 +163,83 @@
           // Enable add button
           addBtn.disabled = false;
         } else {
-          // No reception selected, disable add button
+          // No classification selected, disable add button
           addBtn.disabled = true;
           // Show all species
           filterSpeciesByCategory(null);
         }
       });
 
-      // Initialize: if reception already selected, filter species
-      if (receptionSelect.value) {
-        const selectedOption = receptionSelect.options[receptionSelect.selectedIndex];
+      // Initialize: if classification already selected, filter species
+      if (classificationSelect.value) {
+        const selectedOption = classificationSelect.options[classificationSelect.selectedIndex];
         if (selectedOption) {
           const categoryId = selectedOption.getAttribute('data-category-id');
           filterSpeciesByCategory(categoryId);
         }
+      }
+
+      // Function to update species availability
+      function updateSpeciesAvailability() {
+        const allSelects = container.querySelectorAll('.item-species');
+        const selectedSpecies = new Set();
+
+        // Collect all selected species
+        allSelects.forEach(select => {
+          if (select.value) {
+            selectedSpecies.add(select.value);
+          }
+        });
+
+        // Update each select
+        allSelects.forEach(currentSelect => {
+          const currentValue = currentSelect.value;
+          const options = currentSelect.querySelectorAll('option');
+
+          options.forEach(option => {
+            if (option.value === '') return; // Ignore empty option
+
+            // Disable if selected elsewhere, except if it's the current value
+            if (selectedSpecies.has(option.value) && option.value !== currentValue) {
+              option.disabled = true;
+              option.style.color = '#ccc';
+            } else {
+              option.disabled = false;
+              option.style.color = '';
+            }
+          });
+        });
+      }
+
+      // Build species options template
+      let speciesOptionsTemplate = '<option value="">Sélectionner...</option>';
+      {% for species in species_list %}
+        speciesOptionsTemplate += '<option value="{{ species.pk }}" data-category-id="{{ species.category.pk }}">{{ species.category.name }} - {{ species.name }}</option>';
+      {% endfor %}
+
+      // Template for new item
+      function getItemTemplate() {
+        return `
+          <div class="item-row border p-3 mb-3 rounded">
+            <div class="row g-3">
+              <div class="col-md-10">
+                <label class="form-label">Espèce <span class="text-danger">*</span></label>
+                <select class="form-select item-species" required>
+                  ${speciesOptionsTemplate}
+                </select>
+              </div>
+              <div class="col-md-1">
+                <label class="form-label">Cartons <span class="text-danger">*</span></label>
+                <input type="number" step="1" min="1" class="form-control item-carton-count" placeholder="0" required>
+              </div>
+              <div class="col-md-1 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm remove-item w-100">
+                  <span class="fas fa-trash"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
       }
 
       // Function to filter species by category
@@ -212,74 +267,7 @@
         });
       }
 
-      // Fonction pour mettre à jour la disponibilité des espèces
-      function updateSpeciesAvailability() {
-        const allSelects = container.querySelectorAll('.item-species');
-        const selectedSpecies = new Set();
-
-        // Collecter toutes les espèces sélectionnées
-        allSelects.forEach(select => {
-          if (select.value) {
-            selectedSpecies.add(select.value);
-          }
-        });
-
-        // Mettre à jour chaque select
-        allSelects.forEach(currentSelect => {
-          const currentValue = currentSelect.value;
-          const options = currentSelect.querySelectorAll('option');
-
-          options.forEach(option => {
-            if (option.value === '') return; // Ignorer l'option vide
-
-            // Désactiver si sélectionné ailleurs, sauf si c'est la valeur actuelle
-            if (selectedSpecies.has(option.value) && option.value !== currentValue) {
-              option.disabled = true;
-              option.style.color = '#ccc';
-            } else {
-              option.disabled = false;
-              option.style.color = '';
-            }
-          });
-        });
-      }
-
-      // Build species options template
-      let speciesOptionsTemplate = '<option value="">Sélectionner...</option>';
-      {% for species in species_list %}
-        speciesOptionsTemplate += '<option value="{{ species.pk }}" data-category-id="{{ species.category.pk }}">{{ species.category.name }} - {{ species.name }}</option>';
-      {% endfor %}
-
-      // Template pour un nouvel item
-      function getItemTemplate() {
-        return `
-          <div class="item-row border p-3 mb-3 rounded">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Espèce <span class="text-danger">*</span></label>
-                <select class="form-select item-species" required>
-                  ${speciesOptionsTemplate}
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">Nombre de plats <span class="text-danger">*</span></label>
-                <input type="number" step="1" min="1" class="form-control item-plate-count" placeholder="0" required>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Poids (kg) <span class="text-danger">*</span></label>
-                <input type="number" step="0.01" min="0.01" class="form-control item-weight" placeholder="0.00" required>
-              </div>
-              <div class="col-md-1 d-flex align-items-end">
-                <button type="button" class="btn btn-danger btn-sm remove-item w-100">
-                  <span class="fas fa-trash"></span>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      // Ajouter un nouvel item
+      // Add new item
       addBtn.addEventListener('click', function() {
         const div = document.createElement('div');
         div.innerHTML = getItemTemplate();
@@ -287,31 +275,31 @@
         container.prepend(itemRow);
         noItems.style.display = 'none';
 
-        // Attacher les événements au nouveau select
+        // Attach events to new select
         const speciesSelect = itemRow.querySelector('.item-species');
         speciesSelect.addEventListener('change', updateSpeciesAvailability);
 
-        // Apply category filter if a reception is selected
-        const selectedOption = receptionSelect.options[receptionSelect.selectedIndex];
+        // Apply category filter if a classification is selected
+        const selectedOption = classificationSelect.options[classificationSelect.selectedIndex];
         if (selectedOption && selectedOption.value) {
           const categoryId = selectedOption.getAttribute('data-category-id');
           filterSpeciesByCategory(categoryId);
         }
 
-        // Attacher l'événement de suppression
+        // Attach delete event
         const removeBtn = itemRow.querySelector('.remove-item');
         removeBtn.addEventListener('click', function() {
           itemRow.remove();
           if (container.children.length === 0) {
             noItems.style.display = 'block';
           }
-          updateSpeciesAvailability(); // Mettre à jour après suppression
+          updateSpeciesAvailability(); // Update after deletion
         });
 
-        updateSpeciesAvailability(); // Mettre à jour immédiatement
+        updateSpeciesAvailability(); // Update immediately
       });
 
-      // Attacher les événements aux items existants
+      // Attach events to existing items
       document.querySelectorAll('.item-species').forEach(select => {
         select.addEventListener('change', updateSpeciesAvailability);
       });
@@ -323,19 +311,19 @@
           if (container.children.length === 0) {
             noItems.style.display = 'block';
           }
-          updateSpeciesAvailability(); // Mettre à jour après suppression
+          updateSpeciesAvailability(); // Update after deletion
         });
       });
 
-      // Initialiser la disponibilité au chargement
+      // Initialize availability on load
       updateSpeciesAvailability();
 
-      // Ajouter automatiquement une ligne au chargement si le conteneur est vide (mode ajout) and reception selected
-      if (container.children.length === 0 && receptionSelect.value) {
-        addBtn.click(); // Simuler un clic sur le bouton "Ajouter une espèce"
+      // Auto-add one line on load if container is empty (add mode) and classification selected
+      if (container.children.length === 0 && classificationSelect.value) {
+        addBtn.click(); // Simulate click on "Add species" button
       }
 
-      // Collecter les données avant soumission
+      // Collect data before submission
       form.addEventListener('submit', function(e) {
         // Validate start datetime is not in the future
         if (startDatetimeInput && startDatetimeInput.value) {
@@ -356,30 +344,28 @@
 
         itemRows.forEach(row => {
           const species = row.querySelector('.item-species').value;
-          const plateCount = row.querySelector('.item-plate-count').value;
-          const weight = row.querySelector('.item-weight').value;
+          const cartonCount = row.querySelector('.item-carton-count').value;
 
-          if (species && plateCount && weight) {
-            // Vérifier les doublons
+          if (species && cartonCount) {
+            // Check duplicates
             if (speciesSet.has(species)) {
               e.preventDefault();
-              alert('Erreur: Vous ne pouvez pas sélectionner la même espèce plusieurs fois!');
+              alert('Erreur : Vous ne pouvez pas sélectionner la même espèce plusieurs fois !');
               return;
             }
             speciesSet.add(species);
 
             items.push({
               species: parseInt(species),
-              plate_count: parseInt(plateCount),
-              weight: parseFloat(weight)
+              carton_count: parseInt(cartonCount)
             });
           }
         });
 
-        // Vérifier qu'il y a au moins une espèce
+        // Check at least one species
         if (items.length === 0) {
           e.preventDefault();
-          alert('Erreur: Vous devez ajouter au moins une espèce pour créer la classification!');
+          alert('Erreur : Vous devez ajouter au moins une espèce pour créer le cartonage !');
           return;
         }
 

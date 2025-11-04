@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from .models import UserProfile, Client, Supplier, Cashbox, BankAccount, PurchaseRequest, PurchaseRequestItem, PurchaseOrder, PurchaseOrderItem, CashboxTransaction, Prospect
-from operations.models import Reception, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem, Classification, ClassificationItem
+from operations.models import Reception, FishCategory, Service, ServiceCategory, ServiceSubCategory, Report, ReportItem, Classification, ClassificationItem, Packaging, PackagingItem
 
 # Create your views here.
 
@@ -2522,7 +2522,7 @@ def classification_add(request):
         reports__status='validated',
         status='accepted',
         classifications__isnull=True  # Exclure les lots déjà classifiés
-    ).select_related('client', 'service_type').order_by('-reception_date').distinct()
+    ).select_related('client', 'service_type', 'service_type__category').order_by('-reception_date').distinct()
 
     # Récupérer les sous-catégories actives
     species = ServiceSubCategory.objects.filter(
@@ -2602,7 +2602,7 @@ def classification_edit(request, pk):
     # Récupérer les réceptions éligibles (qui ont un rapport validé)
     eligible_receptions = Reception.objects.filter(
         reports__status='validated'
-    ).select_related('client', 'service_type').order_by('-reception_date').distinct()
+    ).select_related('client', 'service_type', 'service_type__category').order_by('-reception_date').distinct()
 
     # Récupérer les sous-catégories actives
     species = ServiceSubCategory.objects.filter(
@@ -2744,3 +2744,273 @@ def classification_change_status(request, pk):
     return redirect('portal_admin:classification_detail', pk=pk)
 
 
+
+
+# ============ PACKAGING ============
+
+@staff_member_required
+@permission_required('operations.view_packaging', raise_exception=True)
+def packaging_list(request):
+    """List of packagings"""
+    packagings = Packaging.objects.all().select_related(
+        'classification',
+        'classification__reception',
+        'classification__reception__client',
+        'classification__reception__service_type',
+        'created_by'
+    ).prefetch_related('items').order_by('-start_datetime')
+
+    return render(request, 'operations/packaging/packaging_list.html', {
+        'packagings': packagings
+    })
+
+
+@staff_member_required
+@permission_required('operations.view_packaging', raise_exception=True)
+def packaging_detail(request, pk):
+    """Details of a packaging"""
+    packaging = get_object_or_404(
+        Packaging.objects.select_related(
+            'classification',
+            'classification__reception',
+            'classification__reception__client',
+            'classification__reception__service_type',
+            'created_by'
+        ).prefetch_related('items__species__category'),
+        pk=pk
+    )
+
+    # Get allowed status choices based on current status
+    allowed_status_choices = []
+    if packaging.status == 'draft':
+        allowed_status_choices = [('completed', 'Completed'), ('cancelled', 'Cancelled')]
+
+    return render(request, 'operations/packaging/packaging_detail.html', {
+        'packaging': packaging,
+        'status_choices': Packaging.STATUS_CHOICES,
+        'allowed_status_choices': allowed_status_choices
+    })
+
+
+@staff_member_required
+@permission_required('operations.add_packaging', raise_exception=True)
+def packaging_add(request):
+    """Form to add packaging"""
+    if request.method == 'POST':
+        try:
+            import json
+            from datetime import datetime
+
+            # Create the packaging
+            classification_id = request.POST.get('classification')
+            classification = get_object_or_404(Classification, pk=classification_id)
+
+            # Check that classification is completed
+            if classification.status != 'completed':
+                messages.error(request, 'Only completed classifications can be packaged.')
+                return redirect('portal_admin:packaging_add')
+
+            # Parse start datetime
+            start_datetime_str = request.POST.get('start_datetime')
+            start_datetime = datetime.strptime(start_datetime_str, '%Y-%m-%dT%H:%M')
+
+            packaging = Packaging.objects.create(
+                classification=classification,
+                start_datetime=start_datetime,
+                status='draft',
+                created_by=request.user
+            )
+
+            # Get items from form
+            items_data = request.POST.get('items_data', '[]')
+            items = json.loads(items_data)
+
+            # Check at least one species
+            if not items or len(items) == 0:
+                messages.error(request, 'Error: You must add at least one species to create the packaging!')
+                packaging.delete()
+                return redirect('portal_admin:packaging_add')
+
+            # Check no duplicate species
+            species_ids = [item.get('species') for item in items if item.get('species')]
+            if len(species_ids) != len(set(species_ids)):
+                messages.error(request, 'Error: You cannot select the same species multiple times!')
+                packaging.delete()
+                return redirect('portal_admin:packaging_add')
+
+            # Create details by species
+            for item in items:
+                if item.get('species') and item.get('carton_count'):
+                    PackagingItem.objects.create(
+                        packaging=packaging,
+                        species_id=item['species'],
+                        carton_count=item['carton_count']
+                    )
+
+            messages.success(request, f'Packaging for LOT {classification.reception.lot_id} created successfully!')
+            return redirect('portal_admin:packaging_detail', pk=packaging.pk)
+
+        except Exception as e:
+            messages.error(request, f'Error during creation: {str(e)}')
+
+    # Get eligible classifications (completed and not yet packaged)
+    eligible_classifications = Classification.objects.filter(
+        status='completed',
+        packagings__isnull=True  # Exclude already packaged lots
+    ).select_related('reception__client', 'reception__service_type', 'reception__service_type__category').order_by('-start_datetime')
+
+    # Get active species (subcategories) with their category
+    species_list = ServiceSubCategory.objects.filter(
+        status='active'
+    ).select_related('category').order_by('category__name', 'name')
+
+    return render(request, 'operations/packaging/packaging_form.html', {
+        'eligible_classifications': eligible_classifications,
+        'species_list': species_list,
+        'status_choices': Packaging.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_packaging', raise_exception=True)
+def packaging_edit(request, pk):
+    """Form to edit packaging"""
+    packaging = get_object_or_404(
+        Packaging.objects.select_related('classification', 'classification__reception__client').prefetch_related('items__species'),
+        pk=pk
+    )
+
+    # Check if packaging can be edited
+    if not packaging.can_be_edited:
+        messages.error(request, 'This packaging cannot be edited as it is completed or cancelled.')
+        return redirect('portal_admin:packaging_detail', pk=pk)
+
+    if request.method == 'POST':
+        try:
+            import json
+            from datetime import datetime
+
+            # Update packaging
+            start_datetime_str = request.POST.get('start_datetime')
+            packaging.start_datetime = datetime.strptime(start_datetime_str, '%Y-%m-%dT%H:%M')
+            packaging.status = request.POST.get('status', 'draft')
+            packaging.save()
+
+            # Delete old items
+            packaging.items.all().delete()
+
+            # Get and create new items
+            items_data = request.POST.get('items_data', '[]')
+            items = json.loads(items_data)
+
+            # Check at least one species
+            if not items or len(items) == 0:
+                messages.error(request, 'Error: You must add at least one species to edit the packaging!')
+                return redirect('portal_admin:packaging_edit', pk=pk)
+
+            # Check no duplicate species
+            species_ids = [item.get('species') for item in items if item.get('species')]
+            if len(species_ids) != len(set(species_ids)):
+                messages.error(request, 'Error: You cannot select the same species multiple times!')
+                return redirect('portal_admin:packaging_edit', pk=pk)
+
+            for item in items:
+                if item.get('species') and item.get('carton_count'):
+                    PackagingItem.objects.create(
+                        packaging=packaging,
+                        species_id=item['species'],
+                        carton_count=item['carton_count']
+                    )
+
+            messages.success(request, 'Packaging updated successfully!')
+            return redirect('portal_admin:packaging_detail', pk=packaging.pk)
+
+        except Exception as e:
+            messages.error(request, f'Error during update: {str(e)}')
+
+    # Get eligible classifications
+    eligible_classifications = Classification.objects.filter(
+        status='completed'
+    ).select_related('reception__client', 'reception__service_type', 'reception__service_type__category').order_by('-start_datetime')
+
+    # Get active species (subcategories) with their category - filter by category on client side
+    species_list = ServiceSubCategory.objects.filter(
+        status='active'
+    ).select_related('category').order_by('category__name', 'name')
+
+    return render(request, 'operations/packaging/packaging_form.html', {
+        'packaging': packaging,
+        'eligible_classifications': eligible_classifications,
+        'species_list': species_list,
+        'status_choices': Packaging.STATUS_CHOICES
+    })
+
+
+@staff_member_required
+@permission_required('operations.delete_packaging', raise_exception=True)
+def packaging_delete(request, pk):
+    """Delete a packaging"""
+    packaging = get_object_or_404(Packaging, pk=pk)
+
+    # Check if packaging can be deleted
+    if not packaging.can_be_deleted:
+        messages.error(request, 'Only draft packagings can be deleted.')
+        return redirect('portal_admin:packaging_detail', pk=pk)
+
+    if request.method == 'POST':
+        lot_id = packaging.classification.reception.lot_id
+        packaging.delete()
+        messages.success(request, f'Packaging for LOT {lot_id} deleted successfully!')
+        return redirect('portal_admin:packaging_list')
+
+    return render(request, 'operations/packaging/packaging_confirm_delete.html', {
+        'packaging': packaging
+    })
+
+
+@staff_member_required
+@permission_required('operations.change_packaging', raise_exception=True)
+def packaging_change_status(request, pk):
+    """Change packaging status"""
+    if request.method == 'POST':
+        from datetime import datetime
+
+        packaging = get_object_or_404(Packaging, pk=pk)
+        new_status = request.POST.get('status')
+
+        # Validate new status
+        valid_statuses = [choice[0] for choice in Packaging.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, 'Invalid status')
+            return redirect('portal_admin:packaging_detail', pk=pk)
+
+        old_status = packaging.get_status_display()
+
+        # If changing to "completed", we must have end_datetime
+        if new_status == 'completed':
+            end_datetime_str = request.POST.get('end_datetime')
+            if not end_datetime_str:
+                messages.error(request, 'End date and time is required to complete the packaging')
+                return redirect('portal_admin:packaging_detail', pk=pk)
+
+            try:
+                end_datetime = datetime.strptime(end_datetime_str, '%Y-%m-%dT%H:%M')
+
+                # Check that end_datetime is not in the future
+                if end_datetime > datetime.now():
+                    messages.error(request, 'End date and time cannot be in the future')
+                    return redirect('portal_admin:packaging_detail', pk=pk)
+
+                packaging.end_datetime = end_datetime
+            except ValueError:
+                messages.error(request, 'Invalid date format')
+                return redirect('portal_admin:packaging_detail', pk=pk)
+
+        packaging.status = new_status
+        packaging.save()
+
+        new_status_display = packaging.get_status_display()
+        messages.success(request, f'Packaging status changed from "{old_status}" to "{new_status_display}"')
+        return redirect('portal_admin:packaging_detail', pk=pk)
+
+    return redirect('portal_admin:packaging_detail', pk=pk)

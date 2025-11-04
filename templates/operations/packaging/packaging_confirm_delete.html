@@ -1,0 +1,92 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Supprimer cartonage - LOT #{{ packaging.classification.reception.lot_id }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0"><span class="fas fa-trash me-2"></span>SUPPRIMER LE CARTONAGE</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'portal_admin:packaging_detail' packaging.pk %}" class="btn btn-phoenix-secondary">
+        <span class="fas fa-arrow-left me-2"></span>Retour
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <span class="fas fa-exclamation-triangle fa-2x me-3"></span>
+        <div>
+          <h5 class="alert-heading">Attention !</h5>
+          <p class="mb-0">Êtes-vous sûr de vouloir supprimer ce cartonage ? Cette action est irréversible.</p>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="text-muted small">LOT</label>
+          <p class="mb-0 fw-bold">LOT #{{ packaging.classification.reception.lot_id }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Client</label>
+          <p class="mb-0">{{ packaging.classification.reception.client.name }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Date et heure de début</label>
+          <p class="mb-0">{{ packaging.start_datetime|date:"d/m/Y H:i" }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Statut</label>
+          <p class="mb-0">
+            <span class="badge bg-{% if packaging.status == 'draft' %}secondary{% elif packaging.status == 'completed' %}success{% elif packaging.status == 'cancelled' %}danger{% endif %}">
+              {{ packaging.get_status_display }}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Total cartons</label>
+          <p class="mb-0"><strong>{{ packaging.total_cartons }}</strong></p>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small">Nombre d'espèces</label>
+          <p class="mb-0"><strong>{{ packaging.items.count }}</strong></p>
+        </div>
+      </div>
+
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="card-title"><i class="fas fa-list me-2"></i>Détails des espèces</h6>
+          <ul class="list-unstyled mb-0">
+            {% for item in packaging.items.all %}
+              <li class="mb-2">
+                <span class="badge badge-phoenix badge-phoenix-info me-2">
+                  {{ item.species.category.name }} - {{ item.species.name }}
+                </span>
+                <span class="badge badge-phoenix badge-phoenix-primary">
+                  <i class="fas fa-box me-1"></i>{{ item.carton_count }} cartons
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-danger">
+            <span class="fas fa-trash me-2"></span>Oui, supprimer
+          </button>
+          <a href="{% url 'portal_admin:packaging_detail' packaging.pk %}" class="btn btn-secondary">
+            <span class="fas fa-times me-2"></span>Annuler
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Cartonage - LOT #{{ packaging.classification.reception.lot_id }}{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h3 class="mb-0"><span class="fas fa-boxes fa-1x me-2"></span>CARTONAGE - LOT #{{ packaging.classification.reception.lot_id }}</h3>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        {% if perms.operations.change_packaging and packaging.can_be_edited %}
+          <a href="{% url 'portal_admin:packaging_edit' packaging.pk %}" class="btn btn-primary"><span class="fas fa-edit me-2"></span>Modifier</a>
+        {% endif %}
+        {% if perms.operations.delete_packaging and packaging.status == 'draft' %}
+          <a href="{% url 'portal_admin:packaging_delete' packaging.pk %}" class="btn btn-phoenix-danger"><span class="fas fa-trash me-2"></span>Supprimer</a>
+        {% endif %}
+        <a href="{% url 'portal_admin:packaging_list' %}" class="btn btn-phoenix-secondary"><span class="fas fa-arrow-left me-2"></span>Retour à la liste</a>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8">
+      <div class="card 0 h-100 mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="text-muted small">Client</label>
+              <div class="d-flex align-items-center">
+                <div class="avatar avatar-xl me-2">
+                  {% if packaging.classification.reception.client.logo %}
+                    <div class="avatar avatar-l me-2">
+                      <img class="rounded-soft" src="{{ packaging.classification.reception.client.logo.url }}" alt="{{ packaging.classification.reception.client.name }}" />
+                    </div>
+                  {% else %}
+                    <div class="avatar-name rounded-soft">
+                      <span>{{ packaging.classification.reception.client.name|first }}</span>
+                    </div>
+                  {% endif %}
+                </div>
+                <div>
+                  <h6 class="mb-0 fs-8 fw-bold">{{ packaging.classification.reception.client.name|upper }}</h6>
+                  <small class="text-muted">#{{ packaging.classification.reception.client.accounting_code }}</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date et heure de début</label>
+              <p class="mb-0">{{ packaging.start_datetime|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Date de fin et durée</label>
+              <p class="mb-0">
+                {% if packaging.end_datetime %}
+                  <i class="fas fa-clock me-1"></i>
+                  Fin: {{ packaging.end_datetime|date:"d/m/Y H:i" }}
+                  {% if packaging.duration %}
+                    <span class="badge badge-phoenix badge-phoenix-warning ms-2">
+                      <i class="fas fa-hourglass-half me-1"></i>{{ packaging.duration }}
+                    </span>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted"><i>-</i></span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Type de service</label>
+              <p class="mb-0">{{ packaging.classification.reception.service_type.code }} - {{ packaging.classification.reception.service_type.name }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Statut</label>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{% if packaging.status == 'draft' %}secondary{% elif packaging.status == 'completed' %}success{% elif packaging.status == 'cancelled' %}danger{% endif %}">
+                  {{ packaging.get_status_display }}
+                </span>
+                {% if perms.operations.change_packaging and allowed_status_choices %}
+                <div class="dropdown">
+                  <button class="btn btn-sm btn-phoenix-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fas fa-exchange-alt me-1"></span>Changer
+                  </button>
+                  <ul class="dropdown-menu">
+                    {% for status_code, status_label in allowed_status_choices %}
+                      <li>
+                        {% if status_code == 'completed' %}
+                          <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#completedModal">
+                            <span class="badge bg-success me-2">{{ status_label }}</span>
+                          </button>
+                        {% else %}
+                          <form method="post" action="{% url 'portal_admin:packaging_change_status' packaging.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="{{ status_code }}">
+                            <button type="submit" class="dropdown-item">
+                              <span class="badge bg-{% if status_code == 'cancelled' %}danger{% endif %} me-2">{{ status_label }}</span>
+                            </button>
+                          </form>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Créé par</label>
+              <p class="mb-0">{{ packaging.created_by.get_full_name|default:packaging.created_by.username }}</p>
+            </div>
+            <div class="col-md-6">
+              <label class="text-muted small">Créé le</label>
+              <p class="mb-0">{{ packaging.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card 0 h-100">
+        <div class="card-body text-center">
+          <div class="avatar avatar-5xl mb-2">
+            {% if packaging.classification.reception.service_type.category.avatar %}
+              <img class="rounded-soft" src="{{ packaging.classification.reception.service_type.category.avatar.url }}" alt="{{ packaging.classification.reception.service_type.name }}">
+            {% else %}
+              <div class="avatar-name rounded-soft">
+                <span>{{ packaging.classification.reception.service_type.name|first }}</span>
+              </div>
+            {% endif %}
+          </div>
+          <h3 class="mb-2">LOT #{{ packaging.classification.reception.lot_id }}</h3>
+          <p class="text-muted mb-2">{{ packaging.classification.reception.service_type.name }}</p>
+          <div class="mb-3">
+            <span class="badge bg-{% if packaging.status == 'draft' %}secondary{% elif packaging.status == 'completed' %}success{% elif packaging.status == 'cancelled' %}danger{% endif %} fs-9">
+              {{ packaging.get_status_display }}
+            </span>
+          </div>
+          <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Nombre d'espèces :</span>
+              <strong>{{ packaging.items.count }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-0">
+              <span class="text-muted">Total cartons :</span>
+              <strong class="text-primary">{{ packaging.total_cartons }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-9">
+    <div class="row g-5">
+      <div class="col-12 col-xxl-12">
+        <div class="mb-6">
+          <h3 class="mb-4">DÉTAILS DU CARTONAGE</h3>
+          <div class="border-top border-bottom border-translucent">
+            <div class="table-responsive scrollbar">
+              <table class="table table-sm fs-9 mb-0 table-striped">
+                <thead>
+                  <tr>
+                    <th class="sort align-middle" scope="col">ESPÈCE</th>
+                    <th class="sort align-middle text-center" scope="col">NOMBRE DE CARTONS</th>
+                  </tr>
+                </thead>
+                <tbody class="list">
+                  {% for item in packaging.items.all %}
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                      <td class="align-middle fw-bold">
+                        <span class="badge badge-phoenix badge-phoenix-info">
+                          {{ item.species.category.name }} - {{ item.species.name }}
+                        </span>
+                      </td>
+                      <td class="align-middle text-center fw-semibold">
+                        <span class="badge badge-phoenix badge-phoenix-primary">
+                          <i class="fas fa-box me-1"></i>{{ item.carton_count }}
+                        </span>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="2" class="text-center py-4">Aucun détail disponible</td>
+                    </tr>
+                  {% endfor %}
+                  <tfoot>
+                    <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                      <th>TOTAL</th>
+                      <th class="text-center">
+                        <span class="badge badge-phoenix badge-phoenix-primary">
+                          <i class="fas fa-boxes me-1"></i>{{ packaging.total_cartons }}
+                        </span>
+                      </th>
+                    </tr>
+                  </tfoot>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal pour terminer le cartonage -->
+  <div class="modal fade" id="completedModal" tabindex="-1" aria-labelledby="completedModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="{% url 'portal_admin:packaging_change_status' packaging.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="completed">
+          <div class="modal-header">
+            <h5 class="modal-title" id="completedModalLabel">
+              <span class="fas fa-check-circle me-2 text-success"></span>Terminer le cartonage
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Pour terminer ce cartonage, veuillez indiquer la date et l'heure de fin.
+            </div>
+            <div class="mb-3">
+              <label for="end_datetime" class="form-label">Date et heure de fin <span class="text-danger">*</span></label>
+              <input type="datetime-local" name="end_datetime" id="end_datetime" class="form-control" required>
+              <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
+            </div>
+            <p class="text-muted small mb-0">
+              <strong>Note :</strong> Après la finalisation, le cartonage ne pourra plus être modifié ou supprimé.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <span class="fas fa-times me-2"></span>Annuler
+            </button>
+            <button type="submit" class="btn btn-success">
+              <span class="fas fa-check me-2"></span>Terminer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to get current date/time in datetime-local format
+  function getNowFormatted() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // Validation for completed modal (end_datetime)
+  const endDatetimeInput = document.getElementById('end_datetime');
+  if (endDatetimeInput) {
+    // Set max to current date/time
+    endDatetimeInput.setAttribute('max', getNowFormatted());
+
+    // Validation on form submission
+    const completedForm = endDatetimeInput.closest('form');
+    if (completedForm) {
+      completedForm.addEventListener('submit', function(e) {
+        const selectedDate = new Date(endDatetimeInput.value);
+        const now = new Date();
+
+        if (selectedDate > now) {
+          e.preventDefault();
+          alert('La date et l\'heure de fin ne peuvent pas être dans le futur.');
+          endDatetimeInput.focus();
+        }
+      });
+    }
+  }
+});
+</script>
+{% endblock %}

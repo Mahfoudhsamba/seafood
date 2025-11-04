@@ -253,6 +253,38 @@
                             </div>
                         </div>
                         {% endif %}
+
+                        <!-- Packaging -->
+                        {% if perms.operations.view_packaging or perms.operations.add_packaging %}
+                        <div class="nav-item-wrapper">
+                            <a class="nav-link dropdown-indicator label-1" href="#nv-packagings" role="button" data-bs-toggle="collapse" aria-expanded="{% if 'packaging' in request.path %}true{% else %}false{% endif %}" aria-controls="nv-packagings">
+                                <div class="d-flex align-items-center">
+                                    <div class="dropdown-indicator-icon-wrapper"><span class="fas fa-caret-right dropdown-indicator-icon"></span></div><span class="nav-link-icon"><span data-feather="box"></span></span><span class="nav-link-text">Packaging</span>
+                                </div>
+                            </a>
+                            <div class="parent-wrapper label-1">
+                                <ul class="nav collapse parent {% if 'packaging' in request.path %}show{% endif %}" data-bs-parent="#navbarVerticalCollapse" id="nv-packagings">
+                                    <li class="collapsed-nav-item-title d-none">Packaging</li>
+
+                                    {% if perms.operations.view_packaging %}
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if request.resolver_match.url_name == 'packaging_list' %}active{% endif %}" href="{% url 'portal_admin:packaging_list' %}">
+                                                <div class="d-flex align-items-center"><span class="nav-link-text">Liste des packagings</span></div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if perms.operations.add_packaging %}
+                                        <li class="nav-item">
+                                            <a class="nav-link {% if request.resolver_match.url_name == 'packaging_add' %}active{% endif %}" href="{% url 'portal_admin:packaging_add' %}">
+                                                <div class="d-flex align-items-center"><span class="nav-link-text">Nouveau packaging</span></div>
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
                     </li>
 
                     <li class="nav-item">

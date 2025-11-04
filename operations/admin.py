@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, Reception, Report, ReportItem, Classification, ClassificationItem
+from .models import Service, ServiceCategory, ServiceSubCategory, FishCategory, Reception, Report, ReportItem, Classification, ClassificationItem, Packaging, PackagingItem
 
 # Register your models here.
 
@@ -63,7 +63,7 @@ class ReceptionAdmin(admin.ModelAdmin):
             'fields': ('weight', 'service_type')
         }),
         ('Statut et observations', {
-            'fields': ('status', 'observations', 'rejection_reason')
+            'fields': ('status', 'observations')
         }),
         ('Métadonnées', {
             'fields': ('created_at', 'updated_at', 'created_by')
@@ -272,3 +272,81 @@ class ClassificationItemAdmin(admin.ModelAdmin):
         """Optimise les requêtes en préchargeant les relations"""
         qs = super().get_queryset(request)
         return qs.select_related('classification', 'classification__reception', 'species', 'species__category')
+
+
+class PackagingItemInline(admin.TabularInline):
+    """
+    Inline pour gérer les détails par espèce directement depuis le cartonage
+    """
+    model = PackagingItem
+    extra = 1
+    fields = ['species', 'carton_count']
+    verbose_name = 'Détail de cartonage'
+    verbose_name_plural = 'Détails de cartonage'
+    raw_id_fields = ['species']
+
+
+@admin.register(Packaging)
+class PackagingAdmin(admin.ModelAdmin):
+    list_display = ['classification', 'start_datetime', 'status', 'get_total_cartons', 'created_by']
+    list_filter = ['status', 'start_datetime', 'created_at']
+    search_fields = ['classification__reception__lot_id', 'classification__reception__client__name']
+    readonly_fields = ['created_at', 'updated_at', 'created_by']
+    date_hierarchy = 'start_datetime'
+    inlines = [PackagingItemInline]
+
+    fieldsets = (
+        ('Informations principales', {
+            'fields': ('classification', 'status')
+        }),
+        ('Période de cartonage', {
+            'fields': ('start_datetime', 'end_datetime')
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at', 'created_by'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def get_total_cartons(self, obj):
+        """Retourne le nombre total de cartons"""
+        return f"{obj.total_cartons} cartons"
+    get_total_cartons.short_description = 'Total cartons'
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Si c'est une nouvelle instance
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        """Optimise les requêtes en préchargeant les relations"""
+        qs = super().get_queryset(request)
+        return qs.select_related('classification', 'classification__reception', 'classification__reception__client', 'created_by').prefetch_related('items')
+
+
+@admin.register(PackagingItem)
+class PackagingItemAdmin(admin.ModelAdmin):
+    list_display = ['packaging', 'get_species_name', 'carton_count', 'created_at']
+    list_filter = ['species__category', 'created_at']
+    search_fields = ['packaging__classification__reception__lot_id', 'species__name']
+    readonly_fields = ['created_at', 'updated_at']
+    raw_id_fields = ['packaging', 'species']
+
+    fieldsets = (
+        ('Informations', {
+            'fields': ('packaging', 'species', 'carton_count')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+
+    def get_species_name(self, obj):
+        """Retourne le nom de l'espèce"""
+        return f"{obj.species.category.name} - {obj.species.name}"
+    get_species_name.short_description = 'Espèce'
+
+    def get_queryset(self, request):
+        """Optimise les requêtes en préchargeant les relations"""
+        qs = super().get_queryset(request)
+        return qs.select_related('packaging', 'packaging__classification', 'packaging__classification__reception', 'species', 'species__category')

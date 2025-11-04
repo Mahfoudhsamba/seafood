@@ -127,6 +127,14 @@ class PortalAdminSite(AdminSite):
             path('classifications/<int:pk>/edit/', views.classification_edit, name='classification_edit'),
             path('classifications/<int:pk>/delete/', views.classification_delete, name='classification_delete'),
             path('classifications/<int:pk>/change-status/', views.classification_change_status, name='classification_change_status'),
+
+            # Packaging
+            path('packagings/', views.packaging_list, name='packaging_list'),
+            path('packagings/add/', views.packaging_add, name='packaging_add'),
+            path('packagings/<int:pk>/', views.packaging_detail, name='packaging_detail'),
+            path('packagings/<int:pk>/edit/', views.packaging_edit, name='packaging_edit'),
+            path('packagings/<int:pk>/delete/', views.packaging_delete, name='packaging_delete'),
+            path('packagings/<int:pk>/change-status/', views.packaging_change_status, name='packaging_change_status'),
         ]
         return custom_urls + urls
 

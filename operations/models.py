@@ -925,3 +925,175 @@ class ClassificationItem(models.Model):
         if self.plate_count > 0:
             return self.weight / self.plate_count
         return Decimal('0.00')
+
+
+class Packaging(models.Model):
+    """
+    Modèle pour le cartonage après classification
+    """
+    STATUS_CHOICES = [
+        ('draft', 'Brouillon'),
+        ('completed', 'Terminé'),
+        ('cancelled', 'Annulé'),
+    ]
+
+    # Classification (lot terminé)
+    classification = models.ForeignKey(
+        Classification,
+        on_delete=models.PROTECT,
+        related_name='packagings',
+        verbose_name='Classification (LOT)',
+        help_text='Classification terminée à cartoner'
+    )
+
+    # Date et heure de début du cartonage
+    start_datetime = models.DateTimeField(
+        verbose_name='Date et heure de début',
+        help_text='Début du cartonage'
+    )
+
+    # Date et heure de fin du cartonage
+    end_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Date et heure de fin',
+        help_text='Fin du cartonage'
+    )
+
+    # Statut
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft',
+        verbose_name='Statut'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='created_packagings',
+        verbose_name='Créé par'
+    )
+
+    class Meta:
+        db_table = 'operations_packaging'
+        verbose_name = 'Cartonage'
+        verbose_name_plural = 'Cartonages'
+        ordering = ['-start_datetime', '-created_at']
+        indexes = [
+            models.Index(fields=['classification']),
+            models.Index(fields=['start_datetime']),
+            models.Index(fields=['end_datetime']),
+            models.Index(fields=['status']),
+        ]
+
+    def __str__(self):
+        return f"Cartonage LOT {self.classification.reception.lot_id} - {self.start_datetime.strftime('%d/%m/%Y %H:%M')}"
+
+    def clean(self):
+        """Validation personnalisée"""
+        super().clean()
+
+        # Vérifier que la date de fin est après la date de début
+        if self.start_datetime and self.end_datetime:
+            if self.end_datetime <= self.start_datetime:
+                raise ValidationError({
+                    'end_datetime': 'La date de fin doit être postérieure à la date de début.'
+                })
+
+        # Vérifier que la classification est terminée
+        if self.classification and self.classification.status != 'completed':
+            raise ValidationError({
+                'classification': 'Seules les classifications terminées peuvent être cartonées.'
+            })
+
+    @property
+    def total_cartons(self):
+        """Calcule le nombre total de cartons"""
+        return sum(item.carton_count for item in self.items.all())
+
+    @property
+    def can_be_edited(self):
+        """Vérifie si le cartonage peut être modifié (seulement en brouillon)"""
+        return self.status == 'draft'
+
+    @property
+    def can_be_deleted(self):
+        """Vérifie si le cartonage peut être supprimé (seulement en brouillon)"""
+        return self.status == 'draft'
+
+    @property
+    def duration(self):
+        """Calcule la durée du cartonage"""
+        if self.start_datetime and self.end_datetime:
+            delta = self.end_datetime - self.start_datetime
+            hours = int(delta.total_seconds() // 3600)
+            minutes = int((delta.total_seconds() % 3600) // 60)
+            return f"{hours}h{minutes:02d}min"
+        return None
+
+
+class PackagingItem(models.Model):
+    """
+    Modèle pour les détails par espèce du cartonage
+    Chaque item représente une espèce avec son nombre de cartons
+    """
+
+    # Cartonage parent
+    packaging = models.ForeignKey(
+        Packaging,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name='Cartonage'
+    )
+
+    # Espèce (sous-catégorie de service)
+    species = models.ForeignKey(
+        ServiceSubCategory,
+        on_delete=models.PROTECT,
+        related_name='packaging_items',
+        verbose_name='Espèce',
+        help_text='Sous-catégorie de service représentant l\'espèce'
+    )
+
+    # Nombre de cartons
+    carton_count = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name='Nombre de cartons',
+        help_text='Nombre de cartons utilisés pour cette espèce'
+    )
+
+    # Métadonnées
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Date de création'
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Date de modification'
+    )
+
+    class Meta:
+        db_table = 'operations_packagingitem'
+        verbose_name = 'Détail de cartonage'
+        verbose_name_plural = 'Détails de cartonage'
+        ordering = ['packaging', 'species']
+        indexes = [
+            models.Index(fields=['packaging']),
+            models.Index(fields=['species']),
+        ]
+        # Éviter les doublons d'espèce dans un même cartonage
+        unique_together = [['packaging', 'species']]
+
+    def __str__(self):
+        return f"{self.species.name} - {self.carton_count} cartons"

@@ -1,0 +1,145 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block title %}Liste des cartonages{% endblock %}
+
+{% block content %}
+<div class="pb-5">
+  <div class="row align-items-center justify-content-between g-3 mb-4">
+    <div class="col-auto">
+      <h2 class="mb-0"><span class="fas fa-boxes me-2"></span>LISTE DES CARTONAGES</h2>
+    </div>
+    <div class="col-auto">
+      {% if perms.operations.add_packaging %}
+        <a href="{% url 'portal_admin:packaging_add' %}" class="btn btn-primary">
+          <span class="fas fa-plus me-2"></span>Nouveau cartonage
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive scrollbar">
+        <table class="table table-sm fs-9 mb-0 table-hover">
+          <thead>
+            <tr class="border-bottom">
+              <th class="sort align-middle" scope="col">LOT</th>
+              <th class="sort align-middle" scope="col">CLIENT</th>
+              <th class="sort align-middle" scope="col">SERVICE</th>
+              <th class="sort align-middle text-center" scope="col">DATE DÉBUT</th>
+              <th class="sort align-middle text-center" scope="col">DATE FIN</th>
+              <th class="sort align-middle text-center" scope="col">DURÉE</th>
+              <th class="sort align-middle text-center" scope="col">TOTAL CARTONS</th>
+              <th class="sort align-middle text-center" scope="col">STATUT</th>
+              <th class="sort align-middle text-end" scope="col">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody class="list">
+            {% for packaging in packagings %}
+              <tr class="hover-actions-trigger btn-reveal-trigger position-static">
+                <td class="align-middle">
+                  <a href="{% url 'portal_admin:packaging_detail' packaging.pk %}" class="fw-bold text-primary">
+                    LOT #{{ packaging.classification.reception.lot_id }}
+                  </a>
+                </td>
+                <td class="align-middle">
+                  <div class="d-flex align-items-center">
+                    <div class="avatar avatar-m me-2">
+                      {% if packaging.classification.reception.client.logo %}
+                        <img class="rounded-soft" src="{{ packaging.classification.reception.client.logo.url }}" alt="{{ packaging.classification.reception.client.name }}" />
+                      {% else %}
+                        <div class="avatar-name rounded-soft">
+                          <span>{{ packaging.classification.reception.client.name|first }}</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <h6 class="mb-0 fs-9">{{ packaging.classification.reception.client.name }}</h6>
+                      <small class="text-muted">#{{ packaging.classification.reception.client.accounting_code }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td class="align-middle">
+                  <span class="badge badge-phoenix badge-phoenix-info">
+                    {{ packaging.classification.reception.service_type.name }}
+                  </span>
+                </td>
+                <td class="align-middle text-center">
+                  <i class="fas fa-calendar-alt me-1"></i>
+                  {{ packaging.start_datetime|date:"d/m/Y H:i" }}
+                </td>
+                <td class="align-middle text-center">
+                  {% if packaging.end_datetime %}
+                    <i class="fas fa-calendar-check me-1"></i>
+                    {{ packaging.end_datetime|date:"d/m/Y H:i" }}
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="align-middle text-center">
+                  {% if packaging.duration %}
+                    <span class="badge badge-phoenix badge-phoenix-warning">
+                      <i class="fas fa-clock me-1"></i>{{ packaging.duration }}
+                    </span>
+                  {% else %}
+                    <span class="text-muted">-</span>
+                  {% endif %}
+                </td>
+                <td class="align-middle text-center">
+                  <span class="badge badge-phoenix badge-phoenix-primary">
+                    <i class="fas fa-boxes me-1"></i>{{ packaging.total_cartons }}
+                  </span>
+                </td>
+                <td class="align-middle text-center">
+                  <span class="badge bg-{% if packaging.status == 'draft' %}secondary{% elif packaging.status == 'completed' %}success{% elif packaging.status == 'cancelled' %}danger{% endif %}">
+                    {{ packaging.get_status_display }}
+                  </span>
+                </td>
+                <td class="align-middle text-end">
+                  <div class="btn-group" role="group">
+                    <a href="{% url 'portal_admin:packaging_detail' packaging.pk %}" class="btn btn-sm btn-phoenix-primary" title="Voir les détails">
+                      <span class="fas fa-eye"></span>
+                    </a>
+                    {% if perms.operations.change_packaging and packaging.can_be_edited %}
+                      <a href="{% url 'portal_admin:packaging_edit' packaging.pk %}" class="btn btn-sm btn-phoenix-secondary" title="Modifier">
+                        <span class="fas fa-edit"></span>
+                      </a>
+                    {% endif %}
+                    {% if perms.operations.delete_packaging and packaging.can_be_deleted %}
+                      <a href="{% url 'portal_admin:packaging_delete' packaging.pk %}" class="btn btn-sm btn-phoenix-danger" title="Supprimer">
+                        <span class="fas fa-trash"></span>
+                      </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="9" class="text-center py-5">
+                  <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                  <p class="text-muted">Aucun cartonage trouvé</p>
+                  {% if perms.operations.add_packaging %}
+                    <a href="{% url 'portal_admin:packaging_add' %}" class="btn btn-sm btn-primary">
+                      <span class="fas fa-plus me-2"></span>Créer le premier cartonage
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
