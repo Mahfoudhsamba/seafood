@@ -81,7 +81,6 @@
                           <option value="">Sélectionner...</option>
                           {% for species in species_list %}
                             <option value="{{ species.pk }}"
-                                    data-category-id="{{ species.category.pk }}"
                                     {% if item.species.pk == species.pk %}selected{% endif %}>
                               {{ species.category.name }} - {{ species.name }}
                             </option>
@@ -132,7 +131,10 @@
       const form = document.getElementById('packagingForm');
       const classificationSelect = document.getElementById('classification');
       const startDatetimeInput = document.getElementById('start_datetime');
-      let speciesList = [];
+
+      // Load classification species data from backend
+      const classificationSpeciesData = {{ classification_species_json|safe }};
+      let currentSpeciesList = [];
 
       // Function to get current date/time in datetime-local format
       function getNowFormatted() {
@@ -150,33 +152,32 @@
         startDatetimeInput.setAttribute('max', getNowFormatted());
       }
 
-      // When classification is selected, filter species by category
+      // When classification is selected, load its species
       classificationSelect.addEventListener('change', function() {
         const classificationId = this.value;
         if (classificationId) {
-          const selectedOption = this.options[this.selectedIndex];
-          const categoryId = selectedOption.getAttribute('data-category-id');
+          // Get species for this classification
+          currentSpeciesList = classificationSpeciesData[classificationId] || [];
 
-          // Filter species by category
-          filterSpeciesByCategory(categoryId);
+          // Clear existing items
+          container.innerHTML = '';
+
+          // Update all species selects
+          updateAllSpeciesSelects();
 
           // Enable add button
           addBtn.disabled = false;
         } else {
           // No classification selected, disable add button
           addBtn.disabled = true;
-          // Show all species
-          filterSpeciesByCategory(null);
+          currentSpeciesList = [];
         }
       });
 
-      // Initialize: if classification already selected, filter species
+      // Initialize: if classification already selected, load its species
       if (classificationSelect.value) {
-        const selectedOption = classificationSelect.options[classificationSelect.selectedIndex];
-        if (selectedOption) {
-          const categoryId = selectedOption.getAttribute('data-category-id');
-          filterSpeciesByCategory(categoryId);
-        }
+        const classificationId = classificationSelect.value;
+        currentSpeciesList = classificationSpeciesData[classificationId] || [];
       }
 
       // Function to update species availability
@@ -211,21 +212,21 @@
         });
       }
 
-      // Build species options template
-      let speciesOptionsTemplate = '<option value="">Sélectionner...</option>';
-      {% for species in species_list %}
-        speciesOptionsTemplate += '<option value="{{ species.pk }}" data-category-id="{{ species.category.pk }}">{{ species.category.name }} - {{ species.name }}</option>';
-      {% endfor %}
-
       // Template for new item
       function getItemTemplate() {
+        // Build species options from current species list
+        let speciesOptionsHTML = '<option value="">Sélectionner...</option>';
+        currentSpeciesList.forEach(species => {
+          speciesOptionsHTML += `<option value="${species.pk}">${species.category_name} - ${species.name}</option>`;
+        });
+
         return `
           <div class="item-row border p-3 mb-3 rounded">
             <div class="row g-3">
               <div class="col-md-10">
                 <label class="form-label">Espèce <span class="text-danger">*</span></label>
                 <select class="form-select item-species" required>
-                  ${speciesOptionsTemplate}
+                  ${speciesOptionsHTML}
                 </select>
               </div>
               <div class="col-md-1">
@@ -242,29 +243,27 @@
         `;
       }
 
-      // Function to filter species by category
-      function filterSpeciesByCategory(categoryId) {
+      // Function to update all species selects with current species list
+      function updateAllSpeciesSelects() {
         const allSpeciesSelects = container.querySelectorAll('.item-species');
         allSpeciesSelects.forEach(select => {
-          const options = select.querySelectorAll('option');
-          options.forEach(option => {
-            if (option.value === '') {
-              option.style.display = ''; // Always show empty option
-              return;
-            }
+          const currentValue = select.value;
 
-            const optionCategoryId = option.getAttribute('data-category-id');
-            if (categoryId && optionCategoryId !== categoryId) {
-              option.style.display = 'none';
-              // Deselect if currently selected
-              if (option.selected) {
-                select.value = '';
-              }
-            } else {
-              option.style.display = '';
+          // Rebuild options
+          select.innerHTML = '<option value="">Sélectionner...</option>';
+          currentSpeciesList.forEach(species => {
+            const option = document.createElement('option');
+            option.value = species.pk;
+            option.textContent = `${species.category_name} - ${species.name}`;
+            if (species.pk == currentValue) {
+              option.selected = true;
             }
+            select.appendChild(option);
           });
         });
+
+        // After updating, check availability
+        updateSpeciesAvailability();
       }
 
       // Add new item
@@ -278,13 +277,6 @@
         // Attach events to new select
         const speciesSelect = itemRow.querySelector('.item-species');
         speciesSelect.addEventListener('change', updateSpeciesAvailability);
-
-        // Apply category filter if a classification is selected
-        const selectedOption = classificationSelect.options[classificationSelect.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-          const categoryId = selectedOption.getAttribute('data-category-id');
-          filterSpeciesByCategory(categoryId);
-        }
 
         // Attach delete event
         const removeBtn = itemRow.querySelector('.remove-item');

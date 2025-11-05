@@ -2870,16 +2870,30 @@ def packaging_add(request):
     eligible_classifications = Classification.objects.filter(
         status='completed',
         packagings__isnull=True  # Exclude already packaged lots
-    ).select_related('reception__client', 'reception__service_type', 'reception__service_type__category').order_by('-start_datetime')
+    ).select_related(
+        'reception__client',
+        'reception__service_type',
+        'reception__service_type__category'
+    ).prefetch_related(
+        'items__species__category'
+    ).order_by('-start_datetime')
 
-    # Get active species (subcategories) with their category
-    species_list = ServiceSubCategory.objects.filter(
-        status='active'
-    ).select_related('category').order_by('category__name', 'name')
+    # Build species mapping by classification
+    import json
+    classification_species = {}
+    for classification in eligible_classifications:
+        species_data = []
+        for item in classification.items.all():
+            species_data.append({
+                'pk': item.species.pk,
+                'category_name': item.species.category.name,
+                'name': item.species.name
+            })
+        classification_species[classification.pk] = species_data
 
     return render(request, 'operations/packaging/packaging_form.html', {
         'eligible_classifications': eligible_classifications,
-        'species_list': species_list,
+        'classification_species_json': json.dumps(classification_species),
         'status_choices': Packaging.STATUS_CHOICES
     })
 
@@ -2944,16 +2958,38 @@ def packaging_edit(request, pk):
     # Get eligible classifications
     eligible_classifications = Classification.objects.filter(
         status='completed'
-    ).select_related('reception__client', 'reception__service_type', 'reception__service_type__category').order_by('-start_datetime')
+    ).select_related(
+        'reception__client',
+        'reception__service_type',
+        'reception__service_type__category'
+    ).prefetch_related(
+        'items__species__category'
+    ).order_by('-start_datetime')
 
-    # Get active species (subcategories) with their category - filter by category on client side
-    species_list = ServiceSubCategory.objects.filter(
-        status='active'
-    ).select_related('category').order_by('category__name', 'name')
+    # Build species mapping by classification
+    import json
+    classification_species = {}
+    for classification in eligible_classifications:
+        species_data = []
+        for item in classification.items.all():
+            species_data.append({
+                'pk': item.species.pk,
+                'category_name': item.species.category.name,
+                'name': item.species.name
+            })
+        classification_species[classification.pk] = species_data
+
+    # For edit mode, get species from the packaging's classification
+    species_list = []
+    if packaging and packaging.classification:
+        species_list = [
+            item.species for item in packaging.classification.items.select_related('species__category').all()
+        ]
 
     return render(request, 'operations/packaging/packaging_form.html', {
         'packaging': packaging,
         'eligible_classifications': eligible_classifications,
+        'classification_species_json': json.dumps(classification_species),
         'species_list': species_list,
         'status_choices': Packaging.STATUS_CHOICES
     })
