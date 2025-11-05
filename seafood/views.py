@@ -1605,11 +1605,18 @@ def arrivalnote_add(request):
     """Formulaire d'ajout de note d'arrivée"""
     if request.method == 'POST':
         try:
-            from datetime import date
+            from datetime import datetime
+
+            # Parse datetime from form
+            reception_date_str = request.POST.get('reception_date')
+            if reception_date_str:
+                reception_date = datetime.strptime(reception_date_str, '%Y-%m-%dT%H:%M')
+            else:
+                reception_date = datetime.now()
 
             reception = Reception(
                 client_id=request.POST.get('client'),
-                reception_date=request.POST.get('reception_date') or date.today(),
+                reception_date=reception_date,
                 weight=request.POST.get('weight'),
                 service_type_id=request.POST.get('service_type'),
                 observations=request.POST.get('observations', ''),
@@ -1643,8 +1650,14 @@ def arrivalnote_edit(request, pk):
 
     if request.method == 'POST':
         try:
+            from datetime import datetime
+
+            # Parse datetime from form
+            reception_date_str = request.POST.get('reception_date')
+            if reception_date_str:
+                reception.reception_date = datetime.strptime(reception_date_str, '%Y-%m-%dT%H:%M')
+
             reception.client_id = request.POST.get('client')
-            reception.reception_date = request.POST.get('reception_date')
             reception.weight = request.POST.get('weight')
             reception.service_type_id = request.POST.get('service_type')
             reception.observations = request.POST.get('observations', '')

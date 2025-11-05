@@ -49,8 +49,9 @@
             </select>
           </div>
           <div class="col-md-4">
-            <label for="reception_date" class="form-label">Date de réception <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" id="reception_date" name="reception_date" value="{% if reception %}{{ reception.reception_date|date:'Y-m-d' }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}" required>
+            <label for="reception_date" class="form-label">Date et heure de réception <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" id="reception_date" name="reception_date" value="{% if reception %}{{ reception.reception_date|date:'Y-m-d\TH:i' }}{% endif %}" required>
+            <small class="form-text text-muted">La date ne peut pas être dans le futur</small>
           </div>
         </div>
 
@@ -120,4 +121,44 @@
       </div>
     </div>
   </form>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const receptionDateInput = document.getElementById('reception_date');
+      const form = document.querySelector('form');
+
+      // Function to get current date/time in datetime-local format
+      function getNowFormatted() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
+
+      // Set max to current date/time for reception_date
+      if (receptionDateInput) {
+        receptionDateInput.setAttribute('max', getNowFormatted());
+      }
+
+      // Validate on form submission
+      form.addEventListener('submit', function(e) {
+        if (receptionDateInput && receptionDateInput.value) {
+          const selectedDate = new Date(receptionDateInput.value);
+          const now = new Date();
+
+          if (selectedDate > now) {
+            e.preventDefault();
+            alert('Erreur : La date et l\'heure de réception ne peuvent pas être dans le futur.');
+            receptionDateInput.focus();
+            return;
+          }
+        }
+      });
+    });
+  </script>
 {% endblock %}

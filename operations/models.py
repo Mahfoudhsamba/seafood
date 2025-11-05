@@ -375,8 +375,8 @@ class Reception(models.Model):
         verbose_name='Client'
     )
 
-    # Date de réception
-    reception_date = models.DateField(verbose_name='Date de réception')
+    # Date et heure de réception
+    reception_date = models.DateTimeField(verbose_name='Date et heure de réception')
 
     # Poids en kg
     weight = models.DecimalField(

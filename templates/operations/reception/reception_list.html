@@ -77,7 +77,7 @@
                 <th class="sort align-middle" scope="col" data-sort="statut">STATUT</th>
                 <th class="sort align-middle" scope="col" data-sort="client">CLIENT</th>
                 <th class="sort align-middle" scope="col" data-sort="categorie">CATEGORIE</th>
-                <th class="sort align-middle" scope="col" data-sort="date">DATE RÉCEPTION</th>
+                <th class="sort align-middle" scope="col" data-sort="date">DATE & HEURE RÉCEPTION</th>
                 <th class="sort align-middle" scope="col" data-sort="service">SERVICE</th>
                 <th class="sort align-middle text-end" scope="col" data-sort="poids">POIDS (KG)</th>
                 <th class="sort align-middle text-end" scope="col" data-sort="actions">ACTIONS</th>
@@ -132,7 +132,7 @@
                       </div>
                     </div>
                   </td>
-                  <td class="date align-middle white-space-nowrap">{{ note.reception_date|date:"d/m/Y" }}</td>
+                  <td class="date align-middle white-space-nowrap">{{ note.reception_date|date:"d/m/Y H:i" }}</td>
                   <td class="service align-middle white-space-nowrap fw-bold">
                     <span class="badge badge-phoenix fs-10 badge-phoenix-warning">
                       <span class="badge-label">{{ note.service_type.code }} - {{ note.service_type.name }}</span>
