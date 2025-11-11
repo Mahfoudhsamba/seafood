@@ -1717,6 +1717,11 @@ def arrivalnote_change_status(request, pk):
             return redirect('portal_admin:arrivalnote_detail', pk=pk)
 
         # Vérifier les règles de changement de statut
+        # Empêcher le retour au statut 'draft' une fois qu'on en est sorti
+        if new_status == 'draft' and reception.status != 'draft':
+            messages.error(request, 'Changement de statut non autorisé. Un lot ne peut pas retourner au statut Brouillon une fois qu\'il a été accepté.')
+            return redirect('portal_admin:arrivalnote_detail', pk=pk)
+
         if reception.status == 'accepted' and new_status != reception.status:
             # Une fois accepté, on peut seulement passer à 'completed', 'suspended' ou 'cancelled'
             if new_status not in ['completed', 'suspended', 'cancelled']:
@@ -3053,6 +3058,24 @@ def packaging_change_status(request, pk):
                 packaging.end_datetime = end_datetime
             except ValueError:
                 messages.error(request, 'Invalid date format')
+                return redirect('portal_admin:packaging_detail', pk=pk)
+
+            # Vérifier que toutes les espèces de la classification ont été emballées
+            classification_species = set(packaging.classification.items.values_list('species_id', flat=True))
+            packaged_species = set(packaging.items.values_list('species_id', flat=True))
+
+            unpackaged_species = classification_species - packaged_species
+            if unpackaged_species:
+                # Récupérer les noms des espèces non emballées
+                from operations.models import ServiceSubCategory
+                unpackaged_species_names = ServiceSubCategory.objects.filter(
+                    id__in=unpackaged_species
+                ).values_list('name', flat=True)
+                species_list = ', '.join(unpackaged_species_names)
+                messages.error(
+                    request,
+                    f'Impossible de terminer le cartonage. Les espèces suivantes n\'ont pas été emballées : {species_list}'
+                )
                 return redirect('portal_admin:packaging_detail', pk=pk)
 
         packaging.status = new_status
